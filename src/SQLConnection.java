@@ -12,11 +12,11 @@ public class SQLConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection(SERVER, USER, PASSWORD);
-            System.out.print("Database connection successful"); //log successful connection
+            System.out.println("Database connection successful."); //log successful connection
             return connection;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
-            System.out.print("Database connection unsucessful"); //log unsuccessful connection
+            System.out.println("Database connection unsucessful."); //log unsuccessful connection
             return null;
         }
     }

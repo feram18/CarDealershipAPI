@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 public class LoginFrame {
 
 	private JFrame frmCarmax;
+	public static String loggedInUser;
 
 	/**
 	 * Launch the application.
@@ -41,6 +42,7 @@ public class LoginFrame {
 	public LoginFrame() {
 		initialize();
 		connection = SQLConnection.ConnectDb();
+//		EmployeeInterfaceFrame.Time();
 	}
 
 	/**
@@ -54,10 +56,10 @@ public class LoginFrame {
 		frmCarmax.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCarmax.getContentPane().setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("Welcome");
-		lblNewLabel.setFont(new Font("Montserrat", Font.BOLD, 30));
-		lblNewLabel.setBounds(382, 76, 151, 32);
-		frmCarmax.getContentPane().add(lblNewLabel);
+		JLabel lblWelcome = new JLabel("Welcome");
+		lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 30));
+		lblWelcome.setBounds(382, 76, 151, 32);
+		frmCarmax.getContentPane().add(lblWelcome);
 		
 		username = new JTextField();
 		username.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -68,39 +70,10 @@ public class LoginFrame {
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					String query = "SELECT * FROM lramos6db.Employee WHERE username=? AND password=?";
-					PreparedStatement stmt = connection.prepareStatement(query);
-					stmt.setString(1, username.getText());
-					stmt.setString(2, password.getText());
-					
-					ResultSet result = stmt.executeQuery();
-					int count = 0;
-					while(result.next()) {
-						count += 1; 
-					}
-					
-					if(count == 1) {
-						System.out.println("Login successful.");
-//						frmCarmax.dispose();
-//						EmployeeInterfaceFrame employeeInterface = new EmployeeInterfaceFrame();
-//						employeeInterface.setVisible(true);
-					} else if (count > 1) {
-						System.out.println("Login unsucessful: Duplicate credentials.");
-						JOptionPane.showMessageDialog(null, "Login Error");
-					} else {
-						System.out.println("Login unsucessful: Incorrect username and password.");
-						JOptionPane.showMessageDialog(null, "Incorrect username and password");
-					}
-					
-					//Close database connection
-					result.close();
-					stmt.close();
-				} catch (Exception exception) {
-					JOptionPane.showMessageDialog(null, exception);
-				}
+				LogIn();
 			}
 		});
+		
 		btnLogin.setFont(new Font("Montserrat", Font.BOLD, 16));
 		btnLogin.setBounds(409, 330, 101, 32);
 		frmCarmax.getContentPane().add(btnLogin);
@@ -110,14 +83,66 @@ public class LoginFrame {
 		password.setBounds(352, 250, 215, 48);
 		frmCarmax.getContentPane().add(password);
 		
-		JLabel lblNewLabel_1 = new JLabel("Username");
-		lblNewLabel_1.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblNewLabel_1.setBounds(353, 140, 77, 14);
-		frmCarmax.getContentPane().add(lblNewLabel_1);
+		JLabel lblUsername = new JLabel("Username");
+		lblUsername.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblUsername.setBounds(353, 140, 77, 14);
+		frmCarmax.getContentPane().add(lblUsername);
 		
-		JLabel lblNewLabel_2 = new JLabel("Password");
-		lblNewLabel_2.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblNewLabel_2.setBounds(354, 225, 70, 14);
-		frmCarmax.getContentPane().add(lblNewLabel_2);
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setFont(new Font("Arial", Font.PLAIN, 16));
+		lblPassword.setBounds(354, 225, 70, 14);
+		frmCarmax.getContentPane().add(lblPassword);
+	}
+	
+	/***
+	 * This method grabs the data entered by the user on the username and password
+	 * fields, and makes the SQL to authenticate the user into the system. If the user
+	 * fails to enter correct credentials, an error message is displayed.
+	 */
+	
+	//TODO Change parameters with valid database
+	private void LogIn() {
+		try {
+			String query = "SELECT * FROM lramos6db.EMPLOYEE WHERE FNAME=? AND LNAME=?";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			stmt.setString(1, username.getText());
+			stmt.setString(2, password.getText());
+			
+			ResultSet result = stmt.executeQuery();
+			Boolean valid = false;
+			
+			if(result.next() == true) {
+				valid = true;
+				loggedInUser = result.getString("FNAME"); //Grab user's name for greeting
+			}
+			
+			if(valid) {
+				System.out.println("Login successful.");
+				frmCarmax.dispose();
+				EmployeeInterfaceFrame employeeInterface = new EmployeeInterfaceFrame();
+				employeeInterface.setVisible(true);
+				
+				//Close database connection
+				result.close();
+				stmt.close();
+				connection.close();
+			} else {
+				System.out.println("Login unsucessful: Incorrect username and password.");
+				JOptionPane.showMessageDialog(null, "Incorrect username and password");
+			}
+		} catch (Exception exception) {
+			JOptionPane.showMessageDialog(null, exception);
+			exception.printStackTrace();
+		}
+	}
+	
+	/***
+	 * This method returns the name of the user signed in
+	 * which is then displayed on the Employee's interface.
+	 * @return
+	 */
+	
+	public static String GetLoggedOnUserName() {
+		return loggedInUser;
 	}
 }
