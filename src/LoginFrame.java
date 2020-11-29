@@ -52,18 +52,18 @@ public class LoginFrame {
 		frmCarmax = new JFrame();
 		frmCarmax.setTitle("CarMax");
 		frmCarmax.getContentPane().setFont(new Font("Montserrat", Font.BOLD, 11));
-		frmCarmax.setBounds(100, 100, 900, 500);
+		frmCarmax.setBounds(100, 100, 900, 640);
 		frmCarmax.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCarmax.getContentPane().setLayout(null);
 		
 		JLabel lblWelcome = new JLabel("Welcome");
 		lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 30));
-		lblWelcome.setBounds(382, 76, 151, 32);
+		lblWelcome.setBounds(382, 150, 151, 32);
 		frmCarmax.getContentPane().add(lblWelcome);
 		
 		username = new JTextField();
 		username.setFont(new Font("Arial", Font.PLAIN, 16));
-		username.setBounds(354, 165, 213, 48);
+		username.setBounds(354, 239, 213, 48);
 		frmCarmax.getContentPane().add(username);
 		username.setColumns(10);
 		
@@ -75,22 +75,22 @@ public class LoginFrame {
 		});
 		
 		btnLogin.setFont(new Font("Montserrat", Font.BOLD, 16));
-		btnLogin.setBounds(409, 330, 101, 32);
+		btnLogin.setBounds(409, 404, 101, 32);
 		frmCarmax.getContentPane().add(btnLogin);
 		
 		password = new JPasswordField();
 		password.setFont(new Font("Arial", Font.PLAIN, 16));
-		password.setBounds(352, 250, 215, 48);
+		password.setBounds(352, 324, 215, 48);
 		frmCarmax.getContentPane().add(password);
 		
 		JLabel lblUsername = new JLabel("Username");
 		lblUsername.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblUsername.setBounds(353, 140, 77, 14);
+		lblUsername.setBounds(353, 214, 77, 14);
 		frmCarmax.getContentPane().add(lblUsername);
 		
 		JLabel lblPassword = new JLabel("Password");
 		lblPassword.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblPassword.setBounds(354, 225, 70, 14);
+		lblPassword.setBounds(354, 299, 70, 14);
 		frmCarmax.getContentPane().add(lblPassword);
 	}
 	

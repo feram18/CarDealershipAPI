@@ -41,25 +41,25 @@ public class EmployeeInterfaceFrame extends JFrame {
 	public EmployeeInterfaceFrame() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 900, 580);
+		setBounds(100, 100, 900, 640);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(10, 60, 865, 480);
+		tabbedPane.setBounds(10, 60, 874, 530);
 		contentPane.add(tabbedPane);
 		
 		JPanel topPanel = new JPanel();
-		topPanel.setBounds(10, 11, 864, 74);
+		topPanel.setBounds(10, 11, 872, 74);
 		contentPane.add(topPanel);
 		topPanel.setLayout(null);
 		
 		JLabel lblUserGreeting = new JLabel("Hi, " + LoginFrame.GetLoggedOnUserName());
 		lblUserGreeting.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblUserGreeting.setBounds(681, 38, 106, 25);
-		lblUserGreeting.setFont(new Font("Montserrat", Font.BOLD, 20));
+		lblUserGreeting.setBounds(710, 25, 106, 25);
+		lblUserGreeting.setFont(new Font("Montserrat", Font.BOLD, 25));
 		topPanel.add(lblUserGreeting);
 		
 //		lblClock = new JLabel("[Clock]");
@@ -74,5 +74,4 @@ public class EmployeeInterfaceFrame extends JFrame {
 		tabbedPane.addTab("Departments", departments);
 		tabbedPane.addTab("Service Tickets", tickets);
 	}
-	
 }
