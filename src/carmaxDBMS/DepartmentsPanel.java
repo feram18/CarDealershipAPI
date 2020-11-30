@@ -1,9 +1,11 @@
+package carmaxDBMS;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.JLabel;
@@ -14,6 +16,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+
+import net.proteanit.sql.DbUtils;
+
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
@@ -26,8 +31,21 @@ public class DepartmentsPanel extends JPanel {
 	private JMenuItem menuItemDelete;
 	private JTextField textFieldDptNo;
 	private JTextField textFieldDptName;
-	private JComboBox comboBoxManager;
+	private JComboBox<String> comboBoxManager;
 
+	private JTextField inputDptNo = new JTextField();
+	private JTextField inputDptName = new JTextField();
+	private JTextField inputManagerSSN = new JTextField();
+	
+	Object[] inputFields = {
+			"Department Number", inputDptNo,
+			"Department Name", inputDptName,
+			"Manager SSN", inputManagerSSN
+	};
+	
+	String[] addOptions = {"Add", "Cancel"};
+	String[] updateOptions = {"Save Changes", "Cancel"};
+	
 	/**
 	 * Create the panel.
 	 */
@@ -36,7 +54,7 @@ public class DepartmentsPanel extends JPanel {
 		setBackground(Color.WHITE);
 		
 		JScrollPane scrollPaneStaff = new JScrollPane();
-		scrollPaneStaff.setBounds(220, 45, 630, 444);
+		scrollPaneStaff.setBounds(220, 45, 630, 380);
 		add(scrollPaneStaff);
 		
 		departmentsTable = new JTable();
@@ -115,10 +133,148 @@ public class DepartmentsPanel extends JPanel {
 		comboBoxManager.setBounds(103, 103, 86, 20);
 		add(comboBoxManager);
 		
-		JButton btnSearch = new JButton("Search");
-		btnSearch.setFont(new Font("Arial", Font.PLAIN, 12));
-		btnSearch.setBounds(68, 152, 77, 23);
-		add(btnSearch);
+		JButton btnSearchDepartments = new JButton("Search");
+		btnSearchDepartments.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnSearchDepartments.setBounds(68, 152, 77, 23);
+		btnSearchDepartments.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					searchDepartments();
+				} catch (SQLException exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		add(btnSearchDepartments);
+		
+		JButton btnAddNewDepartment = new JButton("Add New Department");
+		btnAddNewDepartment.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnAddNewDepartment.setBounds(432, 450, 156, 23);
+		btnAddNewDepartment.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Department", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Department to database...");
+						addToDatabase();
+					}
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		add(btnAddNewDepartment);
+		
+		populateComboBoxes();
+	}
+	
+	/***
+	 * This method populates the Manager combobox on clientsTable with data
+	 * retrieved from Location table, which serve as a filter for the user
+	 * and as a means of input validation.
+	 */
+	
+	private void populateComboBoxes() {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			String query = "SELECT DISTINCT managerSSN_FK2 FROM lramos6db.Department WHERE managerSSN_FK2 IS NOT NULL";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			comboBoxManager.addItem(null);
+			while(result.next() == true) {
+				comboBoxManager.addItem(result.getString("managerSSN_FK2"));
+			}
+		} catch (Exception e) {
+			System.out.println("Error querying data for combobox");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
+	 * This method checks for the fields user entered data on and
+	 * makes the SQL query with the parameters provided by the user.
+	 * Results from Department table are populated in the departmentsTable.
+	 * @throws SQLException
+	 */
+	
+	private void searchDepartments() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			int parameterCount = 0;
+			String query = "SELECT * FROM lramos6db.Department WHERE "; //Base query
+			
+			if(!textFieldDptNo.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "departmentNo ='" + textFieldDptNo.getText() + "'";
+			}
+			
+			if(!textFieldDptName.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "departmentName ='" + textFieldDptName.getText() + "'";
+			}
+			
+			if(comboBoxManager.getSelectedItem() != null) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "managerSSN_FK2 ='" + comboBoxManager.getSelectedItem().toString() +"'";
+			}
+			
+			query += ";";
+			
+			if(parameterCount > 0) {
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+				departmentsTable.setModel(DbUtils.resultSetToTableModel(result));
+				System.out.println(query);
+			} else {
+				JOptionPane.showMessageDialog(null, "No criteria selected.");
+			}
+			
+			parameterCount = 0;
+		} catch (Exception e) {
+			System.out.println("Error: Invalid query.");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
+	 * This method makes the SQL query to add the a new row
+	 * to the database's Department table.
+	 * @throws SQLException
+	 */
+	
+	private void addToDatabase() throws SQLException  {
+		try {
+			connection = SQLConnection.ConnectDb();
+			String query = "INSERT INTO lramos6db.Department (departmentNo, departmentName, managerSSN_FK2)"
+							+ " values (?, ?, ?)";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			stmt.setString(1, inputDptNo.getText());
+			stmt.setString(2, inputDptName.getText());
+			stmt.setString(3, inputManagerSSN.getText());
+			
+			stmt.execute();
+			JOptionPane.showMessageDialog(null, "Record has been added.");
+			
+			stmt.close();
+			connection.close();
+		} catch (Exception exception) {
+			System.out.println("Error inserting to database.");
+			exception.printStackTrace();
+		}
 	}
 	
 	/***

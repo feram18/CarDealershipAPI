@@ -1,10 +1,14 @@
+package carmaxDBMS;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.sql.*;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Date;
 
 public class EmployeeInterfaceFrame extends JFrame {
 
@@ -27,6 +31,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 			public void run() {
 				try {
 					EmployeeInterfaceFrame frame = new EmployeeInterfaceFrame();
+					//clock();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -41,7 +46,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 	public EmployeeInterfaceFrame() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 900, 640);
+		setBounds(100, 100, 910, 640);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -58,14 +63,17 @@ public class EmployeeInterfaceFrame extends JFrame {
 		
 		JLabel lblUserGreeting = new JLabel("Hi, " + LoginFrame.GetLoggedOnUserName());
 		lblUserGreeting.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblUserGreeting.setBounds(710, 25, 106, 25);
+		lblUserGreeting.setBounds(720, 11, 142, 25);
 		lblUserGreeting.setFont(new Font("Montserrat", Font.BOLD, 25));
 		topPanel.add(lblUserGreeting);
 		
-//		lblClock = new JLabel("[Clock]");
-//		lblClock.setFont(new Font("Montserrat", Font.PLAIN, 16));
-//		lblClock.setBounds(10, 11, 83, 37);
-//		topPanel.add(lblClock);
+		lblClock = new JLabel("[Clock]");
+		lblClock.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblClock.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblClock.setFont(new Font("Montserrat", Font.PLAIN, 25));
+		lblClock.setBounds(697, 26, 165, 37);
+		topPanel.add(lblClock);
+		clock();
 
 		tabbedPane.addTab("Inventory", inventory);
 		tabbedPane.addTab("Staff", staff);
@@ -73,5 +81,24 @@ public class EmployeeInterfaceFrame extends JFrame {
 		tabbedPane.addTab("Locations", locations);
 		tabbedPane.addTab("Departments", departments);
 		tabbedPane.addTab("Service Tickets", tickets);
+	}
+	
+	public static void clock() {
+		Thread clock = new Thread() {
+			public void run() {
+				try {
+					while(!Thread.currentThread().isInterrupted()) {
+						String time = new SimpleDateFormat("hh:mm:ss a").format(new Date());
+						lblClock.setText(time);
+						sleep(1000);
+					}
+				} catch (InterruptedException e) {
+					System.out.print("Error starting clock thread");
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		clock.start();
 	}
 }

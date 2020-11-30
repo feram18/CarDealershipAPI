@@ -1,3 +1,4 @@
+package carmaxDBMS;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -27,11 +28,11 @@ public class StaffPanel extends JPanel {
 	private JTextField textFieldSSN;
 	private JTextField textFieldFirstName;
 	private JTextField textFieldLastName;
-	private JComboBox comboBoxEmpType;
-	private JComboBox comboBoxWorkLoc;
-	private JComboBox comboBoxSalary;
+	private JComboBox<String> comboBoxEmpType;
+	private JComboBox<String> comboBoxWorkLoc;
+	private JComboBox<String> comboBoxSalary;
 	private JTextField textFieldYearsWorked;
-	private JComboBox comboBoxManager;
+	private JComboBox<String> comboBoxManager;
 	private JTable staffTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -39,6 +40,45 @@ public class StaffPanel extends JPanel {
 	private JTextField textFieldCity;
 	private JTextField textFieldState;
 	private JTextField textFieldZIP;
+	
+	private JTextField inputSSN = new JTextField();
+	private JTextField inputFirstName = new JTextField();
+	private JTextField inputLastName = new JTextField();
+	private JTextField inputMiddleInitial = new JTextField();
+	private JTextField inputSex = new JTextField();
+	private JTextField inputDoB = new JTextField();
+	private JTextField inputPhoneNumber= new JTextField();
+	private JTextField inputEmployeeType = new JTextField();
+	private JTextField inputWorkLocation = new JTextField();
+	private JTextField inputSalary = new JTextField();
+	private JTextField inputYearsWorked = new JTextField();
+	private JTextField inputAddress = new JTextField();
+	private JTextField inputHoursWorked = new JTextField();
+	private JTextField inputUsername = new JTextField();
+	private JTextField inputPassword = new JTextField();
+	private JTextField inputManagerSSN = new JTextField();
+	
+	Object[] inputFields = {
+			"SSN", inputSSN,
+			"First Name", inputFirstName,
+			"Last Name", inputLastName,
+			"M.I.", inputMiddleInitial,
+			"Sex", inputSex,
+			"Date of Birth", inputDoB,
+			"Phone Number", inputPhoneNumber,
+			"Employee Type", inputEmployeeType,
+			"Work Location", inputWorkLocation,
+			"Salary", inputSalary,
+			"Years Worked", inputYearsWorked,
+			"Address", inputAddress,
+			"Hours Worked", inputHoursWorked,
+			"Username", inputUsername,
+			"Password", inputPassword,
+			"Manager SSN", inputManagerSSN
+	};
+	
+	String[] addOptions = {"Add", "Cancel"};
+	String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -48,7 +88,7 @@ public class StaffPanel extends JPanel {
 		setBackground(Color.WHITE);
 		
 		JScrollPane scrollPaneStaff = new JScrollPane();
-		scrollPaneStaff.setBounds(220, 45, 630, 444);
+		scrollPaneStaff.setBounds(220, 45, 630, 380);
 		add(scrollPaneStaff);
 		
 		staffTable = new JTable();
@@ -186,22 +226,6 @@ public class StaffPanel extends JPanel {
 		comboBoxManager.setBounds(116, 356, 86, 20);
 		add(comboBoxManager);
 		
-		JButton btnSearchStaff = new JButton("Search");
-		btnSearchStaff.setFont(new Font("Arial", Font.PLAIN, 12));
-		btnSearchStaff.setBounds(72, 399, 77, 23);
-		
-		btnSearchStaff.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					searchStaff();
-				} catch (SQLException exception) {
-					exception.printStackTrace();
-				}
-			}
-		});
-		
-		add(btnSearchStaff);
-		
 		JLabel lblCity = new JLabel("City");
 		lblCity.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCity.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -237,6 +261,40 @@ public class StaffPanel extends JPanel {
 		textFieldZIP.setBounds(116, 325, 86, 20);
 		add(textFieldZIP);
 		
+		JButton btnSearchStaff = new JButton("Search");
+		btnSearchStaff.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnSearchStaff.setBounds(72, 399, 77, 23);
+		btnSearchStaff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					searchStaff();
+				} catch (SQLException exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		
+		add(btnSearchStaff);
+		
+		JButton btnAddEmployee = new JButton("Add New Employee");
+		btnAddEmployee.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnAddEmployee.setBounds(449, 450, 146, 23);
+		btnAddEmployee.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Employee", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Employee to database...");
+						addToDatabase();
+					}
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		
+		add(btnAddEmployee);
+		
 		populateComboBoxes();
 	}
 	
@@ -254,34 +312,42 @@ public class StaffPanel extends JPanel {
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
+			comboBoxEmpType.addItem(null);
 			while(result.next() == true) {
 				comboBoxEmpType.addItem(result.getString("employeeType"));
 			}
 			
-			query = "SELECT DISTINCT workLocation FROM lramos6db.Staff WHERE workLocation IS NOT NULL";
+			query = "SELECT DISTINCT workLocation FROM lramos6db.Employee WHERE workLocation IS NOT NULL";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
+			comboBoxWorkLoc.addItem(null);
 			while(result.next() == true) {
 				comboBoxWorkLoc.addItem(result.getString("workLocation"));
 			}
 			
-			query = "SELECT DISTINCT salary FROM lramos6db.Staff WHERE salary IS NOT NULL";
+			comboBoxSalary.addItem(null);
+			comboBoxSalary.addItem("< 10000");
+			comboBoxSalary.addItem("< 20000");
+			comboBoxSalary.addItem("< 30000");
+			comboBoxSalary.addItem("< 40000");
+			comboBoxSalary.addItem("< 50000");
+			comboBoxSalary.addItem("< 60000");
+			comboBoxSalary.addItem("< 70000");
+			comboBoxSalary.addItem("< 80000");
+			comboBoxSalary.addItem("< 90000");
+			comboBoxSalary.addItem("< 100000");
+			comboBoxSalary.addItem("< 110000");
+			comboBoxSalary.addItem("< 120000");
+			comboBoxSalary.addItem("> 120000");
+			
+			query = "SELECT DISTINCT managerSSN FROM lramos6db.Employee WHERE managerSSN IS NOT NULL";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
+			comboBoxManager.addItem(null);
 			while(result.next() == true) {
-				comboBoxSalary.addItem(result.getString("salary"));
-			}
-			
-			//TODO fill in yearsWorked
-			
-			query = "SELECT DISTINCT managerID FROM lramos6db.Staff WHERE managerID IS NOT NULL";
-			stmt = connection.prepareStatement(query);
-			result = stmt.executeQuery();
-			
-			while(result.next() == true) {
-				comboBoxManager.addItem(result.getString("managerID"));
+				comboBoxManager.addItem(result.getString("managerSSN"));
 			}
 
 		} catch (Exception e) {
@@ -330,7 +396,7 @@ public class StaffPanel extends JPanel {
 				query += "lName='" + textFieldLastName.getText() + "'";
 			}
 			
-			if(comboBoxEmpType.getSelectedItem().toString() != null) {
+			if(comboBoxEmpType.getSelectedItem() != null) {
 				parameterCount++;
 				if(parameterCount > 1) {
 					query += " AND ";
@@ -339,7 +405,7 @@ public class StaffPanel extends JPanel {
 				query += "employeeType='" + comboBoxEmpType.getSelectedItem().toString() +"'";
 			}
 			
-			if(comboBoxWorkLoc.getSelectedItem().toString() != null) {
+			if(comboBoxWorkLoc.getSelectedItem() != null) {
 				parameterCount++;
 				if(parameterCount > 1) {
 					query += " AND ";
@@ -348,31 +414,72 @@ public class StaffPanel extends JPanel {
 				query += "workLocation='" + comboBoxWorkLoc.getSelectedItem().toString() +"'";
 			}
 			
-			if(comboBoxSalary.getSelectedItem().toString() != null) {
+			if(comboBoxSalary.getSelectedItem() != null) {
 				parameterCount++;
 				if(parameterCount > 1) {
 					query += " AND ";
 				}
 				
-				query += "salary" + comboBoxWorkLoc.getSelectedItem().toString(); //TODO fix parameter input
+				query += "salary " + comboBoxSalary.getSelectedItem().toString();
 			}
 			
-			//TODO Handle YearsWorked input
-			
-			if(comboBoxManager.getSelectedItem().toString() != null) {
+			if(!textFieldYearsWorked.getText().isEmpty()) {
 				parameterCount++;
 				if(parameterCount > 1) {
 					query += " AND ";
 				}
 				
-				query += "managerID='" + comboBoxManager.getSelectedItem().toString() +"'";
+				query += "yearsWorked='" + textFieldYearsWorked.getText() + "'";
+			}
+			
+			if(!textFieldCity.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldCity.getText() + "%'";
+			}
+			
+			if(!textFieldState.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			}
+			
+			if(!textFieldZIP.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
+			}
+			
+			if(comboBoxManager.getSelectedItem() != null) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "managerSSN='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
-			PreparedStatement stmt = connection.prepareStatement(query);
-			ResultSet result = stmt.executeQuery();
-			staffTable.setModel(DbUtils.resultSetToTableModel(result));
-			System.out.println(query);
+			
+			if(parameterCount > 0) {
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+				staffTable.setModel(DbUtils.resultSetToTableModel(result));
+				System.out.println(query);
+			} else {
+				JOptionPane.showMessageDialog(null, "No criteria selected.");
+			}
+			
+			parameterCount = 0;
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -389,23 +496,25 @@ public class StaffPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			String query = "INSERT INTO lramos6db.Employee (SSN, fName, lName, mInit, sex, DOB, phoneNo, employeeType,"
-							+ " workLocation, salary, yearsWorked, address, hoursWorked, managerSSN)"
-							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, )";
+							+ " workLocation, salary, yearsWorked, address, hoursWorked, username, password, managerSSN)"
+							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
-			stmt.setString(1, "");
-			stmt.setString(2, "");
-			stmt.setString(3, "");
-			stmt.setString(4, "");
-			stmt.setString(5, "");
-			stmt.setString(6, "");
-			stmt.setString(7, "");
-			stmt.setString(8, "");
-			stmt.setString(9, "");
-			stmt.setString(10, "");
-			stmt.setString(11, "");
-			stmt.setString(12, "");
-			stmt.setString(13, "");
-			stmt.setString(14, "");
+			stmt.setString(1, inputSSN.getText());
+			stmt.setString(2, inputFirstName.getText());
+			stmt.setString(3, inputLastName.getText());
+			stmt.setString(4, inputMiddleInitial.getText());
+			stmt.setString(5, inputSex.getText());
+			stmt.setString(6, inputDoB.getText());
+			stmt.setString(7, inputPhoneNumber.getText());
+			stmt.setString(8, inputEmployeeType.getText());
+			stmt.setString(9, inputWorkLocation.getText());
+			stmt.setString(10, inputSalary.getText());
+			stmt.setString(11, inputYearsWorked.getText());
+			stmt.setString(12, inputAddress.getText());
+			stmt.setString(13, inputHoursWorked.getText());
+			stmt.setString(14, inputUsername.getText());
+			stmt.setString(15, inputPassword.getText());
+			stmt.setString(16, inputManagerSSN.getText());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -485,7 +594,8 @@ public class StaffPanel extends JPanel {
 				int selectedRow = staffTable.getSelectedRow();
 				String SSN = staffTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Vehicle WHERE SSN='" + SSN + "';";
+				String query = "DELETE FROM lramos6db.Employee WHERE SSN='" + SSN + "';";
+				System.out.println("QUERY " + query);
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();

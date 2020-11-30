@@ -1,3 +1,4 @@
+package carmaxDBMS;
 import java.awt.EventQueue;
 import java.sql.*;
 import javax.swing.JFrame;
@@ -42,7 +43,6 @@ public class LoginFrame {
 	public LoginFrame() {
 		initialize();
 		connection = SQLConnection.ConnectDb();
-//		EmployeeInterfaceFrame.Time();
 	}
 
 	/**
@@ -100,10 +100,9 @@ public class LoginFrame {
 	 * fails to enter correct credentials, an error message is displayed.
 	 */
 	
-	//TODO Change parameters with valid database
 	private void LogIn() {
 		try {
-			String query = "SELECT * FROM lramos6db.EMPLOYEE WHERE FNAME=? AND LNAME=?";
+			String query = "SELECT * FROM lramos6db.Employee WHERE username=? AND password=?";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, username.getText());
 			stmt.setString(2, password.getText());
@@ -113,7 +112,7 @@ public class LoginFrame {
 			
 			if(result.next() == true) {
 				valid = true;
-				loggedInUser = result.getString("FNAME"); //Grab user's name for greeting
+				loggedInUser = result.getString("fName"); //Grab user's name for greeting
 			}
 			
 			if(valid) {

@@ -1,11 +1,15 @@
+package carmaxDBMS;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -13,10 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.SwingConstants;
+
+import net.proteanit.sql.DbUtils;
 
 public class LocationsPanel extends JPanel {
 	private Connection connection = null;
@@ -29,7 +33,22 @@ public class LocationsPanel extends JPanel {
 	private JTextField textFieldCity;
 	private JTextField textFieldState;
 	private JTextField textFieldZIP;
-	private JComboBox comboBoxManager;
+	private JComboBox<String> comboBoxManager;
+	
+	private JTextField inputLocationID = new JTextField();
+	private JTextField inputLocationName = new JTextField();
+	private JTextField inputAddress = new JTextField();
+	private JTextField inputManagerSSN = new JTextField();
+	
+	Object[] inputFields = {
+			"Location ID", inputLocationID,
+			"Location Name", inputLocationName,
+			"Address", inputAddress,
+			"Manager SSN", inputManagerSSN
+	};
+	
+	String[] addOptions = {"Add", "Cancel"};
+	String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -39,7 +58,7 @@ public class LocationsPanel extends JPanel {
 		setBackground(Color.WHITE);
 		
 		JScrollPane scrollPaneStaff = new JScrollPane();
-		scrollPaneStaff.setBounds(220, 45, 630, 444);
+		scrollPaneStaff.setBounds(220, 45, 630, 380);
 		add(scrollPaneStaff);
 		
 		locationsTable = new JTable();
@@ -154,10 +173,176 @@ public class LocationsPanel extends JPanel {
 		comboBoxManager.setBounds(117, 190, 86, 20);
 		add(comboBoxManager);
 		
-		JButton btnSearch = new JButton("Search");
-		btnSearch.setFont(new Font("Arial", Font.PLAIN, 12));
-		btnSearch.setBounds(82, 239, 77, 23);
-		add(btnSearch);
+		JButton btnSearchLocations = new JButton("Search");
+		btnSearchLocations.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnSearchLocations.setBounds(82, 239, 77, 23);
+		btnSearchLocations.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					searchLocations();
+				} catch (SQLException exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		add(btnSearchLocations);
+		
+		JButton btnAddLocation = new JButton("Add New Location");
+		btnAddLocation.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnAddLocation.setBounds(450, 450, 137, 23);
+		btnAddLocation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Location", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Location to database...");
+						addToDatabase();
+					}
+					
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
+		add(btnAddLocation);
+		
+		populateComboBoxes();
+	}
+	
+	/***
+	 * This method populates the Manager combobox on locationsTable with data
+	 * retrieved from Location table, which serve as a filter for the user
+	 * and as a means of input validation.
+	 */
+	
+	private void populateComboBoxes() {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			String query = "SELECT DISTINCT siteManagerSSN_FK FROM lramos6db.Location WHERE siteManagerSSN_FK IS NOT NULL";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			comboBoxManager.addItem(null);
+			while(result.next() == true) {
+				comboBoxManager.addItem(result.getString("siteManagerSSN_FK"));
+			}
+		} catch (Exception e) {
+			System.out.println("Error querying data for combobox");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
+	 * This method checks for the fields user entered data on and
+	 * makes the SQL query with the parameters provided by the user.
+	 * Results from Location table are populated in the locationsTable.
+	 * @throws SQLException
+	 */
+	
+	private void searchLocations() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			int parameterCount = 0;
+			String query = "SELECT * FROM lramos6db.Location WHERE "; //Base query
+			
+			if(!textFieldLocationID.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "locationID ='" + textFieldLocationID.getText() + "'";
+			}
+			
+			if(!textFieldLocationName.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "locationName ='" + textFieldLocationName.getText() + "'";
+			}
+			
+			if(!textFieldCity.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldCity.getText() + "%'";
+			}
+			
+			if(!textFieldState.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			}
+			
+			if(!textFieldZIP.getText().isEmpty()) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
+			}
+			
+			if(comboBoxManager.getSelectedItem() != null) {
+				parameterCount++;
+				if(parameterCount > 1) {
+					query += " AND ";
+				}
+				
+				query += "siteManagerSSN_FK ='" + comboBoxManager.getSelectedItem().toString() +"'";
+			}
+			
+			query += ";";
+			
+			if(parameterCount > 0) {
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+				locationsTable.setModel(DbUtils.resultSetToTableModel(result));
+				System.out.println(query);
+			} else {
+				JOptionPane.showMessageDialog(null, "No criteria selected.");
+			}
+			
+			parameterCount = 0;
+		} catch (Exception e) {
+			System.out.println("Error: Invalid query.");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
+	 * This method makes the SQL query to add the a new row
+	 * to the database's Location table.
+	 * @throws SQLException
+	 */
+	
+	private void addToDatabase() throws SQLException  {
+		try {
+			connection = SQLConnection.ConnectDb();
+			String query = "INSERT INTO lramos6db.Location (locationID, locationName, address, siteManagerSSN_FK)"
+							+ " values (?, ?, ?, ?)";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			stmt.setString(1, inputLocationID.getText());
+			stmt.setString(2, inputLocationName.getText());
+			stmt.setString(3, inputAddress.getText());
+			stmt.setString(4, inputManagerSSN.getText());
+			
+			stmt.execute();
+			JOptionPane.showMessageDialog(null, "Record has been added.");
+			
+			stmt.close();
+			connection.close();
+		} catch (Exception exception) {
+			System.out.println("Error inserting to database.");
+			exception.printStackTrace();
+		}
 	}
 	
 	/***
