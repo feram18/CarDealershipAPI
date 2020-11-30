@@ -6,8 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/mysql-connector-java-8.0.18.jar"/>
-	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/rs2xml.jar"/>
-	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/jdatepicker-1.3.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/lib/jdatepicker-1.3.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/lib/mysql-connector-java-8.0.18.jar"/>
+	<classpathentry kind="lib" path="C:/Users/FERAM/Desktop/CarmaxDBMS/resources/lib/rs2xml.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
