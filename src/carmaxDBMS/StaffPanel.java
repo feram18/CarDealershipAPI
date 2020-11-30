@@ -107,8 +107,20 @@ public class StaffPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane updatePane = new JOptionPane();
+				updatePane.setVisible(false);
+				
 				try {
-					updateDatabase();
+					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Employee", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Employee... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -540,12 +552,31 @@ public class StaffPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECTED * FROM lramos6db.Employee WHERE SSN='" + SSN + "'";
+				String query = "SELECT * FROM lramos6db.Employee WHERE SSN ='" + SSN + "'";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 							
 				if(result.next() == true) {
-					//TODO - Fill in fields on screen where update happens
+					inputSSN.setText(result.getString("SSN"));
+					inputFirstName.setText(result.getString("fName"));
+					inputLastName.setText(result.getString("lName"));
+					inputMiddleInitial.setText(result.getString("mInit"));
+					inputSex.setText(result.getString("sex"));
+					inputDoB.setText(result.getString("DOB"));
+					inputPhoneNumber.setText(result.getString("phoneNo"));
+					inputEmployeeType.setText(result.getString("employeeType"));
+					inputWorkLocation.setText(result.getString("workLocation"));
+					inputSalary.setText(result.getString("salary"));
+					inputYearsWorked.setText(result.getString("yearsWorked"));
+					inputAddress.setText(result.getString("address"));
+					inputHoursWorked.setText(result.getString("hoursWorked"));
+					inputUsername.setText(result.getString("username"));
+					inputPassword.setText(result.getString("password"));
+					inputManagerSSN.setText(result.getString("managerSSN"));
+					
+					System.out.println("Fields populated successfully.");
+				} else {
+					System.out.println("Fields were not populated successfully.");
 				}
 			}
 		} catch (Exception e) {
@@ -565,7 +596,23 @@ public class StaffPanel extends JPanel {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = staffTable.getSelectedRow();
 			String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Employee SET WHERE SSN='" + SSN + "';";
+			String query = "UPDATE lramos6db.Employee SET " +
+								"SSN='" + inputSSN.getText() +
+								"', fName ='" + inputFirstName.getText() +
+								"', lName ='" + inputLastName.getText() +
+								"', mInit ='" + inputMiddleInitial.getText() +
+								"', sex ='" + inputSex.getText() +
+								"', DOB ='" + inputDoB.getText() +
+								"', phoneNo ='" + inputPhoneNumber.getText() +
+								"', employeeType ='" + inputWorkLocation.getText() +
+								"', salary ='" + inputSalary.getText() +
+								"', yearsWorked ='" + inputYearsWorked.getText() +
+								"', address ='" + inputAddress.getText() +
+								"', hoursWorked ='" + inputHoursWorked.getText() +
+								"', username ='" + inputUsername.getText() +
+								"', password ='" + inputPassword.getText() +
+								"', managerSSN ='" + inputManagerSSN.getText() +
+								"' WHERE SSN ='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -573,6 +620,8 @@ public class StaffPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -609,5 +658,29 @@ public class StaffPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	
+	private void clearFields() {
+		inputSSN = null;
+		inputFirstName = null;
+		inputLastName = null;
+		inputMiddleInitial = null;
+		inputSex = null;
+		inputDoB = null;
+		inputPhoneNumber = null;
+		inputEmployeeType = null;
+		inputWorkLocation = null;
+		inputSalary = null;
+		inputYearsWorked = null;
+		inputAddress = null;
+		inputHoursWorked = null;
+		inputUsername = null;
+		inputPassword = null;
+		inputManagerSSN = null;
 	}
 }

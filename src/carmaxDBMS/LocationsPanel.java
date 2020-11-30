@@ -77,8 +77,20 @@ public class LocationsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane updatePane = new JOptionPane();
+				updatePane.setVisible(false);
+				
 				try {
-					updateDatabase();
+					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Location", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Location... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -346,6 +358,36 @@ public class LocationsPanel extends JPanel {
 	}
 	
 	/***
+	 * This method populates the fields of the Location object with the 
+	 * current data to allow the user to edit the existing information.
+	 * @throws SQLException
+	 */
+	private void populateToUpdate() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			int selectedRow = locationsTable.getSelectedRow();
+			if(selectedRow < 0) {
+				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
+			} else {
+				String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
+				String query = "SELECT * FROM lramos6db.Location WHERE locationID='" + locationID + "'";
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+							
+				if(result.next() == true) {
+					inputLocationID.setText(result.getString("locationID"));
+					inputLocationName.setText(result.getString("locationName"));
+					inputAddress.setText(result.getString("address"));
+					inputManagerSSN.setText(result.getString("siteManagerSSN_FK"));
+				}
+			}
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Location table.
 	 * @throws SQLException
@@ -355,8 +397,13 @@ public class LocationsPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = locationsTable.getSelectedRow();
-			String ID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Location SET WHERE locationID='" + ID + "';";
+			String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
+			String query = "UPDATE lramos6db.Location SET " +
+					"locationID ='" + inputLocationID.getText() +
+					"', locationName ='" + inputLocationName.getText() +
+					"', address ='" + inputAddress.getText() +
+					"', siteManagerSSN_FK ='" + inputManagerSSN.getText() +
+					"' WHERE locationID='" + locationID + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -364,6 +411,8 @@ public class LocationsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -383,9 +432,9 @@ public class LocationsPanel extends JPanel {
 		if(confirmation == 0) {
 			try {
 				int selectedRow = locationsTable.getSelectedRow();
-				String ID = locationsTable.getModel().getValueAt(selectedRow, 0).toString();
+				String locationID = locationsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Location WHERE locationID='" + ID + "';";
+				String query = "DELETE FROM lramos6db.Location WHERE locationID='" + locationID + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -399,5 +448,17 @@ public class LocationsPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	
+	private void clearFields() {
+		inputLocationID = null;
+		inputLocationName = null;
+		inputAddress = null;
+		inputManagerSSN = null;
 	}
 }

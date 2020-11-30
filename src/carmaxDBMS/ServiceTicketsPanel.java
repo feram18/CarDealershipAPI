@@ -84,8 +84,20 @@ public class ServiceTicketsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane updatePane = new JOptionPane();
+				updatePane.setVisible(false);
+				
 				try {
-					updateDatabase();
+					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Service Ticket", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Service Ticket... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -250,7 +262,7 @@ public class ServiceTicketsPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "VIN ='" + textFieldVIN.getText() + "'";
+				query += "VIN_FK ='" + textFieldVIN.getText() + "'";
 			}
 			
 			if(comboBoxMechanic.getSelectedItem() != null) {
@@ -262,7 +274,8 @@ public class ServiceTicketsPanel extends JPanel {
 				query += "mechanicSSN_FK ='" + comboBoxMechanic.getSelectedItem().toString() +"'";
 			}
 			
-
+			
+			//TODO - SQL Date format
 			if(datePicker.getModel().getValue() != null) {
 				parameterCount++;
 				if(parameterCount > 1) {
@@ -320,6 +333,37 @@ public class ServiceTicketsPanel extends JPanel {
 	}
 	
 	/***
+	 * This method populates the fields of the ServiceTicket object with the 
+	 * current data to allow the user to edit the existing information.
+	 * @throws SQLException
+	 */
+	private void populateToUpdate() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			int selectedRow = ticketsTable.getSelectedRow();
+			if(selectedRow < 0) {
+				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
+			} else {
+				String ticketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
+				String query = "SELECT * FROM lramos6db.ServiceTicket WHERE serviceTicketNo='" + ticketNo + "'";
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+							
+				if(result.next() == true) {
+					inputTicketNo.setText(result.getString("serviceTicketNo"));
+					inputVIN.setText(result.getString("VIN_FK"));
+					inputMechanicSSN.setText(result.getString("mechanicSSN_FK"));
+					inputComment.setText(result.getString("comment"));
+					inputServiceDate.setText(result.getString("serviceDate"));
+				}
+			}
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
 	 * This method makes the SQL query to update the selected record in the
 	 * database's ServiceTicket table.
 	 * @throws SQLException
@@ -330,7 +374,13 @@ public class ServiceTicketsPanel extends JPanel {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = ticketsTable.getSelectedRow();
 			String serviceTicketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.ServiceTicket SET WHERE serviceTicketNo='" + serviceTicketNo + "';";
+			String query = "UPDATE lramos6db.ServiceTicket SET " +
+							"serviceTicketNo ='" + inputTicketNo.getText() +
+							"', VIN_FK ='" + inputVIN.getText() +
+							"', mechanicSSN_FK ='" + inputMechanicSSN.getText() +
+							"', comment ='" + inputComment.getText() +
+							"', serviceDate ='" + inputServiceDate.getText() +
+							"' WHERE serviceTicketNo='" + serviceTicketNo + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -338,6 +388,8 @@ public class ServiceTicketsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -373,5 +425,18 @@ public class ServiceTicketsPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	
+	private void clearFields() {
+		inputTicketNo = null;
+		inputVIN = null;
+		inputMechanicSSN = null;
+		inputComment = null;
+		inputServiceDate = null;
 	}
 }

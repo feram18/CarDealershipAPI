@@ -28,6 +28,8 @@ import net.proteanit.sql.DbUtils;
 public class InventoryPanel extends JPanel {
 	private Connection connection = null;
 	private JTable inventoryTable;
+	//TODO - Make Jtable cells non editable
+	//TODO - Change default column titles
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
 	private JMenuItem menuItemDelete;
@@ -44,7 +46,7 @@ public class InventoryPanel extends JPanel {
 	private JTextField textFieldMaxPrice;
 	private JComboBox<String> comboBoxLocation;
 	
-	private JTextField inputVIN = new JTextField();
+	private JTextField inputVIN = new JTextField(); //TODO - populate fields Location, carBayID as comboBoxes
 	private JTextField inputMake = new JTextField();
 	private JTextField inputModel = new JTextField();
 	private JTextField inputYear = new JTextField();
@@ -57,6 +59,7 @@ public class InventoryPanel extends JPanel {
 	private JTextField inputLocation = new JTextField();
 	private JTextField inputCarBayID = new JTextField();
 	
+//	JTextFields to be passed to input dialog for adding, and updating a Vehicle
 	Object[] inputFields = {
 			"VIN", inputVIN,
 			"Make", inputMake,
@@ -72,8 +75,11 @@ public class InventoryPanel extends JPanel {
 			"Car Bay ID", inputCarBayID
 	};
 	
+//	Button options for Add Vehicle dialog
 	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	
+//	Button options for Update Vehicle dialog 
+	String[] updateOptions = {"Save Changes", "Cancel"}; 
 	
 	/**
 	 * Create the panel.
@@ -108,22 +114,18 @@ public class InventoryPanel extends JPanel {
 				
 				try {
 					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Vehicle", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Vehicle... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				
-				updatePane.setVisible(true);
-//				try {
-//					populateToUpdate();
-//					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Vehicle", JOptionPane.DEFAULT_OPTION,
-//				JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
-//					if(choice == 0) {
-//						System.out.print("Updating Vehicle...");
-//						updateDatabase();
-//					}
-//				} catch (SQLException e) {
-//					e.printStackTrace();
-//				}
 			}
 		});
 		
@@ -161,7 +163,7 @@ public class InventoryPanel extends JPanel {
 		lblMake.setBounds(68, 80, 29, 14);
 		add(lblMake);
 		
-		comboBoxMake = new JComboBox();
+		comboBoxMake = new JComboBox<String>();
 		comboBoxMake.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxMake.setBounds(107, 76, 86, 22);
 		add(comboBoxMake);
@@ -184,7 +186,7 @@ public class InventoryPanel extends JPanel {
 		lblYear.setBounds(68, 146, 29, 14);
 		add(lblYear);
 		
-		comboBoxYear = new JComboBox();
+		comboBoxYear = new JComboBox<String>();
 		comboBoxYear.setFont(new Font("Arial", Font.PLAIN, 12));
 		lblYear.setLabelFor(comboBoxYear);
 		comboBoxYear.setBounds(107, 142, 86, 22);
@@ -197,7 +199,7 @@ public class InventoryPanel extends JPanel {
 		labelColor.setBounds(64, 179, 33, 14);
 		add(labelColor);
 		
-		comboBoxColor = new JComboBox();
+		comboBoxColor = new JComboBox<String>();
 		comboBoxColor.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxColor.setBounds(107, 175, 86, 22);
 		add(comboBoxColor);
@@ -208,7 +210,7 @@ public class InventoryPanel extends JPanel {
 		lblType.setBounds(67, 212, 29, 14);
 		add(lblType);
 		
-		comboBoxType = new JComboBox();
+		comboBoxType = new JComboBox<String>();
 		comboBoxType.setFont(new Font("Arial", Font.PLAIN, 12));
 		lblType.setLabelFor(comboBoxType);
 		comboBoxType.setBounds(106, 208, 86, 22);
@@ -220,7 +222,7 @@ public class InventoryPanel extends JPanel {
 		lblTransmission.setBounds(19, 245, 77, 14);
 		add(lblTransmission);
 		
-		comboBoxTransmission = new JComboBox();
+		comboBoxTransmission = new JComboBox<String>();
 		comboBoxTransmission.setFont(new Font("Arial", Font.PLAIN, 12));
 		lblTransmission.setLabelFor(comboBoxTransmission);
 		comboBoxTransmission.setBounds(106, 241, 86, 22);
@@ -279,7 +281,7 @@ public class InventoryPanel extends JPanel {
 		lblLocation.setBounds(50, 410, 47, 14);
 		add(lblLocation);
 		
-		comboBoxLocation = new JComboBox();
+		comboBoxLocation = new JComboBox<String>();
 		lblLocation.setLabelFor(comboBoxLocation);
 		comboBoxLocation.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxLocation.setBounds(107, 406, 86, 22);
@@ -570,7 +572,7 @@ public class InventoryPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			String query = "INSERT INTO lramos6db.Vehicle (VIN, make, model, year, color, vehicleType,"
-					+ " transmission, location, MPG, mileage, price, carBayID)"
+					+ " transmission, location, MPG, mileage, price, carBayID_FK)"
 					+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputVIN.getText());
@@ -626,7 +628,7 @@ public class InventoryPanel extends JPanel {
 					inputMileage.setText(result.getString("mileage"));
 					inputPrice.setText(result.getString("price"));
 					inputLocation.setText(result.getString("location"));
-					inputCarBayID.setText(result.getString("carBayID"));
+					inputCarBayID.setText(result.getString("carBayID_FK"));
 					
 					System.out.println("Fields populated successfully.");
 				} else {
@@ -650,7 +652,19 @@ public class InventoryPanel extends JPanel {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = inventoryTable.getSelectedRow();
 			String VIN = (inventoryTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Vehicle SET WHERE VIN='" + VIN + "';";
+			String query = "UPDATE lramos6db.Vehicle SET " +
+							"VIN ='" + inputVIN.getText() +
+							"', make='" + inputMake.getText() +
+							"', model='" + inputModel.getText() +
+							"', year='" + inputYear.getText() +
+							"', color='" + inputColor.getText() +
+							"', vehicleType='" + inputType.getText() +
+							"', transmission='" + inputTransmission.getText() +
+							"', MPG='" + inputMPG.getText() +
+							"', mileage=" + inputMileage.getText() +
+							", price=" + inputPrice.getText() +
+							", carBayID_FK=" + inputCarBayID.getText() +
+							" WHERE VIN='" + VIN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -658,6 +672,8 @@ public class InventoryPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -693,5 +709,25 @@ public class InventoryPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	
+	private void clearFields() {
+		inputVIN = null;
+		inputMake = null;
+		inputModel = null;
+		inputYear = null;
+		inputColor = null;
+		inputType = null;
+		inputTransmission = null;
+		inputMPG = null;
+		inputMileage = null;
+		inputPrice = null;
+		inputLocation = null;
+		inputCarBayID = null;
 	}
 }

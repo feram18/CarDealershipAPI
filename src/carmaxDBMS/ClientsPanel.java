@@ -93,8 +93,20 @@ public class ClientsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane updatePane = new JOptionPane();
+				updatePane.setVisible(false);
+				
 				try {
-					updateDatabase();
+					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Client", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Client... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -310,7 +322,7 @@ public class ClientsPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "SSN='" + textFieldSSN.getText() + "'";
+				query += "clientSSN='" + textFieldSSN.getText() + "'";
 			}
 			
 			if(!textFieldFirstName.getText().isEmpty()) {
@@ -391,7 +403,7 @@ public class ClientsPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "associateSSN='" + comboBoxAssociate.getSelectedItem().toString() +"'";
+				query += "associateSSN_FK2='" + comboBoxAssociate.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
@@ -420,8 +432,8 @@ public class ClientsPanel extends JPanel {
 	private void addToDatabase() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Client (SSN, fName, lName, sex, email, phoneNo, address,"
-							+ " associateSSN, minimumPrice, maximumPrice)"
+			String query = "INSERT INTO lramos6db.Client (clientSSN, fName, lName, sex, email, phoneNo, address,"
+							+ " associateSSN_FK2, minimumPrice, maximumPrice)"
 							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputSSN.getText());
@@ -459,12 +471,21 @@ public class ClientsPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECTED * FROM lramos6db.Client WHERE SSN='" + SSN + "'";
+				String query = "SELECT * FROM lramos6db.Client WHERE clientSSN='" + SSN + "'";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 							
 				if(result.next() == true) {
-					//TODO - Fill in fields on screen where update happens
+					inputSSN.setText(result.getString("clientSSN"));
+					inputFirstName.setText(result.getString("fName"));
+					inputLastName.setText(result.getString("lName"));
+					inputSex.setText(result.getString("sex"));
+					inputEmail.setText(result.getString("email"));
+					inputPhoneNumber.setText(result.getString("phoneNo"));
+					inputAddress.setText(result.getString("address"));
+					inputAssociateSSN.setText(result.getString("associateSSN_FK2"));
+					inputMinimumPrice.setText(result.getString("minimumPrice"));
+					inputMaximumPrice.setText(result.getString("maximumPrice"));
 				}
 			}
 		} catch (Exception e) {
@@ -484,7 +505,18 @@ public class ClientsPanel extends JPanel {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = clientsTable.getSelectedRow();
 			String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Client SET WHERE SSN='" + SSN + "';";
+			String query = "UPDATE lramos6db.Client SET " +
+							"clientSSN ='" + inputSSN.getText() +
+							"', fName ='" + inputFirstName.getText() +
+							"', lName ='" + inputLastName.getText() +
+							"', sex ='" + inputSex.getText() +
+							"', email ='" + inputEmail.getText() +
+							"', phoneNo ='" + inputPhoneNumber.getText() +
+							"', address ='" + inputAddress.getText() +
+							"', associateSSN_FK2 ='" + inputAssociateSSN.getText() +
+							"', minimumPrice ='" + inputMinimumPrice.getText() +
+							"', maximumPrice ='" + inputMaximumPrice.getText() +
+							"' WHERE clientSSN='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -492,6 +524,8 @@ public class ClientsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -513,7 +547,7 @@ public class ClientsPanel extends JPanel {
 				int selectedRow = clientsTable.getSelectedRow();
 				String SSN = clientsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Client WHERE SSN='" + SSN + "';";
+				String query = "DELETE FROM lramos6db.Client WHERE clientSSN='" + SSN + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -527,5 +561,22 @@ public class ClientsPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	private void clearFields() {
+		inputSSN = null;
+		inputFirstName = null;
+		inputLastName = null;
+		inputSex = null;
+		inputEmail = null;
+		inputPhoneNumber = null;
+		inputAddress = null;
+		inputAssociateSSN = null;
+		inputMinimumPrice = null;
+		inputMaximumPrice = null;
 	}
 }

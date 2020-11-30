@@ -73,8 +73,20 @@ public class DepartmentsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane updatePane = new JOptionPane();
+				updatePane.setVisible(false);
+				
 				try {
-					updateDatabase();
+					populateToUpdate();
+					updatePane.setVisible(true);
+					
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Department", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					
+					if(choice == 0) {
+						System.out.println("Updating Department... ");
+						updateDatabase();
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -278,6 +290,35 @@ public class DepartmentsPanel extends JPanel {
 	}
 	
 	/***
+	 * This method populates the fields of the Client object with the 
+	 * current data to allow the user to edit the existing information.
+	 * @throws SQLException
+	 */
+	private void populateToUpdate() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			int selectedRow = departmentsTable.getSelectedRow();
+			if(selectedRow < 0) {
+				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
+			} else {
+				String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
+				String query = "SELECT * FROM lramos6db.Department WHERE departmentNo='" + departmentNo + "';";
+				PreparedStatement stmt = connection.prepareStatement(query);
+				ResultSet result = stmt.executeQuery();
+
+				if(result.next() == true) {
+					inputDptNo.setText(result.getString("departmentNo"));
+					inputDptName.setText(result.getString("departmentName"));
+					inputManagerSSN.setText(result.getString("managerSSN_FK2"));
+				}
+			}
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
+	}
+	
+	/***
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Department table.
 	 * @throws SQLException
@@ -288,7 +329,11 @@ public class DepartmentsPanel extends JPanel {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = departmentsTable.getSelectedRow();
 			String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Department SET WHERE departmentNo='" + departmentNo + "';";
+			String query = "UPDATE lramos6db.Department SET " + 
+							"departmentNo =" + inputDptNo.getText() +
+							", departmentName ='" + inputDptName.getText() +
+							"', managerSSN_FK2 ='" + inputManagerSSN.getText() +
+							"' WHERE departmentNo='" + departmentNo + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -296,6 +341,8 @@ public class DepartmentsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -331,5 +378,16 @@ public class DepartmentsPanel extends JPanel {
 		}
 		
 		connection.close();
+	}
+	
+	/***
+	 * This method clears the input fields to avoid incorrect
+	 * data on following edit attempt
+	 */
+	
+	private void clearFields() {
+		inputDptNo = null;
+		inputDptName = null;
+		inputManagerSSN = null;
 	}
 }
