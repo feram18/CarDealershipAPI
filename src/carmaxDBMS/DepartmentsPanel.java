@@ -112,7 +112,7 @@ public class DepartmentsPanel extends JPanel {
 		JLabel lblDepartmentNo = new JLabel("Number");
 		lblDepartmentNo.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblDepartmentNo.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblDepartmentNo.setBounds(40, 48, 53, 15);
+		lblDepartmentNo.setBounds(10, 48, 83, 15);
 		add(lblDepartmentNo);
 		
 		textFieldDptNo = new JTextField();
@@ -124,7 +124,7 @@ public class DepartmentsPanel extends JPanel {
 		JLabel lblDepartmentName = new JLabel("Name");
 		lblDepartmentName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblDepartmentName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblDepartmentName.setBounds(47, 77, 46, 15);
+		lblDepartmentName.setBounds(10, 77, 83, 15);
 		add(lblDepartmentName);
 		
 		textFieldDptName = new JTextField();
@@ -136,7 +136,7 @@ public class DepartmentsPanel extends JPanel {
 		JLabel lblManager = new JLabel("Manager");
 		lblManager.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblManager.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblManager.setBounds(31, 106, 62, 15);
+		lblManager.setBounds(10, 106, 83, 15);
 		add(lblManager);
 		
 		comboBoxManager = new JComboBox();

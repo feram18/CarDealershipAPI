@@ -147,7 +147,7 @@ public class InventoryPanel extends JPanel {
 		
 		JLabel lblVIN = new JLabel("VIN");
 		lblVIN.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblVIN.setBounds(75, 48, 22, 15);
+		lblVIN.setBounds(34, 48, 63, 15);
 		lblVIN.setFont(new Font("Arial", Font.PLAIN, 12));
 		add(lblVIN);
 		
@@ -160,7 +160,7 @@ public class InventoryPanel extends JPanel {
 		lblMake.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblMake.setLabelFor(lblMake);
 		lblMake.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblMake.setBounds(68, 80, 29, 14);
+		lblMake.setBounds(34, 80, 63, 14);
 		add(lblMake);
 		
 		comboBoxMake = new JComboBox<String>();
@@ -171,7 +171,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblModel = new JLabel("Model");
 		lblModel.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblModel.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblModel.setBounds(64, 113, 33, 14);
+		lblModel.setBounds(34, 113, 63, 14);
 		add(lblModel);
 		
 		textFieldModel = new JTextField();
@@ -183,7 +183,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblYear = new JLabel("Year");
 		lblYear.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblYear.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblYear.setBounds(68, 146, 29, 14);
+		lblYear.setBounds(34, 146, 63, 14);
 		add(lblYear);
 		
 		comboBoxYear = new JComboBox<String>();
@@ -196,7 +196,7 @@ public class InventoryPanel extends JPanel {
 		labelColor.setHorizontalAlignment(SwingConstants.TRAILING);
 		labelColor.setLabelFor(comboBoxColor);
 		labelColor.setFont(new Font("Arial", Font.PLAIN, 12));
-		labelColor.setBounds(64, 179, 33, 14);
+		labelColor.setBounds(34, 179, 63, 14);
 		add(labelColor);
 		
 		comboBoxColor = new JComboBox<String>();
@@ -207,7 +207,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblType = new JLabel("Type");
 		lblType.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblType.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblType.setBounds(67, 212, 29, 14);
+		lblType.setBounds(34, 212, 62, 14);
 		add(lblType);
 		
 		comboBoxType = new JComboBox<String>();
@@ -219,7 +219,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblTransmission = new JLabel("Transmission");
 		lblTransmission.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblTransmission.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblTransmission.setBounds(19, 245, 77, 14);
+		lblTransmission.setBounds(0, 245, 96, 14);
 		add(lblTransmission);
 		
 		comboBoxTransmission = new JComboBox<String>();
@@ -231,7 +231,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblMPG = new JLabel("MPG");
 		lblMPG.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblMPG.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblMPG.setBounds(67, 277, 29, 14);
+		lblMPG.setBounds(34, 277, 62, 14);
 		add(lblMPG);
 		
 		comboBoxMPG = new JComboBox<String>();
@@ -243,7 +243,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblMileage = new JLabel("Mileage");
 		lblMileage.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblMileage.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblMileage.setBounds(50, 310, 46, 14);
+		lblMileage.setBounds(34, 310, 62, 14);
 		add(lblMileage);
 		
 		comboBoxMileage = new JComboBox<String>();
@@ -255,7 +255,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblMinPrice = new JLabel("Minimum Price");
 		lblMinPrice.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblMinPrice.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblMinPrice.setBounds(10, 343, 86, 14);
+		lblMinPrice.setBounds(0, 343, 96, 14);
 		add(lblMinPrice);
 		
 		textFieldMinPrice = new JTextField();
@@ -267,7 +267,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblMaximumPrice = new JLabel("Maximum Price");
 		lblMaximumPrice.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblMaximumPrice.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblMaximumPrice.setBounds(11, 376, 86, 14);
+		lblMaximumPrice.setBounds(0, 376, 97, 14);
 		add(lblMaximumPrice);
 		
 		textFieldMaxPrice = new JTextField();
@@ -278,7 +278,7 @@ public class InventoryPanel extends JPanel {
 		JLabel lblLocation = new JLabel("Location");
 		lblLocation.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblLocation.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblLocation.setBounds(50, 410, 47, 14);
+		lblLocation.setBounds(19, 410, 78, 14);
 		add(lblLocation);
 		
 		comboBoxLocation = new JComboBox<String>();
@@ -521,7 +521,7 @@ public class InventoryPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "price > " + textFieldMinPrice.getText().isEmpty();
+				query += "price > " + textFieldMinPrice.getText();
 			}
 			
 			if(!textFieldMaxPrice.getText().isEmpty()) {
@@ -530,7 +530,7 @@ public class InventoryPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "price < " + textFieldMaxPrice.getText().isEmpty();
+				query += "price < " + textFieldMaxPrice.getText();
 			}
 			
 			if(comboBoxLocation.getSelectedItem() != null) {

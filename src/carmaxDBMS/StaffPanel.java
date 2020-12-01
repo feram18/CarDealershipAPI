@@ -146,7 +146,7 @@ public class StaffPanel extends JPanel {
 		JLabel labelSSN = new JLabel("SSN");
 		labelSSN.setHorizontalAlignment(SwingConstants.TRAILING);
 		labelSSN.setFont(new Font("Arial", Font.PLAIN, 12));
-		labelSSN.setBounds(81, 48, 25, 15);
+		labelSSN.setBounds(10, 48, 96, 15);
 		add(labelSSN);
 		
 		textFieldSSN = new JTextField();
@@ -158,7 +158,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblFirstName = new JLabel("First Name");
 		lblFirstName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblFirstName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblFirstName.setBounds(45, 79, 61, 15);
+		lblFirstName.setBounds(10, 79, 96, 15);
 		add(lblFirstName);
 		
 		textFieldFirstName = new JTextField();
@@ -170,7 +170,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblLastName = new JLabel("Last Name");
 		lblLastName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblLastName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblLastName.setBounds(45, 111, 61, 15);
+		lblLastName.setBounds(10, 111, 96, 15);
 		add(lblLastName);
 		
 		textFieldLastName = new JTextField();
@@ -182,7 +182,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblEmployeeType = new JLabel("Employee Type");
 		lblEmployeeType.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmployeeType.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblEmployeeType.setBounds(20, 142, 86, 15);
+		lblEmployeeType.setBounds(10, 142, 96, 15);
 		add(lblEmployeeType);
 		
 		comboBoxEmpType = new JComboBox();
@@ -194,7 +194,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblWorkLocation = new JLabel("Work Location");
 		lblWorkLocation.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblWorkLocation.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblWorkLocation.setBounds(20, 173, 86, 15);
+		lblWorkLocation.setBounds(10, 173, 96, 15);
 		add(lblWorkLocation);
 		
 		comboBoxWorkLoc = new JComboBox();
@@ -206,7 +206,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblSalary = new JLabel("Salary");
 		lblSalary.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSalary.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblSalary.setBounds(72, 204, 34, 15);
+		lblSalary.setBounds(10, 204, 96, 15);
 		add(lblSalary);
 		
 		comboBoxSalary = new JComboBox();
@@ -218,7 +218,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblYearsWorked = new JLabel("Years Worked");
 		lblYearsWorked.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblYearsWorked.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblYearsWorked.setBounds(27, 235, 79, 15);
+		lblYearsWorked.setBounds(10, 235, 96, 15);
 		add(lblYearsWorked);
 		
 		textFieldYearsWorked = new JTextField();
@@ -230,7 +230,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblManager = new JLabel("Manager");
 		lblManager.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblManager.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblManager.setBounds(27, 359, 79, 15);
+		lblManager.setBounds(10, 359, 96, 15);
 		add(lblManager);
 		
 		comboBoxManager = new JComboBox();
@@ -241,7 +241,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblCity = new JLabel("City");
 		lblCity.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCity.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblCity.setBounds(27, 266, 79, 15);
+		lblCity.setBounds(10, 266, 96, 15);
 		add(lblCity);
 		
 		textFieldCity = new JTextField();
@@ -253,7 +253,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblState = new JLabel("State");
 		lblState.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblState.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblState.setBounds(27, 297, 79, 15);
+		lblState.setBounds(10, 297, 96, 15);
 		add(lblState);
 		
 		textFieldState = new JTextField();
@@ -265,7 +265,7 @@ public class StaffPanel extends JPanel {
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblZipCode.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblZipCode.setBounds(27, 328, 79, 15);
+		lblZipCode.setBounds(10, 328, 96, 15);
 		add(lblZipCode);
 		
 		textFieldZIP = new JTextField();

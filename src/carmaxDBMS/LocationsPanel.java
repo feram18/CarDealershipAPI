@@ -116,7 +116,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblLocationID = new JLabel("Location ID");
 		lblLocationID.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblLocationID.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblLocationID.setBounds(40, 48, 67, 15);
+		lblLocationID.setBounds(10, 48, 97, 15);
 		add(lblLocationID);
 		
 		textFieldLocationID = new JTextField();
@@ -128,7 +128,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblLocationName = new JLabel("Location Name");
 		lblLocationName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblLocationName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblLocationName.setBounds(20, 77, 87, 15);
+		lblLocationName.setBounds(10, 77, 97, 15);
 		add(lblLocationName);
 		
 		textFieldLocationName = new JTextField();
@@ -140,7 +140,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblCity = new JLabel("City");
 		lblCity.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCity.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblCity.setBounds(82, 106, 25, 15);
+		lblCity.setBounds(10, 106, 97, 15);
 		add(lblCity);
 		
 		textFieldCity = new JTextField();
@@ -152,7 +152,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblState = new JLabel("State");
 		lblState.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblState.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblState.setBounds(60, 135, 47, 15);
+		lblState.setBounds(10, 135, 97, 15);
 		add(lblState);
 		
 		textFieldState = new JTextField();
@@ -164,7 +164,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblZipCode.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblZipCode.setBounds(40, 164, 67, 15);
+		lblZipCode.setBounds(10, 164, 97, 15);
 		add(lblZipCode);
 		
 		textFieldZIP = new JTextField();
@@ -176,7 +176,7 @@ public class LocationsPanel extends JPanel {
 		JLabel lblManager = new JLabel("Manager");
 		lblManager.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblManager.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblManager.setBounds(20, 193, 87, 15);
+		lblManager.setBounds(10, 193, 97, 15);
 		add(lblManager);
 		
 		comboBoxManager = new JComboBox();

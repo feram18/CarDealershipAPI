@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.swing.JLabel;
@@ -123,7 +124,7 @@ public class ServiceTicketsPanel extends JPanel {
 		JLabel lblTicketNumber = new JLabel("Ticket Number");
 		lblTicketNumber.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblTicketNumber.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblTicketNumber.setBounds(10, 48, 80, 15);
+		lblTicketNumber.setBounds(0, 48, 90, 15);
 		add(lblTicketNumber);
 		
 		textFieldTicketNo = new JTextField();
@@ -275,14 +276,18 @@ public class ServiceTicketsPanel extends JPanel {
 			}
 			
 			
-			//TODO - SQL Date format
+			//TODO - Retrieve Date in SQLformat
 			if(datePicker.getModel().getValue() != null) {
 				parameterCount++;
 				if(parameterCount > 1) {
 					query += " AND ";
 				}
 				
-				query += "serviceDate ='" + datePicker.getModel().getValue() + "'";
+				Date date = (Date) datePicker.getModel().getValue();
+				long sqlDate = date.getTime();
+				System.out.println(sqlDate);
+				
+				query += "serviceDate ='" + "" + "'";
 			}
 			
 			query += ";";

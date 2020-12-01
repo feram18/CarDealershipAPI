@@ -132,7 +132,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblSSN = new JLabel("SSN");
 		lblSSN.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSSN.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblSSN.setBounds(68, 48, 25, 15);
+		lblSSN.setBounds(10, 48, 83, 15);
 		add(lblSSN);
 		
 		textFieldSSN = new JTextField();
@@ -144,7 +144,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblFirstName = new JLabel("First Name");
 		lblFirstName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblFirstName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblFirstName.setBounds(32, 79, 61, 15);
+		lblFirstName.setBounds(10, 79, 83, 15);
 		add(lblFirstName);
 		
 		textFieldFirstName = new JTextField();
@@ -156,7 +156,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblLastName = new JLabel("Last Name");
 		lblLastName.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblLastName.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblLastName.setBounds(32, 111, 61, 15);
+		lblLastName.setBounds(10, 111, 83, 15);
 		add(lblLastName);
 		
 		textFieldLastName = new JTextField();
@@ -168,7 +168,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblSex = new JLabel("Sex");
 		lblSex.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSex.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblSex.setBounds(32, 140, 61, 15);
+		lblSex.setBounds(10, 140, 83, 15);
 		add(lblSex);
 		
 		textFieldSex = new JTextField();
@@ -179,7 +179,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblEmail = new JLabel("Email");
 		lblEmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmail.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblEmail.setBounds(32, 169, 61, 15);
+		lblEmail.setBounds(10, 169, 83, 15);
 		add(lblEmail);
 		
 		textFieldEmail = new JTextField();
@@ -201,7 +201,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblCity = new JLabel("City");
 		lblCity.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCity.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblCity.setBounds(32, 227, 61, 15);
+		lblCity.setBounds(10, 227, 83, 15);
 		add(lblCity);
 		
 		textFieldCity = new JTextField();
@@ -212,7 +212,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblState = new JLabel("State");
 		lblState.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblState.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblState.setBounds(32, 256, 61, 15);
+		lblState.setBounds(10, 256, 83, 15);
 		add(lblState);
 		
 		textFieldState = new JTextField();
@@ -223,7 +223,7 @@ public class ClientsPanel extends JPanel {
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblZipCode.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblZipCode.setBounds(32, 285, 61, 15);
+		lblZipCode.setBounds(10, 285, 83, 15);
 		add(lblZipCode);
 		
 		textFieldZIP = new JTextField();

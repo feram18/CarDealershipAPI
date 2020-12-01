@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
 
 public class LoginFrame {
 
@@ -57,8 +58,9 @@ public class LoginFrame {
 		frmCarmax.getContentPane().setLayout(null);
 		
 		JLabel lblWelcome = new JLabel("Welcome");
+		lblWelcome.setHorizontalAlignment(SwingConstants.CENTER);
 		lblWelcome.setFont(new Font("Montserrat", Font.BOLD, 30));
-		lblWelcome.setBounds(382, 150, 151, 32);
+		lblWelcome.setBounds(354, 150, 213, 32);
 		frmCarmax.getContentPane().add(lblWelcome);
 		
 		username = new JTextField();
@@ -85,12 +87,12 @@ public class LoginFrame {
 		
 		JLabel lblUsername = new JLabel("Username");
 		lblUsername.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblUsername.setBounds(353, 214, 77, 14);
+		lblUsername.setBounds(353, 214, 116, 14);
 		frmCarmax.getContentPane().add(lblUsername);
 		
 		JLabel lblPassword = new JLabel("Password");
 		lblPassword.setFont(new Font("Arial", Font.PLAIN, 16));
-		lblPassword.setBounds(354, 299, 70, 14);
+		lblPassword.setBounds(354, 299, 115, 14);
 		frmCarmax.getContentPane().add(lblPassword);
 	}
 	
