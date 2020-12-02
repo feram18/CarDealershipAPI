@@ -35,7 +35,7 @@ public class DepartmentsPanel extends JPanel {
 
 	private JTextField inputDptNo = new JTextField();
 	private JTextField inputDptName = new JTextField();
-	private JTextField inputManagerSSN = new JTextField();
+	private JComboBox<String> inputManagerSSN = new JComboBox<String>();
 	
 	Object[] inputFields = {
 			"Department Number", inputDptNo,
@@ -87,6 +87,8 @@ public class DepartmentsPanel extends JPanel {
 						System.out.println("Updating Department... ");
 						updateDatabase();
 					}
+					
+					clearFields();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -139,7 +141,7 @@ public class DepartmentsPanel extends JPanel {
 		lblManager.setBounds(10, 106, 83, 15);
 		add(lblManager);
 		
-		comboBoxManager = new JComboBox();
+		comboBoxManager = new JComboBox<String>();
 		lblManager.setLabelFor(comboBoxManager);
 		comboBoxManager.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxManager.setBounds(103, 103, 86, 20);
@@ -276,7 +278,7 @@ public class DepartmentsPanel extends JPanel {
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputDptNo.getText());
 			stmt.setString(2, inputDptName.getText());
-			stmt.setString(3, inputManagerSSN.getText());
+			stmt.setString(3, (String) inputManagerSSN.getSelectedItem());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -290,7 +292,7 @@ public class DepartmentsPanel extends JPanel {
 	}
 	
 	/***
-	 * This method populates the fields of the Client object with the 
+	 * This method populates the fields of the Departments object with the 
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
@@ -301,15 +303,24 @@ public class DepartmentsPanel extends JPanel {
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT * FROM lramos6db.Department WHERE departmentNo='" + departmentNo + "';";
+				String query = "SELECT DISTINCT managerSSN FROM lramos6db.Manager WHERE managerSSN";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
+				
+				inputManagerSSN.addItem(null);
+				while(result.next() == true) {
+					inputManagerSSN.addItem(result.getString("managerSSN"));
+				}
+				
+				String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
+				query = "SELECT * FROM lramos6db.Department WHERE departmentNo='" + departmentNo + "';";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
 
 				if(result.next() == true) {
 					inputDptNo.setText(result.getString("departmentNo"));
 					inputDptName.setText(result.getString("departmentName"));
-					inputManagerSSN.setText(result.getString("managerSSN_FK2"));
+					inputManagerSSN.setSelectedItem(result.getString("managerSSN_FK2"));
 				}
 			}
 		} catch (Exception e) {
@@ -332,7 +343,7 @@ public class DepartmentsPanel extends JPanel {
 			String query = "UPDATE lramos6db.Department SET " + 
 							"departmentNo =" + inputDptNo.getText() +
 							", departmentName ='" + inputDptName.getText() +
-							"', managerSSN_FK2 ='" + inputManagerSSN.getText() +
+							"', managerSSN_FK2 ='" + inputManagerSSN.getSelectedItem() +
 							"' WHERE departmentNo='" + departmentNo + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
@@ -341,8 +352,6 @@ public class DepartmentsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
-			
-			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -386,8 +395,8 @@ public class DepartmentsPanel extends JPanel {
 	 */
 	
 	private void clearFields() {
-		inputDptNo = null;
-		inputDptName = null;
-		inputManagerSSN = null;
+		inputDptNo.setText(null);
+		inputDptName.setText(null);
+		inputManagerSSN.removeAllItems();
 	}
 }

@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Date;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class EmployeeInterfaceFrame extends JFrame {
 
@@ -17,6 +19,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 	InventoryPanel inventory = new InventoryPanel();
 	StaffPanel staff = new StaffPanel();
 	ClientsPanel clients = new ClientsPanel();
+	DealersPanel dealers = new DealersPanel();
 	LocationsPanel locations = new LocationsPanel();
 	DepartmentsPanel departments = new DepartmentsPanel();
 	ServiceTicketsPanel tickets = new ServiceTicketsPanel();
@@ -31,7 +34,6 @@ public class EmployeeInterfaceFrame extends JFrame {
 			public void run() {
 				try {
 					EmployeeInterfaceFrame frame = new EmployeeInterfaceFrame();
-					//clock();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -46,7 +48,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 	public EmployeeInterfaceFrame() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 910, 640);
+		setBounds(100, 100, 910, 700);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -78,9 +80,24 @@ public class EmployeeInterfaceFrame extends JFrame {
 		tabbedPane.addTab("Inventory", inventory);
 		tabbedPane.addTab("Staff", staff);
 		tabbedPane.addTab("Clients", clients);
+		tabbedPane.addTab("Dealers", dealers);
 		tabbedPane.addTab("Locations", locations);
 		tabbedPane.addTab("Departments", departments);
 		tabbedPane.addTab("Service Tickets", tickets);
+		
+		JButton btnLogOut = new JButton("Log Out");
+		btnLogOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Logging out...");
+				dispose();
+				LoginFrame logInFrame = new LoginFrame();
+				//Call to LoginFrame.java's main method to initialize and set JFrame visible
+				logInFrame.main(null);
+			}
+		});
+		btnLogOut.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnLogOut.setBounds(407, 607, 89, 23);
+		contentPane.add(btnLogOut);
 	}
 	
 	public static void clock() {

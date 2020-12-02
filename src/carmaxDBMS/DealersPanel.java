@@ -1,4 +1,5 @@
 package carmaxDBMS;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -8,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -15,23 +18,20 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import net.proteanit.sql.DbUtils;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
 
-public class ClientsPanel extends JPanel {
+public class DealersPanel extends JPanel {
 	private Connection connection = null;
-	private JTable clientsTable;
+	private JTable dealersTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
 	private JMenuItem menuItemDelete;
 	private JTextField textFieldSSN;
 	private JTextField textFieldFirstName;
 	private JTextField textFieldLastName;
-	private JTextField textFieldSex;
 	private JTextField textFieldEmail;
 	private JTextField textFieldPhoneNo;
 	private JTextField textFieldCity;
@@ -42,25 +42,19 @@ public class ClientsPanel extends JPanel {
 	private JTextField inputSSN = new JTextField();
 	private JTextField inputFirstName = new JTextField();
 	private JTextField inputLastName = new JTextField();
-	private JComboBox<String> inputSex = new JComboBox<String>();
 	private JTextField inputEmail = new JTextField();
 	private JTextField inputPhoneNumber = new JTextField();
 	private JTextField inputAddress = new JTextField();
 	private JComboBox<String> inputAssociateSSN = new JComboBox<String>();
-	private JTextField inputMinimumPrice = new JTextField();
-	private JTextField inputMaximumPrice = new JTextField();
 	
 	Object[] inputFields = {
 			"SSN", inputSSN,
 			"First Name", inputFirstName,
 			"Last Name", inputLastName,
-			"Sex", inputSex,
 			"Email", inputEmail,
 			"Phone Number", inputPhoneNumber,
 			"Address", inputAddress,
-			"Associate SSN", inputAssociateSSN,
-			"Minimum Price", inputMinimumPrice,
-			"Maximum Price", inputMaximumPrice
+			"Associate SSN", inputAssociateSSN
 	};
 	
 	String[] addOptions = {"Add", "Cancel"};
@@ -69,7 +63,11 @@ public class ClientsPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public ClientsPanel() {
+
+	/**
+	 * Create the panel.
+	 */
+	public DealersPanel() {
 		setLayout(null);
 		setBackground(Color.WHITE);
 		
@@ -77,9 +75,9 @@ public class ClientsPanel extends JPanel {
 		scrollPaneInventory.setBounds(220, 45, 630, 380);
 		add(scrollPaneInventory);
 		
-		clientsTable = new JTable();
-		clientsTable.setFont(new Font("Arial", Font.PLAIN, 12));
-		scrollPaneInventory.setViewportView(clientsTable);
+		dealersTable = new JTable();
+		dealersTable.setFont(new Font("Arial", Font.PLAIN, 12));
+		scrollPaneInventory.setViewportView(dealersTable);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -88,7 +86,7 @@ public class ClientsPanel extends JPanel {
 		popupMenu.add(menuItemEdit);
 		popupMenu.add(menuItemDelete);
 		
-		clientsTable.setComponentPopupMenu(popupMenu);
+		dealersTable.setComponentPopupMenu(popupMenu);
 		
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
@@ -100,11 +98,11 @@ public class ClientsPanel extends JPanel {
 					populateToUpdate();
 					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Client", JOptionPane.DEFAULT_OPTION,
+					int choice = updatePane.showOptionDialog(null, inputFields, "Update Dealer", JOptionPane.DEFAULT_OPTION,
 							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
-						System.out.println("Updating Client... ");
+						System.out.println("Updating Dealer... ");
 						updateDatabase();
 					}
 					
@@ -167,106 +165,95 @@ public class ClientsPanel extends JPanel {
 		textFieldLastName.setBounds(103, 108, 86, 20);
 		add(textFieldLastName);
 		
-		JLabel lblSex = new JLabel("Sex");
-		lblSex.setHorizontalAlignment(SwingConstants.TRAILING);
-		lblSex.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblSex.setBounds(10, 140, 83, 15);
-		add(lblSex);
-		
-		textFieldSex = new JTextField();
-		textFieldSex.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldSex.setBounds(103, 137, 86, 20);
-		add(textFieldSex);
-		
 		JLabel lblEmail = new JLabel("Email");
 		lblEmail.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblEmail.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblEmail.setBounds(10, 169, 83, 15);
+		lblEmail.setBounds(10, 140, 83, 15);
 		add(lblEmail);
 		
 		textFieldEmail = new JTextField();
 		textFieldEmail.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldEmail.setBounds(103, 166, 86, 20);
+		textFieldEmail.setBounds(103, 137, 86, 20);
 		add(textFieldEmail);
 		
 		JLabel lblPhoneNumber = new JLabel("Phone Number");
 		lblPhoneNumber.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblPhoneNumber.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblPhoneNumber.setBounds(0, 198, 93, 15);
+		lblPhoneNumber.setBounds(0, 169, 93, 15);
 		add(lblPhoneNumber);
 		
 		textFieldPhoneNo = new JTextField();
 		textFieldPhoneNo.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldPhoneNo.setBounds(103, 195, 86, 20);
+		textFieldPhoneNo.setBounds(103, 166, 86, 20);
 		add(textFieldPhoneNo);
 		
 		JLabel lblCity = new JLabel("City");
 		lblCity.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblCity.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblCity.setBounds(10, 227, 83, 15);
+		lblCity.setBounds(10, 198, 83, 15);
 		add(lblCity);
 		
 		textFieldCity = new JTextField();
 		textFieldCity.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldCity.setBounds(103, 224, 86, 20);
+		textFieldCity.setBounds(103, 195, 86, 20);
 		add(textFieldCity);
 		
 		JLabel lblState = new JLabel("State");
 		lblState.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblState.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblState.setBounds(10, 256, 83, 15);
+		lblState.setBounds(10, 227, 83, 15);
 		add(lblState);
 		
 		textFieldState = new JTextField();
 		textFieldState.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldState.setBounds(103, 253, 86, 20);
+		textFieldState.setBounds(103, 224, 86, 20);
 		add(textFieldState);
 		
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblZipCode.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblZipCode.setBounds(10, 285, 83, 15);
+		lblZipCode.setBounds(10, 256, 83, 15);
 		add(lblZipCode);
 		
 		textFieldZIP = new JTextField();
 		textFieldZIP.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldZIP.setBounds(103, 282, 86, 20);
+		textFieldZIP.setBounds(103, 253, 86, 20);
 		add(textFieldZIP);
 		
 		JLabel lblAssociate = new JLabel("Associate");
 		lblAssociate.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblAssociate.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblAssociate.setBounds(10, 314, 83, 15);
+		lblAssociate.setBounds(10, 285, 83, 15);
 		add(lblAssociate);
 		
 		comboBoxAssociateSSN = new JComboBox<String>();
 		comboBoxAssociateSSN.setFont(new Font("Arial", Font.PLAIN, 12));
-		comboBoxAssociateSSN.setBounds(103, 311, 86, 20);
+		comboBoxAssociateSSN.setBounds(103, 282, 86, 20);
 		add(comboBoxAssociateSSN);
 		
-		JButton btnSearchClients = new JButton("Search");
-		btnSearchClients.setFont(new Font("Arial", Font.PLAIN, 12));
-		btnSearchClients.setBounds(68, 360, 77, 23);
-		btnSearchClients.addActionListener(new ActionListener() {
+		JButton btnSearchDealers = new JButton("Search");
+		btnSearchDealers.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnSearchDealers.setBounds(68, 331, 77, 23);
+		btnSearchDealers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchClients();
+					searchDealers();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
 			}
 		});
 		
-		add(btnSearchClients);
+		add(btnSearchDealers);
 		
-		JButton btnAddNewClient = new JButton("Add New Client");
-		btnAddNewClient.setFont(new Font("Arial", Font.PLAIN, 12));
-		btnAddNewClient.setBounds(460, 450, 128, 23);
-		btnAddNewClient.addActionListener(new ActionListener() {
+		JButton btnAddNewDealer = new JButton("Add New Dealer");
+		btnAddNewDealer.setFont(new Font("Arial", Font.PLAIN, 12));
+		btnAddNewDealer.setBounds(460, 450, 128, 23);
+		btnAddNewDealer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Client", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
-						System.out.print("Adding new Client to database... ");
+					if(JOptionPane.showOptionDialog(null, inputFields, "New Dealer", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Dealer to database... ");
 						addToDatabase();
 					}
 					
@@ -276,13 +263,13 @@ public class ClientsPanel extends JPanel {
 			}
 		});
 		
-		add(btnAddNewClient);
+		add(btnAddNewDealer);
 		
 		populateComboBoxes();
 	}
 	
 	/***
-	 * This method populates the AssociateSSN combobox on clientsTable with data
+	 * This method populates the AssociateSSN combobox on dealersTable with data
 	 * retrieved from SalesAssociate table, which serve as a filter for the user
 	 * and as a means of input validation.
 	 */
@@ -308,15 +295,15 @@ public class ClientsPanel extends JPanel {
 	/***
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
-	 * Results from Client table are populated in the clientsTable.
+	 * Results from Dealer table are populated in the dealersTable.
 	 * @throws SQLException
 	 */
 	
-	private void searchClients() throws SQLException {
+	private void searchDealers() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Client WHERE "; //Base query
+			String query = "SELECT * FROM lramos6db.Dealer WHERE "; //Base query
 			
 			if(!textFieldSSN.getText().isEmpty()) {
 				parameterCount++;
@@ -324,7 +311,7 @@ public class ClientsPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "clientSSN='" + textFieldSSN.getText() + "'";
+				query += "dealerSSN='" + textFieldSSN.getText() + "'";
 			}
 			
 			if(!textFieldFirstName.getText().isEmpty()) {
@@ -343,15 +330,6 @@ public class ClientsPanel extends JPanel {
 				}
 				
 				query += "lName='" + textFieldLastName.getText() + "'";
-			}
-			
-			if(!textFieldSex.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "sex='" + textFieldSex.getText() + "'";
 			}
 			
 			if(!textFieldEmail.getText().isEmpty()) {
@@ -405,7 +383,7 @@ public class ClientsPanel extends JPanel {
 					query += " AND ";
 				}
 				
-				query += "associateSSN_FK2='" + comboBoxAssociateSSN.getSelectedItem().toString() +"'";
+				query += "associateSSN_FK='" + comboBoxAssociateSSN.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
@@ -413,7 +391,7 @@ public class ClientsPanel extends JPanel {
 			if(parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
-				clientsTable.setModel(DbUtils.resultSetToTableModel(result));
+				dealersTable.setModel(DbUtils.resultSetToTableModel(result));
 				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
@@ -427,27 +405,23 @@ public class ClientsPanel extends JPanel {
 	
 	/***
 	 * This method makes the SQL query to add the a new row
-	 * to the database's Client table.
+	 * to the database's Dealer table.
 	 * @throws SQLException
 	 */
 
 	private void addToDatabase() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Client (clientSSN, fName, lName, sex, email, phoneNo, address,"
-							+ " associateSSN_FK2, minimumPrice, maximumPrice)"
-							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO lramos6db.Client (dealerSSN, fName, lName, email, phoneNo, address, associateSSN_FK2)"
+							+ " values (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputSSN.getText());
 			stmt.setString(2, inputFirstName.getText());
 			stmt.setString(3, inputLastName.getText());
-			stmt.setString(4, (String) inputSex.getSelectedItem());
 			stmt.setString(5, inputEmail.getText());
 			stmt.setString(6, inputPhoneNumber.getText());
 			stmt.setString(7, inputAddress.getText());
 			stmt.setString(8, (String) inputAssociateSSN.getSelectedItem());
-			stmt.setString(9, inputMinimumPrice.getText());
-			stmt.setString(10, inputMaximumPrice.getText());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -461,14 +435,14 @@ public class ClientsPanel extends JPanel {
 	}
 	
 	/***
-	 * This method populates the fields of the Client object with the 
+	 * This method populates the fields of the Dealer object with the 
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
 	private void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int selectedRow = clientsTable.getSelectedRow();
+			int selectedRow = dealersTable.getSelectedRow();
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
@@ -480,25 +454,19 @@ public class ClientsPanel extends JPanel {
 					inputAssociateSSN.addItem(result.getString("associateSSN"));
 				}
 				
-				inputSex.addItem("F");
-				inputSex.addItem("M");
-				
-				String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Client WHERE clientSSN='" + SSN + "'";
+				String SSN = (dealersTable.getModel().getValueAt(selectedRow, 0)).toString();
+				query = "SELECT * FROM lramos6db.Dealer WHERE dealerSSN='" + SSN + "'";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
 				if(result.next() == true) {
-					inputSSN.setText(result.getString("clientSSN"));
+					inputSSN.setText(result.getString("dealerSSN"));
 					inputFirstName.setText(result.getString("fName"));
 					inputLastName.setText(result.getString("lName"));
-					inputSex.setSelectedItem(result.getString("sex"));
 					inputEmail.setText(result.getString("email"));
 					inputPhoneNumber.setText(result.getString("phoneNo"));
 					inputAddress.setText(result.getString("address"));
-					inputAssociateSSN.setSelectedItem(result.getString("associateSSN_FK2"));
-					inputMinimumPrice.setText(result.getString("minimumPrice"));
-					inputMaximumPrice.setText(result.getString("maximumPrice"));
+					inputAssociateSSN.setSelectedItem(result.getString("associateSSN_FK"));
 				}
 			}
 		} catch (Exception e) {
@@ -509,27 +477,24 @@ public class ClientsPanel extends JPanel {
 	
 	/***
 	 * This method makes the SQL query to update the selected record in the
-	 * database's Client table.
+	 * database's Dealer table.
 	 * @throws SQLException
 	 */
 	
 	private void updateDatabase() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int selectedRow = clientsTable.getSelectedRow();
-			String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Client SET " +
-							"clientSSN ='" + inputSSN.getText() +
+			int selectedRow = dealersTable.getSelectedRow();
+			String SSN = (dealersTable.getModel().getValueAt(selectedRow, 0)).toString();
+			String query = "UPDATE lramos6db.Dealer SET " +
+							"dealerSSN ='" + inputSSN.getText() +
 							"', fName ='" + inputFirstName.getText() +
 							"', lName ='" + inputLastName.getText() +
-							"', sex ='" + inputSex.getSelectedItem() +
 							"', email ='" + inputEmail.getText() +
 							"', phoneNo ='" + inputPhoneNumber.getText() +
 							"', address ='" + inputAddress.getText() +
-							"', associateSSN_FK2 ='" + inputAssociateSSN.getSelectedItem() +
-							"', minimumPrice ='" + inputMinimumPrice.getText() +
-							"', maximumPrice ='" + inputMaximumPrice.getText() +
-							"' WHERE clientSSN='" + SSN + "';";
+							"', associateSSN_FK ='" + inputAssociateSSN.getSelectedItem() +
+							"' WHERE dealerSSN ='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -546,7 +511,7 @@ public class ClientsPanel extends JPanel {
 	
 	/***
 	 * This method makes the SQL query to delete the selected record (table row)
-	 * from the database's Client table.
+	 * from the database's Dealer table.
 	 * @throws SQLException
 	 */
 	
@@ -555,10 +520,10 @@ public class ClientsPanel extends JPanel {
 		
 		if(confirmation == 0) {
 			try {
-				int selectedRow = clientsTable.getSelectedRow();
-				String SSN = clientsTable.getModel().getValueAt(selectedRow, 0).toString();
+				int selectedRow = dealersTable.getSelectedRow();
+				String SSN = dealersTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Client WHERE clientSSN='" + SSN + "';";
+				String query = "DELETE FROM lramos6db.Dealer WHERE dealerSSN='" + SSN + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -582,12 +547,9 @@ public class ClientsPanel extends JPanel {
 		inputSSN.setText(null);
 		inputFirstName.setText(null);
 		inputLastName.setText(null);
-		inputSex.removeAllItems();
 		inputEmail.setText(null);
 		inputPhoneNumber.setText(null);
 		inputAddress.setText(null);
 		inputAssociateSSN.removeAllItems();
-		inputMinimumPrice.setText(null);
-		inputMaximumPrice.setText(null);
 	}
 }

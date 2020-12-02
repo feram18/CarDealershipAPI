@@ -56,8 +56,8 @@ public class InventoryPanel extends JPanel {
 	private JTextField inputMPG = new JTextField();
 	private JTextField inputMileage = new JTextField();
 	private JTextField inputPrice = new JTextField();
-	private JTextField inputLocation = new JTextField();
-	private JTextField inputCarBayID = new JTextField();
+	private JComboBox<String> inputLocation = new JComboBox<String>();
+	private JComboBox<String> inputCarBayID = new JComboBox<String>();
 	
 //	JTextFields to be passed to input dialog for adding, and updating a Vehicle
 	Object[] inputFields = {
@@ -123,6 +123,8 @@ public class InventoryPanel extends JPanel {
 						System.out.println("Updating Vehicle... ");
 						updateDatabase();
 					}
+					
+					clearFields();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -334,7 +336,7 @@ public class InventoryPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 
-			String query = "SELECT DISTINCT make FROM lramos6db.Vehicle WHERE make IS NOT NULL";
+			String query = "SELECT DISTINCT make FROM lramos6db.Vehicle WHERE make IS NOT NULL ORDER BY make ASC";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
@@ -343,7 +345,7 @@ public class InventoryPanel extends JPanel {
 				comboBoxMake.addItem(result.getString("make"));
 			}
 			
-			query = "SELECT DISTINCT year FROM lramos6db.Vehicle WHERE year IS NOT NULL";
+			query = "SELECT DISTINCT year FROM lramos6db.Vehicle WHERE year IS NOT NULL ORDER BY year DESC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -352,7 +354,7 @@ public class InventoryPanel extends JPanel {
 				comboBoxYear.addItem(result.getString("year"));
 			}
 			
-			query = "SELECT DISTINCT color FROM lramos6db.Vehicle WHERE color IS NOT NULL";
+			query = "SELECT DISTINCT color FROM lramos6db.Vehicle WHERE color IS NOT NULL ORDER BY color ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -361,7 +363,7 @@ public class InventoryPanel extends JPanel {
 				comboBoxColor.addItem(result.getString("color"));
 			}
 			
-			query = "SELECT DISTINCT vehicleType FROM lramos6db.Vehicle WHERE vehicleType IS NOT NULL";
+			query = "SELECT DISTINCT vehicleType FROM lramos6db.Vehicle WHERE vehicleType IS NOT NULL ORDER BY vehicleType ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -370,7 +372,7 @@ public class InventoryPanel extends JPanel {
 				comboBoxType.addItem(result.getString("vehicleType"));
 			}
 			
-			query = "SELECT DISTINCT transmission FROM lramos6db.Vehicle WHERE transmission IS NOT NULL";
+			query = "SELECT DISTINCT transmission FROM lramos6db.Vehicle WHERE transmission IS NOT NULL ORDER BY transmission ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -404,7 +406,7 @@ public class InventoryPanel extends JPanel {
 			comboBoxMileage.addItem("< 110000");
 			comboBoxMileage.addItem("< 120000");
 			
-			query = "SELECT DISTINCT location FROM lramos6db.Vehicle WHERE location IS NOT NULL";
+			query = "SELECT DISTINCT location FROM lramos6db.Vehicle WHERE location IS NOT NULL ORDER BY location ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -572,8 +574,8 @@ public class InventoryPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			String query = "INSERT INTO lramos6db.Vehicle (VIN, make, model, year, color, vehicleType,"
-					+ " transmission, location, MPG, mileage, price, carBayID_FK)"
-					+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					+ " transmission, MPG, mileage, price, location, carBayID_FK)"
+					+ " values (?,?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputVIN.getText());
 			stmt.setString(2, inputMake.getText());
@@ -585,8 +587,8 @@ public class InventoryPanel extends JPanel {
 			stmt.setString(8, inputMPG.getText());
 			stmt.setString(9, inputMileage.getText());
 			stmt.setString(10, inputPrice.getText());
-			stmt.setString(11, inputLocation.getText());
-			stmt.setString(12, inputCarBayID.getText());
+			stmt.setString(11, (String) inputLocation.getSelectedItem());
+			stmt.setString(12, (String) inputCarBayID.getSelectedItem());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -611,10 +613,26 @@ public class InventoryPanel extends JPanel {
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String VIN = (inventoryTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT * FROM lramos6db.Vehicle WHERE VIN='" + VIN + "'";
+				String query = "SELECT carBayID FROM lramos6db.CarBay ORDER BY carBayID ASC";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
+				
+				while(result.next() == true) {
+					inputCarBayID.addItem(result.getString("carBayID"));
+				}
+				
+				query = "SELECT locationName FROM lramos6db.Location ORDER BY locationName ASC";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
+				
+				while(result.next() == true) {
+					inputLocation.addItem(result.getString("locationName"));
+				}
+				
+				String VIN = (inventoryTable.getModel().getValueAt(selectedRow, 0)).toString();
+				query = "SELECT * FROM lramos6db.Vehicle WHERE VIN='" + VIN + "'";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
 							
 				if(result.next() == true) {
 					inputVIN.setText(result.getString("VIN"));
@@ -627,8 +645,8 @@ public class InventoryPanel extends JPanel {
 					inputMPG.setText(result.getString("MPG"));
 					inputMileage.setText(result.getString("mileage"));
 					inputPrice.setText(result.getString("price"));
-					inputLocation.setText(result.getString("location"));
-					inputCarBayID.setText(result.getString("carBayID_FK"));
+					inputLocation.setSelectedItem(result.getString("location"));
+					inputCarBayID.setSelectedItem(result.getString("carBayID_FK"));
 					
 					System.out.println("Fields populated successfully.");
 				} else {
@@ -663,7 +681,7 @@ public class InventoryPanel extends JPanel {
 							"', MPG='" + inputMPG.getText() +
 							"', mileage=" + inputMileage.getText() +
 							", price=" + inputPrice.getText() +
-							", carBayID_FK=" + inputCarBayID.getText() +
+							", carBayID_FK=" + inputCarBayID.getSelectedItem() +
 							" WHERE VIN='" + VIN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
@@ -672,8 +690,6 @@ public class InventoryPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
-			
-			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -717,17 +733,17 @@ public class InventoryPanel extends JPanel {
 	 */
 	
 	private void clearFields() {
-		inputVIN = null;
-		inputMake = null;
-		inputModel = null;
-		inputYear = null;
-		inputColor = null;
-		inputType = null;
-		inputTransmission = null;
-		inputMPG = null;
-		inputMileage = null;
-		inputPrice = null;
-		inputLocation = null;
-		inputCarBayID = null;
+		inputVIN.setText(null);
+		inputMake.setText(null);
+		inputModel.setText(null);
+		inputYear.setText(null);
+		inputColor.setText(null);
+		inputType.setText(null);
+		inputTransmission.setText(null);
+		inputMPG.setText(null);
+		inputMileage.setText(null);
+		inputPrice.setText(null);
+		inputLocation.removeAllItems();
+		inputCarBayID.removeAllItems();
 	}
 }

@@ -45,18 +45,18 @@ public class StaffPanel extends JPanel {
 	private JTextField inputFirstName = new JTextField();
 	private JTextField inputLastName = new JTextField();
 	private JTextField inputMiddleInitial = new JTextField();
-	private JTextField inputSex = new JTextField();
+	private JComboBox<String> inputSex = new JComboBox<String>();
 	private JTextField inputDoB = new JTextField();
 	private JTextField inputPhoneNumber= new JTextField();
-	private JTextField inputEmployeeType = new JTextField();
-	private JTextField inputWorkLocation = new JTextField();
+	private JComboBox<String> inputEmployeeType = new JComboBox<String>();
+	private JComboBox<String> inputWorkLocation = new JComboBox<String>();
 	private JTextField inputSalary = new JTextField();
 	private JTextField inputYearsWorked = new JTextField();
 	private JTextField inputAddress = new JTextField();
 	private JTextField inputHoursWorked = new JTextField();
 	private JTextField inputUsername = new JTextField();
 	private JTextField inputPassword = new JTextField();
-	private JTextField inputManagerSSN = new JTextField();
+	private JComboBox<String> inputManagerSSN = new JComboBox<String>();
 	
 	Object[] inputFields = {
 			"SSN", inputSSN,
@@ -121,6 +121,8 @@ public class StaffPanel extends JPanel {
 						System.out.println("Updating Employee... ");
 						updateDatabase();
 					}
+					
+					clearFields();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -197,7 +199,7 @@ public class StaffPanel extends JPanel {
 		lblWorkLocation.setBounds(10, 173, 96, 15);
 		add(lblWorkLocation);
 		
-		comboBoxWorkLoc = new JComboBox();
+		comboBoxWorkLoc = new JComboBox<String>();
 		lblWorkLocation.setLabelFor(comboBoxWorkLoc);
 		comboBoxWorkLoc.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxWorkLoc.setBounds(116, 170, 86, 20);
@@ -209,7 +211,7 @@ public class StaffPanel extends JPanel {
 		lblSalary.setBounds(10, 204, 96, 15);
 		add(lblSalary);
 		
-		comboBoxSalary = new JComboBox();
+		comboBoxSalary = new JComboBox<String>();
 		lblSalary.setLabelFor(comboBoxSalary);
 		comboBoxSalary.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxSalary.setBounds(116, 201, 86, 20);
@@ -233,7 +235,7 @@ public class StaffPanel extends JPanel {
 		lblManager.setBounds(10, 359, 96, 15);
 		add(lblManager);
 		
-		comboBoxManager = new JComboBox();
+		comboBoxManager = new JComboBox<String>();
 		comboBoxManager.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxManager.setBounds(116, 356, 86, 20);
 		add(comboBoxManager);
@@ -320,7 +322,7 @@ public class StaffPanel extends JPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT employeeType FROM lramos6db.Employee WHERE employeeType IS NOT NULL";
+			String query = "SELECT DISTINCT employeeType FROM lramos6db.Employee WHERE employeeType IS NOT NULL ORDER BY employeeType ASC";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
@@ -329,7 +331,7 @@ public class StaffPanel extends JPanel {
 				comboBoxEmpType.addItem(result.getString("employeeType"));
 			}
 			
-			query = "SELECT DISTINCT workLocation FROM lramos6db.Employee WHERE workLocation IS NOT NULL";
+			query = "SELECT DISTINCT workLocation FROM lramos6db.Employee WHERE workLocation IS NOT NULL ORDER BY workLocation ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
@@ -515,18 +517,18 @@ public class StaffPanel extends JPanel {
 			stmt.setString(2, inputFirstName.getText());
 			stmt.setString(3, inputLastName.getText());
 			stmt.setString(4, inputMiddleInitial.getText());
-			stmt.setString(5, inputSex.getText());
+			stmt.setString(5, (String) inputSex.getSelectedItem());
 			stmt.setString(6, inputDoB.getText());
 			stmt.setString(7, inputPhoneNumber.getText());
-			stmt.setString(8, inputEmployeeType.getText());
-			stmt.setString(9, inputWorkLocation.getText());
+			stmt.setString(8, (String) inputEmployeeType.getSelectedItem());
+			stmt.setString(9, (String) inputWorkLocation.getSelectedItem());
 			stmt.setString(10, inputSalary.getText());
 			stmt.setString(11, inputYearsWorked.getText());
 			stmt.setString(12, inputAddress.getText());
 			stmt.setString(13, inputHoursWorked.getText());
 			stmt.setString(14, inputUsername.getText());
 			stmt.setString(15, inputPassword.getText());
-			stmt.setString(16, inputManagerSSN.getText());
+			stmt.setString(16, (String) inputManagerSSN.getSelectedItem());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -551,28 +553,54 @@ public class StaffPanel extends JPanel {
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT * FROM lramos6db.Employee WHERE SSN ='" + SSN + "'";
+				String query = "SELECT DISTINCT locationName FROM lramos6db.Location WHERE locationName IS NOT NULL ORDER BY locationName ASC";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
-							
+				
+				inputWorkLocation.addItem(null);
+				while(result.next() == true) {
+					inputWorkLocation.addItem(result.getString("locationName"));
+				}
+
+				query = "SELECT DISTINCT managerSSN FROM lramos6db.Manager WHERE managerSSN IS NOT NULL";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
+				
+				inputManagerSSN.addItem(null);
+				while(result.next() == true) {
+					inputManagerSSN.addItem(result.getString("managerSSN"));
+				}
+				
+				inputEmployeeType.addItem("Manager");
+				inputEmployeeType.addItem("Mechanic");
+				inputEmployeeType.addItem("Sales Associate");
+				inputEmployeeType.addItem("Site Manager");
+				
+				inputSex.addItem("F");
+				inputSex.addItem("M");
+				
+				String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
+				query = "SELECT * FROM lramos6db.Employee WHERE SSN ='" + SSN + "'";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
+				
 				if(result.next() == true) {
 					inputSSN.setText(result.getString("SSN"));
 					inputFirstName.setText(result.getString("fName"));
 					inputLastName.setText(result.getString("lName"));
 					inputMiddleInitial.setText(result.getString("mInit"));
-					inputSex.setText(result.getString("sex"));
+					inputSex.setSelectedItem(result.getString("sex"));
 					inputDoB.setText(result.getString("DOB"));
 					inputPhoneNumber.setText(result.getString("phoneNo"));
-					inputEmployeeType.setText(result.getString("employeeType"));
-					inputWorkLocation.setText(result.getString("workLocation"));
+					inputEmployeeType.setSelectedItem(result.getString("employeeType"));
+					inputWorkLocation.setSelectedItem(result.getString("workLocation"));
 					inputSalary.setText(result.getString("salary"));
 					inputYearsWorked.setText(result.getString("yearsWorked"));
 					inputAddress.setText(result.getString("address"));
 					inputHoursWorked.setText(result.getString("hoursWorked"));
 					inputUsername.setText(result.getString("username"));
 					inputPassword.setText(result.getString("password"));
-					inputManagerSSN.setText(result.getString("managerSSN"));
+					inputManagerSSN.setSelectedItem(result.getString("managerSSN"));
 					
 					System.out.println("Fields populated successfully.");
 				} else {
@@ -601,17 +629,17 @@ public class StaffPanel extends JPanel {
 								"', fName ='" + inputFirstName.getText() +
 								"', lName ='" + inputLastName.getText() +
 								"', mInit ='" + inputMiddleInitial.getText() +
-								"', sex ='" + inputSex.getText() +
+								"', sex ='" + inputSex.getSelectedItem() +
 								"', DOB ='" + inputDoB.getText() +
 								"', phoneNo ='" + inputPhoneNumber.getText() +
-								"', employeeType ='" + inputWorkLocation.getText() +
+								"', employeeType ='" + inputWorkLocation.getSelectedItem() +
 								"', salary ='" + inputSalary.getText() +
 								"', yearsWorked ='" + inputYearsWorked.getText() +
 								"', address ='" + inputAddress.getText() +
 								"', hoursWorked ='" + inputHoursWorked.getText() +
 								"', username ='" + inputUsername.getText() +
 								"', password ='" + inputPassword.getText() +
-								"', managerSSN ='" + inputManagerSSN.getText() +
+								"', managerSSN ='" + inputManagerSSN.getSelectedItem() +
 								"' WHERE SSN ='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
@@ -620,8 +648,6 @@ public class StaffPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
-			
-			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -666,21 +692,21 @@ public class StaffPanel extends JPanel {
 	 */
 	
 	private void clearFields() {
-		inputSSN = null;
-		inputFirstName = null;
-		inputLastName = null;
-		inputMiddleInitial = null;
-		inputSex = null;
-		inputDoB = null;
-		inputPhoneNumber = null;
-		inputEmployeeType = null;
-		inputWorkLocation = null;
-		inputSalary = null;
-		inputYearsWorked = null;
-		inputAddress = null;
-		inputHoursWorked = null;
-		inputUsername = null;
-		inputPassword = null;
-		inputManagerSSN = null;
+		inputSSN.setText(null);
+		inputFirstName.setText(null);
+		inputLastName.setText(null);
+		inputMiddleInitial.setText(null);
+		inputSex.removeAllItems();
+		inputDoB.setText(null);
+		inputPhoneNumber.setText(null);
+		inputEmployeeType.removeAllItems();
+		inputWorkLocation.removeAllItems();
+		inputSalary.setText(null);
+		inputYearsWorked.setText(null);
+		inputAddress.setText(null);
+		inputHoursWorked.setText(null);
+		inputUsername.setText(null);
+		inputPassword.setText(null);
+		inputManagerSSN.removeAllItems();
 	}
 }

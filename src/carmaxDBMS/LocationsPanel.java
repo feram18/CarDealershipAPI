@@ -38,7 +38,7 @@ public class LocationsPanel extends JPanel {
 	private JTextField inputLocationID = new JTextField();
 	private JTextField inputLocationName = new JTextField();
 	private JTextField inputAddress = new JTextField();
-	private JTextField inputManagerSSN = new JTextField();
+	private JComboBox<String> inputManagerSSN = new JComboBox<String>();
 	
 	Object[] inputFields = {
 			"Location ID", inputLocationID,
@@ -91,6 +91,8 @@ public class LocationsPanel extends JPanel {
 						System.out.println("Updating Location... ");
 						updateDatabase();
 					}
+					
+					clearFields();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -179,7 +181,7 @@ public class LocationsPanel extends JPanel {
 		lblManager.setBounds(10, 193, 97, 15);
 		add(lblManager);
 		
-		comboBoxManager = new JComboBox();
+		comboBoxManager = new JComboBox<String>();
 		lblManager.setLabelFor(comboBoxManager);
 		comboBoxManager.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxManager.setBounds(117, 190, 86, 20);
@@ -344,7 +346,7 @@ public class LocationsPanel extends JPanel {
 			stmt.setString(1, inputLocationID.getText());
 			stmt.setString(2, inputLocationName.getText());
 			stmt.setString(3, inputAddress.getText());
-			stmt.setString(4, inputManagerSSN.getText());
+			stmt.setString(4, (String) inputManagerSSN.getSelectedItem());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -369,16 +371,25 @@ public class LocationsPanel extends JPanel {
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT * FROM lramos6db.Location WHERE locationID='" + locationID + "'";
+				String query = "SELECT DISTINCT siteManagerSSN FROM lramos6db.SiteManager WHERE siteManagerSSN";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
-							
+				
+				inputManagerSSN.addItem(null);
+				while(result.next() == true) {
+					inputManagerSSN.addItem(result.getString("siteManagerSSN"));
+				}
+				
+				String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
+				query = "SELECT * FROM lramos6db.Location WHERE locationID='" + locationID + "'";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
+				
 				if(result.next() == true) {
 					inputLocationID.setText(result.getString("locationID"));
 					inputLocationName.setText(result.getString("locationName"));
 					inputAddress.setText(result.getString("address"));
-					inputManagerSSN.setText(result.getString("siteManagerSSN_FK"));
+					inputManagerSSN.setSelectedItem(result.getString("siteManagerSSN_FK"));
 				}
 			}
 		} catch (Exception e) {
@@ -402,7 +413,7 @@ public class LocationsPanel extends JPanel {
 					"locationID ='" + inputLocationID.getText() +
 					"', locationName ='" + inputLocationName.getText() +
 					"', address ='" + inputAddress.getText() +
-					"', siteManagerSSN_FK ='" + inputManagerSSN.getText() +
+					"', siteManagerSSN_FK ='" + inputManagerSSN.getSelectedItem() +
 					"' WHERE locationID='" + locationID + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
@@ -411,8 +422,6 @@ public class LocationsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
-			
-			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -456,9 +465,9 @@ public class LocationsPanel extends JPanel {
 	 */
 	
 	private void clearFields() {
-		inputLocationID = null;
-		inputLocationName = null;
-		inputAddress = null;
-		inputManagerSSN = null;
+		inputLocationID.setText(null);
+		inputLocationName.setText(null);
+		inputAddress.setText(null);
+		inputManagerSSN.removeAllItems();
 	}
 }

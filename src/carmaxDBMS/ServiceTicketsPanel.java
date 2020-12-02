@@ -42,8 +42,8 @@ public class ServiceTicketsPanel extends JPanel {
 	private JDatePickerImpl datePicker;
 	
 	private JTextField inputTicketNo = new JTextField();
-	private JTextField inputVIN = new JTextField();
-	private JTextField inputMechanicSSN = new JTextField();
+	private JComboBox<String> inputVIN = new JComboBox<String>();
+	private JComboBox<String> inputMechanicSSN = new JComboBox<String>();
 	private JTextField inputComment = new JTextField();
 	private JTextField inputServiceDate = new JTextField();
 	
@@ -99,6 +99,8 @@ public class ServiceTicketsPanel extends JPanel {
 						System.out.println("Updating Service Ticket... ");
 						updateDatabase();
 					}
+					
+					clearFields();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -151,7 +153,7 @@ public class ServiceTicketsPanel extends JPanel {
 		lblMechanic.setBounds(10, 106, 80, 15);
 		add(lblMechanic);
 		
-		comboBoxMechanic = new JComboBox();
+		comboBoxMechanic = new JComboBox<String>();
 		lblMechanic.setLabelFor(comboBoxMechanic);
 		comboBoxMechanic.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxMechanic.setBounds(100, 103, 105, 20);
@@ -196,8 +198,8 @@ public class ServiceTicketsPanel extends JPanel {
 		btnAddNewTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Location", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
-						System.out.print("Adding new Location to database...");
+					if(JOptionPane.showOptionDialog(null, inputFields, "New Service Ticket", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Service Ticket to database...");
 						addToDatabase();
 					}
 					
@@ -321,10 +323,10 @@ public class ServiceTicketsPanel extends JPanel {
 							+ " values (?, ?, ?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputTicketNo.getText());
-			stmt.setString(2, inputVIN.getText());
-			stmt.setString(3, inputMechanicSSN.getText());
+			stmt.setString(2, (String) inputVIN.getSelectedItem());
+			stmt.setString(3, (String) inputMechanicSSN.getSelectedItem());
 			stmt.setString(4, inputComment.getText());
-			stmt.setString(4, inputServiceDate.getText());
+			stmt.setString(5, inputServiceDate.getText());
 			
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
@@ -350,14 +352,30 @@ public class ServiceTicketsPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				String ticketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT * FROM lramos6db.ServiceTicket WHERE serviceTicketNo='" + ticketNo + "'";
+				String query = "SELECT DISTINCT VIN FROM lramos6db.Vehicle WHERE VIN IS NOT NULL";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
+				
+				while(result.next() == true) {
+					inputVIN.addItem(result.getString("VIN"));
+				}
+				
+				query = "SELECT DISTINCT mechanicSSN FROM lramos6db.Mechanic WHERE mechanicSSN IS NOT NULL";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
+				
+				while(result.next() == true) {
+					inputMechanicSSN.addItem(result.getString("mechanicSSN"));
+				}
+				
+				query = "SELECT * FROM lramos6db.ServiceTicket WHERE serviceTicketNo='" + ticketNo + "'";
+				stmt = connection.prepareStatement(query);
+				result = stmt.executeQuery();
 							
 				if(result.next() == true) {
 					inputTicketNo.setText(result.getString("serviceTicketNo"));
-					inputVIN.setText(result.getString("VIN_FK"));
-					inputMechanicSSN.setText(result.getString("mechanicSSN_FK"));
+					inputVIN.setSelectedItem(result.getString("VIN_FK"));
+					inputMechanicSSN.setSelectedItem(result.getString("mechanicSSN_FK"));
 					inputComment.setText(result.getString("comment"));
 					inputServiceDate.setText(result.getString("serviceDate"));
 				}
@@ -381,8 +399,8 @@ public class ServiceTicketsPanel extends JPanel {
 			String serviceTicketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
 			String query = "UPDATE lramos6db.ServiceTicket SET " +
 							"serviceTicketNo ='" + inputTicketNo.getText() +
-							"', VIN_FK ='" + inputVIN.getText() +
-							"', mechanicSSN_FK ='" + inputMechanicSSN.getText() +
+							"', VIN_FK ='" + inputVIN.getSelectedItem() +
+							"', mechanicSSN_FK ='" + inputMechanicSSN.getSelectedItem() +
 							"', comment ='" + inputComment.getText() +
 							"', serviceDate ='" + inputServiceDate.getText() +
 							"' WHERE serviceTicketNo='" + serviceTicketNo + "';";
@@ -393,8 +411,6 @@ public class ServiceTicketsPanel extends JPanel {
 			
 			stmt.close();
 			connection.close();
-			
-			clearFields();
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -438,10 +454,10 @@ public class ServiceTicketsPanel extends JPanel {
 	 */
 	
 	private void clearFields() {
-		inputTicketNo = null;
-		inputVIN = null;
-		inputMechanicSSN = null;
-		inputComment = null;
-		inputServiceDate = null;
+		inputTicketNo.setText(null);
+		inputVIN.removeAllItems();
+		inputMechanicSSN.removeAllItems();
+		inputComment.setText(null);
+		inputServiceDate.setText(null);
 	}
 }
