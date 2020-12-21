@@ -6,10 +6,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Toolkit;
+
 import javax.swing.JTextField;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 
@@ -40,8 +45,9 @@ public class LoginFrame {
 	
 	/**
 	 * Create the application.
+	 * @throws IOException 
 	 */
-	public LoginFrame() {
+	public LoginFrame() throws IOException {
 		initialize();
 		connection = SQLConnection.ConnectDb();
 	}
@@ -101,10 +107,10 @@ public class LoginFrame {
 	 * fields, and makes the SQL to authenticate the user into the system. If the user
 	 * fails to enter correct credentials, an error message is displayed.
 	 */
-	
+
 	private void LogIn() {
 		try {
-			String query = "SELECT * FROM lramos6db.Employee WHERE username=? AND password=?";
+			String query = "SELECT * FROM Employee WHERE username=? AND password=?;";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, username.getText());
 			stmt.setString(2, password.getText());
@@ -112,7 +118,7 @@ public class LoginFrame {
 			ResultSet result = stmt.executeQuery();
 			Boolean valid = false;
 			
-			if(result.next() == true) {
+			if(result.next()) {
 				valid = true;
 				loggedInUser = result.getString("fName"); //Grab user's name for greeting
 			}

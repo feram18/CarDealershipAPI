@@ -23,8 +23,10 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
-public class DepartmentsPanel extends JPanel {
+public class DepartmentsPanel extends JPanel implements GUIPanel{
 	private Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTable departmentsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -73,19 +75,15 @@ public class DepartmentsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Department", JOptionPane.DEFAULT_OPTION,
-							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Department",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Department... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -99,7 +97,7 @@ public class DepartmentsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -153,7 +151,7 @@ public class DepartmentsPanel extends JPanel {
 		btnSearchDepartments.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchDepartments();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -167,11 +165,16 @@ public class DepartmentsPanel extends JPanel {
 		btnAddNewDepartment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Department", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+					populateToAdd();
+					
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Department",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+							null, addOptions, null) == 0) {
 						System.out.print("Adding new Department to database...");
-						addToDatabase();
+						add();
 					}
 					
+					clearFields();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
@@ -188,18 +191,21 @@ public class DepartmentsPanel extends JPanel {
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT managerSSN_FK2 FROM lramos6db.Department WHERE managerSSN_FK2 IS NOT NULL";
+			query = "SELECT DISTINCT managerSSN_FK2 FROM Department WHERE managerSSN_FK2 IS NOT NULL";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxManager.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxManager.addItem(result.getString("managerSSN_FK2"));
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for combobox");
 			e.printStackTrace();
@@ -213,36 +219,28 @@ public class DepartmentsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void searchDepartments() throws SQLException {
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Department WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT `departmentNo` AS `Dpt. No.`, " +
+					"`departmentName` AS `Dpt. Name` , " +
+					"`managerSSN_FK2` AS `Manager SSN`" +
+					"FROM Department WHERE "; //Base query
 			
-			if(!textFieldDptNo.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldDptNo.getText().isEmpty()) {
+				addToQuery();
 				query += "departmentNo ='" + textFieldDptNo.getText() + "'";
 			}
 			
-			if(!textFieldDptName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldDptName.getText().isEmpty()) {
+				addToQuery();
 				query += "departmentName ='" + textFieldDptName.getText() + "'";
 			}
 			
 			if(comboBoxManager.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+				addToQuery();
 				query += "managerSSN_FK2 ='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
@@ -258,6 +256,11 @@ public class DepartmentsPanel extends JPanel {
 			}
 			
 			parameterCount = 0;
+			
+			departmentsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(departmentsTable);
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -270,11 +273,12 @@ public class DepartmentsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void addToDatabase() throws SQLException  {
+	@Override
+	public void add() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Department (departmentNo, departmentName, managerSSN_FK2)"
-							+ " values (?, ?, ?)";
+			query = "INSERT INTO Department (departmentNo, departmentName, managerSSN_FK2)" +
+					" values (?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputDptNo.getText());
 			stmt.setString(2, inputDptName.getText());
@@ -296,33 +300,37 @@ public class DepartmentsPanel extends JPanel {
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = departmentsTable.getSelectedRow();
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String query = "SELECT DISTINCT managerSSN FROM lramos6db.Manager WHERE managerSSN";
+				query = "SELECT DISTINCT managerSSN FROM Manager WHERE managerSSN";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
 				inputManagerSSN.addItem(null);
-				while(result.next() == true) {
+				while(result.next()) {
 					inputManagerSSN.addItem(result.getString("managerSSN"));
 				}
 				
 				String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Department WHERE departmentNo='" + departmentNo + "';";
+				query = "SELECT * FROM Department WHERE departmentNo='" + departmentNo + "';";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 
-				if(result.next() == true) {
+				if(result.next()) {
 					inputDptNo.setText(result.getString("departmentNo"));
 					inputDptName.setText(result.getString("departmentName"));
 					inputManagerSSN.setSelectedItem(result.getString("managerSSN_FK2"));
 				}
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
@@ -335,16 +343,17 @@ public class DepartmentsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = departmentsTable.getSelectedRow();
 			String departmentNo = (departmentsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Department SET " + 
-							"departmentNo =" + inputDptNo.getText() +
-							", departmentName ='" + inputDptName.getText() +
-							"', managerSSN_FK2 ='" + inputManagerSSN.getSelectedItem() +
-							"' WHERE departmentNo='" + departmentNo + "';";
+			query = "UPDATE Department SET " + 
+					"departmentNo =" + inputDptNo.getText() +
+					", departmentName ='" + inputDptName.getText() +
+					"', managerSSN_FK2 ='" + inputManagerSSN.getSelectedItem() +
+					"' WHERE departmentNo='" + departmentNo + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -365,15 +374,17 @@ public class DepartmentsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
-		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+	@Override
+	public void delete() throws SQLException {
+		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
+				"Delete", JOptionPane.YES_NO_OPTION);
 		
 		if(confirmation == 0) {
 			try {
 				int selectedRow = departmentsTable.getSelectedRow();
 				String departmentNo = departmentsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Department WHERE departmentNo='" + departmentNo + "';";
+				query = "DELETE FROM Department WHERE departmentNo='" + departmentNo + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -394,9 +405,51 @@ public class DepartmentsPanel extends JPanel {
 	 * data on following edit attempt
 	 */
 	
-	private void clearFields() {
+	@Override
+	public void clearFields() {
 		inputDptNo.setText(null);
 		inputDptName.setText(null);
 		inputManagerSSN.removeAllItems();
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+	
+	/**
+	 * This method populates the comboboxes on the Add Department popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT DISTINCT managerSSN FROM Manager WHERE managerSSN IS NOT NULL;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputManagerSSN.addItem(result.getString("managerSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }

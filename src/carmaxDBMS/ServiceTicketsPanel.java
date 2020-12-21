@@ -30,8 +30,10 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
-public class ServiceTicketsPanel extends JPanel {
+public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 	private Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTable ticketsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -45,7 +47,7 @@ public class ServiceTicketsPanel extends JPanel {
 	private JComboBox<String> inputVIN = new JComboBox<String>();
 	private JComboBox<String> inputMechanicSSN = new JComboBox<String>();
 	private JTextField inputComment = new JTextField();
-	private JTextField inputServiceDate = new JTextField();
+	private JTextField inputServiceDate = new JTextField(); //TODO pick date
 	
 	Object[] inputFields = {
 			"Service Ticket Number", inputTicketNo,
@@ -85,19 +87,15 @@ public class ServiceTicketsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Service Ticket", JOptionPane.DEFAULT_OPTION,
-							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Service Ticket",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Service Ticket... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -111,7 +109,7 @@ public class ServiceTicketsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -184,7 +182,7 @@ public class ServiceTicketsPanel extends JPanel {
 		btnSearchTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchTickets();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -198,9 +196,10 @@ public class ServiceTicketsPanel extends JPanel {
 		btnAddNewTicket.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "New Service Ticket", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+					if(JOptionPane.showOptionDialog(null, inputFields, "New Service Ticket",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
 						System.out.print("Adding new Service Ticket to database...");
-						addToDatabase();
+						add();
 					}
 					
 				} catch (Exception exception) {
@@ -219,18 +218,21 @@ public class ServiceTicketsPanel extends JPanel {
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT mechanicSSN FROM lramos6db.Mechanic WHERE mechanicSSN IS NOT NULL";
+			query = "SELECT DISTINCT mechanicSSN FROM Mechanic WHERE mechanicSSN IS NOT NULL;";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxMechanic.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxMechanic.addItem(result.getString("mechanicSSN"));
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for combobox");
 			e.printStackTrace();
@@ -244,57 +246,46 @@ public class ServiceTicketsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void searchTickets() throws SQLException {
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.ServiceTicket WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT `serviceTicketNo` AS `Ticket No.`, " +
+					"`VIN_FK` AS `VIN`, " +
+					"`mechanicSSN_FK` AS `Mechanic SSN`, " +
+					"`comment` AS `Comment`, " +
+					"`serviceDate` AS `Service Date` " +
+					"FROM ServiceTicket WHERE "; //Base query
 			
-			if(!textFieldTicketNo.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldTicketNo.getText().isEmpty()) {
+				addToQuery();
 				query += "serviceTicketNo ='" + textFieldTicketNo.getText() + "'";
 			}
 			
-			if(!textFieldVIN.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldVIN.getText().isEmpty()) {
+				addToQuery();
 				query += "VIN_FK ='" + textFieldVIN.getText() + "'";
 			}
 			
-			if(comboBoxMechanic.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxMechanic.getSelectedItem() != null) {
+				addToQuery();
 				query += "mechanicSSN_FK ='" + comboBoxMechanic.getSelectedItem().toString() +"'";
 			}
 			
-			
-			//TODO - Retrieve Date in SQLformat
-			if(datePicker.getModel().getValue() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
+			if (datePicker.getModel().getValue() != null) {
+				addToQuery();
 				
-				Date date = (Date) datePicker.getModel().getValue();
-				long sqlDate = date.getTime();
-				System.out.println(sqlDate);
+				String date = datePicker.getModel().getYear() + "-" +
+								(datePicker.getModel().getMonth() + 1) + "-" +
+								(datePicker.getModel().getDay() + 1);
 				
-				query += "serviceDate ='" + "" + "'";
+				query += "serviceDate ='" + date + "'";
 			}
 			
 			query += ";";
 			
-			if(parameterCount > 0) {
+			if (parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				ticketsTable.setModel(DbUtils.resultSetToTableModel(result));
@@ -304,6 +295,10 @@ public class ServiceTicketsPanel extends JPanel {
 			}
 			
 			parameterCount = 0;
+			
+			ticketsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(ticketsTable);
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -316,11 +311,12 @@ public class ServiceTicketsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void addToDatabase() throws SQLException  {
+	@Override
+	public void add() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.ServiceTicket (serviceTicketNo, VIN_FK, mechanicSSN_FK, comment, serviceDate)"
-							+ " values (?, ?, ?, ?, ?)";
+			query = "INSERT INTO ServiceTicket (serviceTicketNo, VIN_FK, mechanicSSN_FK, comment, serviceDate)" +
+					" VALUES (?, ?, ?, ?, ?);";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputTicketNo.getText());
 			stmt.setString(2, (String) inputVIN.getSelectedItem());
@@ -344,7 +340,9 @@ public class ServiceTicketsPanel extends JPanel {
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = ticketsTable.getSelectedRow();
@@ -352,27 +350,27 @@ public class ServiceTicketsPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				String ticketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				String query = "SELECT DISTINCT VIN FROM lramos6db.Vehicle WHERE VIN IS NOT NULL";
+				query = "SELECT DISTINCT VIN FROM Vehicle WHERE VIN IS NOT NULL;";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
-				while(result.next() == true) {
+				while(result.next()) {
 					inputVIN.addItem(result.getString("VIN"));
 				}
 				
-				query = "SELECT DISTINCT mechanicSSN FROM lramos6db.Mechanic WHERE mechanicSSN IS NOT NULL";
+				query = "SELECT DISTINCT mechanicSSN FROM Mechanic WHERE mechanicSSN IS NOT NULL;";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 				
-				while(result.next() == true) {
+				while(result.next()) {
 					inputMechanicSSN.addItem(result.getString("mechanicSSN"));
 				}
 				
-				query = "SELECT * FROM lramos6db.ServiceTicket WHERE serviceTicketNo='" + ticketNo + "'";
+				query = "SELECT * FROM ServiceTicket WHERE serviceTicketNo='" + ticketNo + "';";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
-				if(result.next() == true) {
+				if(result.next()) {
 					inputTicketNo.setText(result.getString("serviceTicketNo"));
 					inputVIN.setSelectedItem(result.getString("VIN_FK"));
 					inputMechanicSSN.setSelectedItem(result.getString("mechanicSSN_FK"));
@@ -380,6 +378,8 @@ public class ServiceTicketsPanel extends JPanel {
 					inputServiceDate.setText(result.getString("serviceDate"));
 				}
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
@@ -392,18 +392,19 @@ public class ServiceTicketsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = ticketsTable.getSelectedRow();
 			String serviceTicketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.ServiceTicket SET " +
-							"serviceTicketNo ='" + inputTicketNo.getText() +
-							"', VIN_FK ='" + inputVIN.getSelectedItem() +
-							"', mechanicSSN_FK ='" + inputMechanicSSN.getSelectedItem() +
-							"', comment ='" + inputComment.getText() +
-							"', serviceDate ='" + inputServiceDate.getText() +
-							"' WHERE serviceTicketNo='" + serviceTicketNo + "';";
+			query = "UPDATE ServiceTicket SET " +
+					"serviceTicketNo ='" + inputTicketNo.getText() +
+					"', VIN_FK ='" + inputVIN.getSelectedItem() +
+					"', mechanicSSN_FK ='" + inputMechanicSSN.getSelectedItem() +
+					"', comment ='" + inputComment.getText() +
+					"', serviceDate ='" + inputServiceDate.getText() +
+					"' WHERE serviceTicketNo='" + serviceTicketNo + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -424,7 +425,8 @@ public class ServiceTicketsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
+	@Override
+	public void delete() throws SQLException {
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
 		
 		if(confirmation == 0) {
@@ -432,7 +434,7 @@ public class ServiceTicketsPanel extends JPanel {
 				int selectedRow = ticketsTable.getSelectedRow();
 				String serviceTicketNo = ticketsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.ServiceTicket WHERE serviceTicketNo='" + serviceTicketNo + "';";
+				query = "DELETE FROM ServiceTicket WHERE serviceTicketNo='" + serviceTicketNo + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -453,11 +455,61 @@ public class ServiceTicketsPanel extends JPanel {
 	 * data on following edit attempt
 	 */
 	
-	private void clearFields() {
+	@Override
+	public void clearFields() {
 		inputTicketNo.setText(null);
 		inputVIN.removeAllItems();
 		inputMechanicSSN.removeAllItems();
 		inputComment.setText(null);
 		inputServiceDate.setText(null);
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+
+	/**
+	 * This method populates the comboboxes on the Add Service Ticket popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT VIN FROM Vehicle;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputVIN.addItem(result.getString("VIN"));
+			}
+			
+			query = "SELECT mechanicSSN FROM Mechanic;";
+			stmt = connection.prepareStatement(query);
+			result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputMechanicSSN.addItem(result.getString("mechanicSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }

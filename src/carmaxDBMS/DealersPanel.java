@@ -23,8 +23,10 @@ import javax.swing.SwingConstants;
 
 import net.proteanit.sql.DbUtils;
 
-public class DealersPanel extends JPanel {
+public class DealersPanel extends JPanel implements GUIPanel {
 	private Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTable dealersTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -35,9 +37,15 @@ public class DealersPanel extends JPanel {
 	private JTextField textFieldEmail;
 	private JTextField textFieldPhoneNo;
 	private JTextField textFieldCity;
-	private JTextField textFieldState;
+	private JComboBox<String> comboBoxState;
 	private JTextField textFieldZIP;
 	private JComboBox<String> comboBoxAssociateSSN;
+	
+	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
+			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
+			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
+			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
+			"WA", "WI", "WV", "WY"};
 	
 	private JTextField inputSSN = new JTextField();
 	private JTextField inputFirstName = new JTextField();
@@ -63,10 +71,7 @@ public class DealersPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-
-	/**
-	 * Create the panel.
-	 */
+	
 	public DealersPanel() {
 		setLayout(null);
 		setBackground(Color.WHITE);
@@ -91,19 +96,15 @@ public class DealersPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Dealer", JOptionPane.DEFAULT_OPTION,
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Dealer", JOptionPane.DEFAULT_OPTION,
 							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Dealer... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -117,7 +118,7 @@ public class DealersPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -204,10 +205,10 @@ public class DealersPanel extends JPanel {
 		lblState.setBounds(10, 227, 83, 15);
 		add(lblState);
 		
-		textFieldState = new JTextField();
-		textFieldState.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldState.setBounds(103, 224, 86, 20);
-		add(textFieldState);
+		comboBoxState = new JComboBox<String>(stateAbbreviations);
+		comboBoxState.setFont(new Font("Arial", Font.PLAIN, 12));
+		comboBoxState.setBounds(103, 224, 86, 20);
+		add(comboBoxState);
 		
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -237,7 +238,7 @@ public class DealersPanel extends JPanel {
 		btnSearchDealers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchDealers();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -252,11 +253,16 @@ public class DealersPanel extends JPanel {
 		btnAddNewDealer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "New Dealer", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+					populateToAdd();
+					
+					if(JOptionPane.showOptionDialog(null, inputFields, "New Dealer",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+							null, addOptions, null) == 0) {
 						System.out.print("Adding new Dealer to database... ");
-						addToDatabase();
+						add();
 					}
 					
+					clearFields();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
@@ -274,18 +280,21 @@ public class DealersPanel extends JPanel {
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT associateSSN FROM lramos6db.SalesAssociate WHERE associateSSN IS NOT NULL";
+			query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxAssociateSSN.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxAssociateSSN.addItem(result.getString("associateSSN"));
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for combobox");
 			e.printStackTrace();
@@ -299,96 +308,68 @@ public class DealersPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void searchDealers() throws SQLException {
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Dealer WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT `dealerSSN` AS `SSN`, " +
+					"`fName` AS `First Name`, " +
+					"`lName` AS `Last Name`, " +
+					"`email` AS `Email`, " +
+					"`phoneNo` AS `Phone Number`, " +
+					"`address` AS `Address`, " +
+					"`associateSSN_FK` AS `Associate SSN` " +
+					"FROM Dealer WHERE "; //Base query
 			
-			if(!textFieldSSN.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldSSN.getText().isEmpty()) {
+				addToQuery();
 				query += "dealerSSN='" + textFieldSSN.getText() + "'";
 			}
 			
-			if(!textFieldFirstName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldFirstName.getText().isEmpty()) {
+				addToQuery();
 				query += "fName='" + textFieldFirstName.getText() + "'";
 			}
 			
-			if(!textFieldLastName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldLastName.getText().isEmpty()) {
+				addToQuery();
 				query += "lName='" + textFieldLastName.getText() + "'";
 			}
 			
-			if(!textFieldEmail.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldEmail.getText().isEmpty()) {
+				addToQuery();
 				query += "email='" + textFieldEmail.getText() + "'";
 			}
 			
-			if(!textFieldPhoneNo.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldPhoneNo.getText().isEmpty()) {
+				addToQuery();
 				query += "phoneNo='" + textFieldPhoneNo.getText() + "'";
 			}
 			
-			if(!textFieldCity.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldCity.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldCity.getText() + "%'";
 			}
 			
-			if(!textFieldState.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			if (comboBoxState.getSelectedItem() != null) {
+				addToQuery();
+				query += "address LIKE '%" + comboBoxState.getSelectedItem() + "%'";
 			}
 			
-			if(!textFieldZIP.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldZIP.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
 			}
 			
-			if(comboBoxAssociateSSN.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxAssociateSSN.getSelectedItem() != null) {
+				addToQuery();
 				query += "associateSSN_FK='" + comboBoxAssociateSSN.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
 			
-			if(parameterCount > 0) {
+			if (parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				dealersTable.setModel(DbUtils.resultSetToTableModel(result));
@@ -397,6 +378,10 @@ public class DealersPanel extends JPanel {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
 			parameterCount = 0;
+			
+			dealersTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(dealersTable);
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -409,11 +394,12 @@ public class DealersPanel extends JPanel {
 	 * @throws SQLException
 	 */
 
-	private void addToDatabase() throws SQLException  {
+	@Override
+	public void add() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Client (dealerSSN, fName, lName, email, phoneNo, address, associateSSN_FK2)"
-							+ " values (?, ?, ?, ?, ?, ?, ?)";
+			query = "INSERT INTO Dealer (dealerSSN, fName, lName, email, phoneNo, address, associateSSN_FK)" +
+					" VALUES (?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputSSN.getText());
 			stmt.setString(2, inputFirstName.getText());
@@ -439,27 +425,29 @@ public class DealersPanel extends JPanel {
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = dealersTable.getSelectedRow();
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String query = "SELECT DISTINCT associateSSN FROM lramos6db.SalesAssociate WHERE associateSSN IS NOT NULL";
+				query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL;";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
-				while(result.next() == true) {
+				while(result.next()) {
 					inputAssociateSSN.addItem(result.getString("associateSSN"));
 				}
 				
 				String SSN = (dealersTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Dealer WHERE dealerSSN='" + SSN + "'";
+				query = "SELECT * FROM Dealer WHERE dealerSSN='" + SSN + "'";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
-				if(result.next() == true) {
+				if(result.next()) {
 					inputSSN.setText(result.getString("dealerSSN"));
 					inputFirstName.setText(result.getString("fName"));
 					inputLastName.setText(result.getString("lName"));
@@ -469,6 +457,8 @@ public class DealersPanel extends JPanel {
 					inputAssociateSSN.setSelectedItem(result.getString("associateSSN_FK"));
 				}
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
@@ -481,20 +471,21 @@ public class DealersPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = dealersTable.getSelectedRow();
 			String SSN = (dealersTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Dealer SET " +
-							"dealerSSN ='" + inputSSN.getText() +
-							"', fName ='" + inputFirstName.getText() +
-							"', lName ='" + inputLastName.getText() +
-							"', email ='" + inputEmail.getText() +
-							"', phoneNo ='" + inputPhoneNumber.getText() +
-							"', address ='" + inputAddress.getText() +
-							"', associateSSN_FK ='" + inputAssociateSSN.getSelectedItem() +
-							"' WHERE dealerSSN ='" + SSN + "';";
+			query = "UPDATE Dealer SET " +
+					"dealerSSN ='" + inputSSN.getText() +
+					"', fName ='" + inputFirstName.getText() +
+					"', lName ='" + inputLastName.getText() +
+					"', email ='" + inputEmail.getText() +
+					"', phoneNo ='" + inputPhoneNumber.getText() +
+					"', address ='" + inputAddress.getText() +
+					"', associateSSN_FK ='" + inputAssociateSSN.getSelectedItem() +
+					"' WHERE dealerSSN ='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -515,15 +506,17 @@ public class DealersPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
-		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+	@Override
+	public void delete() throws SQLException {
+		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
+				"Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = dealersTable.getSelectedRow();
 				String SSN = dealersTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Dealer WHERE dealerSSN='" + SSN + "';";
+				query = "DELETE FROM Dealer WHERE dealerSSN='" + SSN + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -543,7 +536,9 @@ public class DealersPanel extends JPanel {
 	 * This method clears the input fields to avoid incorrect
 	 * data on following edit attempt
 	 */
-	private void clearFields() {
+	
+	@Override
+	public void clearFields() {
 		inputSSN.setText(null);
 		inputFirstName.setText(null);
 		inputLastName.setText(null);
@@ -551,5 +546,46 @@ public class DealersPanel extends JPanel {
 		inputPhoneNumber.setText(null);
 		inputAddress.setText(null);
 		inputAssociateSSN.removeAllItems();
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+	
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+	
+	/**
+	 * This method populates the comboboxes on the Add Dealer popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputAssociateSSN.addItem(result.getString("associateSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }

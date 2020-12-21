@@ -1,3 +1,6 @@
+# Properties
+dbCredentials.properties
+
 ### Eclipse ###
 .metadata
 bin/

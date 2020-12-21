@@ -22,8 +22,10 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
-public class ClientsPanel extends JPanel {
-	private Connection connection = null;
+public class ClientsPanel extends JPanel implements GUIPanel {
+	Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTable clientsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -31,18 +33,26 @@ public class ClientsPanel extends JPanel {
 	private JTextField textFieldSSN;
 	private JTextField textFieldFirstName;
 	private JTextField textFieldLastName;
-	private JTextField textFieldSex;
+	private JComboBox<String> comboBoxSex;
 	private JTextField textFieldEmail;
 	private JTextField textFieldPhoneNo;
 	private JTextField textFieldCity;
-	private JTextField textFieldState;
+	private JComboBox<String> comboBoxState;
 	private JTextField textFieldZIP;
 	private JComboBox<String> comboBoxAssociateSSN;
+	
+	private final String[] sexOptions = {null, "F", "M"};
+	
+	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
+			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
+			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
+			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
+			"WA", "WI", "WV", "WY"};
 	
 	private JTextField inputSSN = new JTextField();
 	private JTextField inputFirstName = new JTextField();
 	private JTextField inputLastName = new JTextField();
-	private JComboBox<String> inputSex = new JComboBox<String>();
+	private JComboBox<String> inputSex = new JComboBox<String>(sexOptions);
 	private JTextField inputEmail = new JTextField();
 	private JTextField inputPhoneNumber = new JTextField();
 	private JTextField inputAddress = new JTextField();
@@ -93,19 +103,15 @@ public class ClientsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Client", JOptionPane.DEFAULT_OPTION,
-							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Client",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Client... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -119,7 +125,7 @@ public class ClientsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -173,10 +179,10 @@ public class ClientsPanel extends JPanel {
 		lblSex.setBounds(10, 140, 83, 15);
 		add(lblSex);
 		
-		textFieldSex = new JTextField();
-		textFieldSex.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldSex.setBounds(103, 137, 86, 20);
-		add(textFieldSex);
+		comboBoxSex = new JComboBox<String>(sexOptions);
+		comboBoxSex.setFont(new Font("Arial", Font.PLAIN, 12));
+		comboBoxSex.setBounds(103, 137, 86, 20);
+		add(comboBoxSex);
 		
 		JLabel lblEmail = new JLabel("Email");
 		lblEmail.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -217,10 +223,10 @@ public class ClientsPanel extends JPanel {
 		lblState.setBounds(10, 256, 83, 15);
 		add(lblState);
 		
-		textFieldState = new JTextField();
-		textFieldState.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldState.setBounds(103, 253, 86, 20);
-		add(textFieldState);
+		comboBoxState = new JComboBox<String>(stateAbbreviations);
+		comboBoxState.setFont(new Font("Arial", Font.PLAIN, 12));
+		comboBoxState.setBounds(103, 253, 86, 20);
+		add(comboBoxState);
 		
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -250,7 +256,7 @@ public class ClientsPanel extends JPanel {
 		btnSearchClients.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchClients();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -265,11 +271,14 @@ public class ClientsPanel extends JPanel {
 		btnAddNewClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Client", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
-						System.out.print("Adding new Client to database... ");
-						addToDatabase();
-					}
+					populateToAdd();
 					
+					if (JOptionPane.showOptionDialog(null, inputFields, "Add Client", JOptionPane.DEFAULT_OPTION,
+							JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+						System.out.print("Adding new Client to database... ");
+						add();
+					}
+					clearFields();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
@@ -281,136 +290,116 @@ public class ClientsPanel extends JPanel {
 		populateComboBoxes();
 	}
 	
-	/***
+	/**
 	 * This method populates the AssociateSSN combobox on clientsTable with data
 	 * retrieved from SalesAssociate table, which serve as a filter for the user
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT associateSSN FROM lramos6db.SalesAssociate WHERE associateSSN IS NOT NULL";
+			query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL";
+			//query = "SELECT DISTINCT fName, lName FROM Employee, SalesAssociate WHERE SSN=associateSSN ORDER BY lName;";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxAssociateSSN.addItem(null);
-			while(result.next() == true) {
+			while (result.next()) {
 				comboBoxAssociateSSN.addItem(result.getString("associateSSN"));
 			}
+
+			/*comboBoxAssociateSSN.addItem(null);
+			while (result.next()) {
+				comboBoxAssociateSSN.addItem(result.getString("lName") + ", " + result.getString("fName"));
+			}*/
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for combobox");
 			e.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from Client table are populated in the clientsTable.
 	 * @throws SQLException
 	 */
 	
-	private void searchClients() throws SQLException {
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Client WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT `clientSSN` AS `SSN`, "
+					+ "`fName` AS `First Name`, "
+					+ "`lName` AS `Last Name`, "
+					+ "`sex` AS `Sex`, "
+					+ "`email` AS `Email`, "
+					+ "`phoneNo` AS `Phone Number`, "
+					+ "`address` AS `Adress`, "
+					+ "`associateSSN_FK2` AS `Associate SSN`, "
+					+ "`minimumPrice` AS `Min. Price`, "
+					+ "`maximumPrice` AS `Max. Price` "
+					+ "FROM Client WHERE "; //Base query
 			
-			if(!textFieldSSN.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldSSN.getText().isEmpty()) {
+				addToQuery();
 				query += "clientSSN='" + textFieldSSN.getText() + "'";
 			}
 			
-			if(!textFieldFirstName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldFirstName.getText().isEmpty()) {
+				addToQuery();
 				query += "fName='" + textFieldFirstName.getText() + "'";
 			}
 			
-			if(!textFieldLastName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldLastName.getText().isEmpty()) {
+				addToQuery();
 				query += "lName='" + textFieldLastName.getText() + "'";
 			}
 			
-			if(!textFieldSex.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "sex='" + textFieldSex.getText() + "'";
+			if (comboBoxSex.getSelectedItem() != null) {
+				addToQuery();
+				query += "sex='" + comboBoxSex.getSelectedItem() + "'";
 			}
 			
-			if(!textFieldEmail.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldEmail.getText().isEmpty()) {
+				addToQuery();
 				query += "email='" + textFieldEmail.getText() + "'";
 			}
 			
-			if(!textFieldPhoneNo.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldPhoneNo.getText().isEmpty()) {
+				addToQuery();
 				query += "phoneNo='" + textFieldPhoneNo.getText() + "'";
 			}
 			
-			if(!textFieldCity.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldCity.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldCity.getText() + "%'";
 			}
 			
-			if(!textFieldState.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			if (comboBoxState.getSelectedItem() != null) {
+				addToQuery();
+				query += "address LIKE '%" + comboBoxState.getSelectedItem() + "%'";
 			}
 			
-			if(!textFieldZIP.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldZIP.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
 			}
 			
-			if(comboBoxAssociateSSN.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxAssociateSSN.getSelectedItem() != null) {
+				addToQuery();
 				query += "associateSSN_FK2='" + comboBoxAssociateSSN.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
 			
-			if(parameterCount > 0) {
+			if (parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				clientsTable.setModel(DbUtils.resultSetToTableModel(result));
@@ -418,25 +407,31 @@ public class ClientsPanel extends JPanel {
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
+			
 			parameterCount = 0;
+			
+			clientsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(clientsTable);
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
 	 * This method makes the SQL query to add the a new row
 	 * to the database's Client table.
 	 * @throws SQLException
 	 */
 
-	private void addToDatabase() throws SQLException  {
+	@Override
+	public void add() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Client (clientSSN, fName, lName, sex, email, phoneNo, address,"
-							+ " associateSSN_FK2, minimumPrice, maximumPrice)"
-							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			query = "INSERT INTO Client (clientSSN, fName, lName, sex, email, phoneNo,"
+					+ "address, associateSSN_FK2, minimumPrice, maximumPrice)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputSSN.getText());
 			stmt.setString(2, inputFirstName.getText());
@@ -460,23 +455,25 @@ public class ClientsPanel extends JPanel {
 		}
 	}
 	
-	/***
+	/**
 	 * This method populates the fields of the Client object with the 
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = clientsTable.getSelectedRow();
-			if(selectedRow < 0) {
+			if (selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String query = "SELECT DISTINCT associateSSN FROM lramos6db.SalesAssociate WHERE associateSSN IS NOT NULL";
+				query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL;";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
-				while(result.next() == true) {
+				while(result.next()) {
 					inputAssociateSSN.addItem(result.getString("associateSSN"));
 				}
 				
@@ -484,11 +481,11 @@ public class ClientsPanel extends JPanel {
 				inputSex.addItem("M");
 				
 				String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Client WHERE clientSSN='" + SSN + "'";
+				query = "SELECT * FROM Client WHERE clientSSN='" + SSN + "';";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
-				if(result.next() == true) {
+				if (result.next()) {
 					inputSSN.setText(result.getString("clientSSN"));
 					inputFirstName.setText(result.getString("fName"));
 					inputLastName.setText(result.getString("lName"));
@@ -500,36 +497,42 @@ public class ClientsPanel extends JPanel {
 					inputMinimumPrice.setText(result.getString("minimumPrice"));
 					inputMaximumPrice.setText(result.getString("maximumPrice"));
 				}
+				
+				stmt.close();
+				result.close();
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Client table.
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = clientsTable.getSelectedRow();
 			String SSN = (clientsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Client SET " +
-							"clientSSN ='" + inputSSN.getText() +
-							"', fName ='" + inputFirstName.getText() +
-							"', lName ='" + inputLastName.getText() +
-							"', sex ='" + inputSex.getSelectedItem() +
-							"', email ='" + inputEmail.getText() +
-							"', phoneNo ='" + inputPhoneNumber.getText() +
-							"', address ='" + inputAddress.getText() +
-							"', associateSSN_FK2 ='" + inputAssociateSSN.getSelectedItem() +
-							"', minimumPrice ='" + inputMinimumPrice.getText() +
-							"', maximumPrice ='" + inputMaximumPrice.getText() +
-							"' WHERE clientSSN='" + SSN + "';";
+			query = "UPDATE Client SET " +
+					"clientSSN ='" + inputSSN.getText() +
+					"', fName ='" + inputFirstName.getText() +
+					"', lName ='" + inputLastName.getText() +
+					"', sex ='" + inputSex.getSelectedItem() +
+					"', email ='" + inputEmail.getText() +
+					"', phoneNo ='" + inputPhoneNumber.getText() +
+					"', address ='" + inputAddress.getText() +
+					"', associateSSN_FK2 ='" + inputAssociateSSN.getSelectedItem() +
+					"', minimumPrice ='" + inputMinimumPrice.getText() +
+					"', maximumPrice ='" + inputMaximumPrice.getText() +
+					"' WHERE clientSSN='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -544,21 +547,23 @@ public class ClientsPanel extends JPanel {
 		}
 	}
 	
-	/***
+	/**
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's Client table.
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
-		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+	@Override
+	public void delete() throws SQLException {
+		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
+				"Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = clientsTable.getSelectedRow();
 				String SSN = clientsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Client WHERE clientSSN='" + SSN + "';";
+				query = "DELETE FROM Client WHERE clientSSN='" + SSN + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -574,11 +579,13 @@ public class ClientsPanel extends JPanel {
 		connection.close();
 	}
 	
-	/***
+	/**
 	 * This method clears the input fields to avoid incorrect
 	 * data on following edit attempt
 	 */
-	private void clearFields() {
+	
+	@Override
+	public void clearFields() {
 		inputSSN.setText(null);
 		inputFirstName.setText(null);
 		inputLastName.setText(null);
@@ -589,5 +596,46 @@ public class ClientsPanel extends JPanel {
 		inputAssociateSSN.removeAllItems();
 		inputMinimumPrice.setText(null);
 		inputMaximumPrice.setText(null);
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+	
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+	
+	/**
+	 * This method populates the comboboxes on the Add Client popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT DISTINCT associateSSN FROM SalesAssociate WHERE associateSSN IS NOT NULL;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputAssociateSSN.addItem(result.getString("associateSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }

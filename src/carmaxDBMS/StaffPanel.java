@@ -1,7 +1,7 @@
 package carmaxDBMS;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -20,11 +20,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import net.proteanit.sql.DbUtils;
 
-public class StaffPanel extends JPanel {
+public class StaffPanel extends JPanel implements GUIPanel {
 	private Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTextField textFieldSSN;
 	private JTextField textFieldFirstName;
 	private JTextField textFieldLastName;
@@ -38,14 +42,25 @@ public class StaffPanel extends JPanel {
 	private JMenuItem menuItemEdit;
 	private JMenuItem menuItemDelete;
 	private JTextField textFieldCity;
-	private JTextField textFieldState;
+	private JComboBox<String> textFieldState;
 	private JTextField textFieldZIP;
+	
+	private final String[] sexOptions = {null, "F", "M"}; // TODO - Add Filter to search by sex
+	
+	private final String[] salaryOptions = {null, "< 10000", "< 20000", "< 30000", "< 40000", "< 50000",
+			"< 60000", "< 70000", "< 80000", "< 90000", "< 100000", "< 110000", "< 120000", "> 120000"};
+	
+	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
+			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
+			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
+			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
+			"WA", "WI", "WV", "WY"};
 	
 	private JTextField inputSSN = new JTextField();
 	private JTextField inputFirstName = new JTextField();
 	private JTextField inputLastName = new JTextField();
 	private JTextField inputMiddleInitial = new JTextField();
-	private JComboBox<String> inputSex = new JComboBox<String>();
+	private JComboBox<String> inputSex = new JComboBox<String>(sexOptions);
 	private JTextField inputDoB = new JTextField();
 	private JTextField inputPhoneNumber= new JTextField();
 	private JComboBox<String> inputEmployeeType = new JComboBox<String>();
@@ -77,8 +92,8 @@ public class StaffPanel extends JPanel {
 			"Manager SSN", inputManagerSSN
 	};
 	
-	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	private final String[] addOptions = {"Add", "Cancel"};
+	private final String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -107,19 +122,15 @@ public class StaffPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Employee", JOptionPane.DEFAULT_OPTION,
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Employee", JOptionPane.DEFAULT_OPTION,
 							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Employee... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -133,7 +144,7 @@ public class StaffPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -187,7 +198,7 @@ public class StaffPanel extends JPanel {
 		lblEmployeeType.setBounds(10, 142, 96, 15);
 		add(lblEmployeeType);
 		
-		comboBoxEmpType = new JComboBox();
+		comboBoxEmpType = new JComboBox<String>();
 		lblEmployeeType.setLabelFor(comboBoxEmpType);
 		comboBoxEmpType.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxEmpType.setBounds(116, 139, 86, 20);
@@ -211,7 +222,7 @@ public class StaffPanel extends JPanel {
 		lblSalary.setBounds(10, 204, 96, 15);
 		add(lblSalary);
 		
-		comboBoxSalary = new JComboBox<String>();
+		comboBoxSalary = new JComboBox<String>(salaryOptions);
 		lblSalary.setLabelFor(comboBoxSalary);
 		comboBoxSalary.setFont(new Font("Arial", Font.PLAIN, 12));
 		comboBoxSalary.setBounds(116, 201, 86, 20);
@@ -258,7 +269,7 @@ public class StaffPanel extends JPanel {
 		lblState.setBounds(10, 297, 96, 15);
 		add(lblState);
 		
-		textFieldState = new JTextField();
+		textFieldState = new JComboBox<String>(stateAbbreviations);
 		lblState.setLabelFor(textFieldState);
 		textFieldState.setFont(new Font("Arial", Font.PLAIN, 12));
 		textFieldState.setBounds(116, 294, 86, 20);
@@ -281,7 +292,7 @@ public class StaffPanel extends JPanel {
 		btnSearchStaff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchStaff();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -296,11 +307,15 @@ public class StaffPanel extends JPanel {
 		btnAddEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Employee", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+					populateToAdd();
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Employee",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+							addOptions, null) == 0) {
 						System.out.print("Adding new Employee to database...");
-						addToDatabase();
+						add();
 					}
 					
+					clearFields();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
@@ -318,52 +333,48 @@ public class StaffPanel extends JPanel {
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
-			
-			String query = "SELECT DISTINCT employeeType FROM lramos6db.Employee WHERE employeeType IS NOT NULL ORDER BY employeeType ASC";
+			query = "SELECT DISTINCT employeeType FROM Employee WHERE employeeType IS NOT NULL ORDER BY employeeType ASC";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxEmpType.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxEmpType.addItem(result.getString("employeeType"));
 			}
 			
-			query = "SELECT DISTINCT workLocation FROM lramos6db.Employee WHERE workLocation IS NOT NULL ORDER BY workLocation ASC";
+			query = "SELECT DISTINCT workLocation FROM Employee WHERE workLocation IS NOT NULL ORDER BY workLocation ASC";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
 			comboBoxWorkLoc.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxWorkLoc.addItem(result.getString("workLocation"));
 			}
 			
-			comboBoxSalary.addItem(null);
-			comboBoxSalary.addItem("< 10000");
-			comboBoxSalary.addItem("< 20000");
-			comboBoxSalary.addItem("< 30000");
-			comboBoxSalary.addItem("< 40000");
-			comboBoxSalary.addItem("< 50000");
-			comboBoxSalary.addItem("< 60000");
-			comboBoxSalary.addItem("< 70000");
-			comboBoxSalary.addItem("< 80000");
-			comboBoxSalary.addItem("< 90000");
-			comboBoxSalary.addItem("< 100000");
-			comboBoxSalary.addItem("< 110000");
-			comboBoxSalary.addItem("< 120000");
-			comboBoxSalary.addItem("> 120000");
-			
-			query = "SELECT DISTINCT managerSSN FROM lramos6db.Employee WHERE managerSSN IS NOT NULL";
+			query = "SELECT DISTINCT managerSSN FROM Employee WHERE managerSSN IS NOT NULL";
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
 			comboBoxManager.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxManager.addItem(result.getString("managerSSN"));
 			}
-
+			
+			/* Populates Manager's LastName, FirstName instead of SSN
+			query = "SELECT DISTINCT fName, lName FROM Employee WHERE SSN = managerSSN ORDER BY lName;";
+			stmt = connection.prepareStatement(query);
+			result = stmt.executeQuery();
+			
+			comboBoxManager.addItem(null);
+			while(result.next()) {
+				comboBoxManager.addItem(result.getString("lName") + ", " + result.getString("fName"));
+			}*/
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for comboboxes");
 			e.printStackTrace();
@@ -377,108 +388,81 @@ public class StaffPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void searchStaff() throws SQLException {
+	
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Employee WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT SSN, " +
+					"`fName` AS `First Name`, " +
+					"`lName` AS `Last Name`, " +
+					"`mInit` AS `M.I.`, " +
+					"`sex` AS `Sex`, " + "DOB, " + 
+					"`phoneNo` AS `Phone Number`, " +
+					"`employeeType` AS `Employee Type`, " +
+					"`workLocation` AS `Work Location`, " +
+					"`salary` AS `Salary`, " +
+					"`yearsWorked` AS `Years Worked`, " +
+					"`address` AS `Address`, " +
+					"`hoursWorked` AS `Hours Worked`, " +
+					"`username` AS `Username`, " +
+					"`password` AS `Password`, " +
+					"`managerSSN` AS `Manager SSN` " +
+					"FROM Employee WHERE "; //Base query
 			
-			if(!textFieldSSN.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldSSN.getText().isEmpty()) {
+				addToQuery();
 				query += "SSN='" + textFieldSSN.getText() + "'";
 			}
 			
-			if(!textFieldFirstName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldFirstName.getText().isEmpty()) {
+				addToQuery();
 				query += "fName='" + textFieldFirstName.getText() + "'";
 			}
 			
-			if(!textFieldLastName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldLastName.getText().isEmpty()) {
+				addToQuery();
 				query += "lName='" + textFieldLastName.getText() + "'";
 			}
 			
-			if(comboBoxEmpType.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxEmpType.getSelectedItem() != null) {
+				addToQuery();
 				query += "employeeType='" + comboBoxEmpType.getSelectedItem().toString() +"'";
 			}
 			
-			if(comboBoxWorkLoc.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxWorkLoc.getSelectedItem() != null) {
+				addToQuery();
 				query += "workLocation='" + comboBoxWorkLoc.getSelectedItem().toString() +"'";
 			}
 			
-			if(comboBoxSalary.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxSalary.getSelectedItem() != null) {
+				addToQuery();
 				query += "salary " + comboBoxSalary.getSelectedItem().toString();
 			}
 			
-			if(!textFieldYearsWorked.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldYearsWorked.getText().isEmpty()) {
+				addToQuery();
 				query += "yearsWorked='" + textFieldYearsWorked.getText() + "'";
 			}
 			
-			if(!textFieldCity.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldCity.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldCity.getText() + "%'";
 			}
 			
-			if(!textFieldState.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			if (textFieldState.getSelectedItem() != null) {
+				addToQuery();
+				query += "address LIKE '%" + textFieldState.getSelectedItem() + "%'";
 			}
 			
-			if(!textFieldZIP.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldZIP.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
 			}
 			
-			if(comboBoxManager.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxManager.getSelectedItem() != null) {
+				addToQuery();
 				query += "managerSSN='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
@@ -494,6 +478,10 @@ public class StaffPanel extends JPanel {
 			}
 			
 			parameterCount = 0;
+			
+			staffTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(staffTable);
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -506,12 +494,14 @@ public class StaffPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void addToDatabase() throws SQLException  {
+	
+	@Override
+	public void add() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Employee (SSN, fName, lName, mInit, sex, DOB, phoneNo, employeeType,"
-							+ " workLocation, salary, yearsWorked, address, hoursWorked, username, password, managerSSN)"
-							+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			query = "INSERT INTO Employee (SSN, fName, lName, mInit, sex, DOB, phoneNo, employeeType," +
+					" workLocation, salary, yearsWorked, address, hoursWorked, username, password, managerSSN)" +
+					" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputSSN.getText());
 			stmt.setString(2, inputFirstName.getText());
@@ -533,6 +523,30 @@ public class StaffPanel extends JPanel {
 			stmt.execute();
 			JOptionPane.showMessageDialog(null, "Record has been added.");
 			
+			// Add Employee to appropriate table (Mechanic, SalesAssociate, Manager, SiteManager)
+			switch(inputEmployeeType.getSelectedItem().toString()) {
+				case "Mechanic":
+					query = "INSERT INTO Mechanic (mechanicSSN) VALUES (?)";
+					stmt = connection.prepareStatement(query);
+					stmt.setString(1, (String) inputSSN.getText());
+					stmt.execute();
+				case "SalesAssociate":
+					query = "INSERT INTO SalesAssociate (associateSSN) VALUES (?)";
+					stmt = connection.prepareStatement(query);
+					stmt.setString(1, (String) inputSSN.getText());
+					stmt.execute();
+				case "Manager":
+					query = "INSERT INTO Manager (managerSSN) VALUES (?)";
+					stmt = connection.prepareStatement(query);
+					stmt.setString(1, (String) inputSSN.getText());
+					stmt.execute();
+				case "Site Manager":
+					query = "INSERT INTO SiteManager (siteManagerSSN) VALUES (?)";
+					stmt = connection.prepareStatement(query);
+					stmt.setString(1, (String) inputSSN.getText());
+					stmt.execute();
+			}
+			
 			stmt.close();
 			connection.close();
 		} catch (Exception exception) {
@@ -546,28 +560,30 @@ public class StaffPanel extends JPanel {
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = staffTable.getSelectedRow();
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String query = "SELECT DISTINCT locationName FROM lramos6db.Location WHERE locationName IS NOT NULL ORDER BY locationName ASC";
+				query = "SELECT DISTINCT locationName FROM Location WHERE locationName IS NOT NULL ORDER BY locationName ASC";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
 				inputWorkLocation.addItem(null);
-				while(result.next() == true) {
+				while(result.next()) {
 					inputWorkLocation.addItem(result.getString("locationName"));
 				}
 
-				query = "SELECT DISTINCT managerSSN FROM lramos6db.Manager WHERE managerSSN IS NOT NULL";
+				query = "SELECT DISTINCT managerSSN FROM Manager WHERE managerSSN IS NOT NULL";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 				
 				inputManagerSSN.addItem(null);
-				while(result.next() == true) {
+				while(result.next()) {
 					inputManagerSSN.addItem(result.getString("managerSSN"));
 				}
 				
@@ -576,15 +592,12 @@ public class StaffPanel extends JPanel {
 				inputEmployeeType.addItem("Sales Associate");
 				inputEmployeeType.addItem("Site Manager");
 				
-				inputSex.addItem("F");
-				inputSex.addItem("M");
-				
 				String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Employee WHERE SSN ='" + SSN + "'";
+				query = "SELECT * FROM Employee WHERE SSN ='" + SSN + "'";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 				
-				if(result.next() == true) {
+				if(result.next()) {
 					inputSSN.setText(result.getString("SSN"));
 					inputFirstName.setText(result.getString("fName"));
 					inputLastName.setText(result.getString("lName"));
@@ -607,6 +620,8 @@ public class StaffPanel extends JPanel {
 					System.out.println("Fields were not populated successfully.");
 				}
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
@@ -619,28 +634,29 @@ public class StaffPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = staffTable.getSelectedRow();
 			String SSN = (staffTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Employee SET " +
-								"SSN='" + inputSSN.getText() +
-								"', fName ='" + inputFirstName.getText() +
-								"', lName ='" + inputLastName.getText() +
-								"', mInit ='" + inputMiddleInitial.getText() +
-								"', sex ='" + inputSex.getSelectedItem() +
-								"', DOB ='" + inputDoB.getText() +
-								"', phoneNo ='" + inputPhoneNumber.getText() +
-								"', employeeType ='" + inputWorkLocation.getSelectedItem() +
-								"', salary ='" + inputSalary.getText() +
-								"', yearsWorked ='" + inputYearsWorked.getText() +
-								"', address ='" + inputAddress.getText() +
-								"', hoursWorked ='" + inputHoursWorked.getText() +
-								"', username ='" + inputUsername.getText() +
-								"', password ='" + inputPassword.getText() +
-								"', managerSSN ='" + inputManagerSSN.getSelectedItem() +
-								"' WHERE SSN ='" + SSN + "';";
+			query = "UPDATE Employee SET " +
+					"SSN='" + inputSSN.getText() +
+					"', fName ='" + inputFirstName.getText() +
+					"', lName ='" + inputLastName.getText() +
+					"', mInit ='" + inputMiddleInitial.getText() +
+					"', sex ='" + inputSex.getSelectedItem() +
+					"', DOB ='" + inputDoB.getText() +
+					"', phoneNo ='" + inputPhoneNumber.getText() +
+					"', employeeType ='" + inputWorkLocation.getSelectedItem() +
+					"', salary ='" + inputSalary.getText() +
+					"', yearsWorked ='" + inputYearsWorked.getText() +
+					"', address ='" + inputAddress.getText() +
+					"', hoursWorked ='" + inputHoursWorked.getText() +
+					"', username ='" + inputUsername.getText() +
+					"', password ='" + inputPassword.getText() +
+					"', managerSSN ='" + inputManagerSSN.getSelectedItem() +
+					"' WHERE SSN ='" + SSN + "';";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			
 			stmt.execute();
@@ -661,7 +677,8 @@ public class StaffPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
+	@Override
+	public void delete() throws SQLException {
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
 		
 		if(confirmation == 0) {
@@ -669,7 +686,7 @@ public class StaffPanel extends JPanel {
 				int selectedRow = staffTable.getSelectedRow();
 				String SSN = staffTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Employee WHERE SSN='" + SSN + "';";
+				query = "DELETE FROM Employee WHERE SSN='" + SSN + "';";
 				System.out.println("QUERY " + query);
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
@@ -691,7 +708,8 @@ public class StaffPanel extends JPanel {
 	 * data on following edit attempt
 	 */
 	
-	private void clearFields() {
+	@Override
+	public void clearFields() {
 		inputSSN.setText(null);
 		inputFirstName.setText(null);
 		inputLastName.setText(null);
@@ -708,5 +726,62 @@ public class StaffPanel extends JPanel {
 		inputUsername.setText(null);
 		inputPassword.setText(null);
 		inputManagerSSN.removeAllItems();
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+	
+	/**
+	 * This method populates the comboboxes on the Add Employee popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT DISTINCT employeeType FROM Employee WHERE employeeType IS NOT NULL ORDER BY employeeType;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputEmployeeType.addItem(result.getString("employeeType"));
+			}
+			
+			query = "SELECT DISTINCT locationName FROM Location WHERE locationName IS NOT NULL ORDER BY locationName;";
+			stmt = connection.prepareStatement(query);
+			result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputWorkLocation.addItem(result.getString("locationName"));
+			}
+			
+			query = "SELECT DISTINCT managerSSN FROM Manager WHERE managerSSN IS NOT NULL;";
+			stmt = connection.prepareStatement(query);
+			result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputManagerSSN.addItem(result.getString("managerSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }

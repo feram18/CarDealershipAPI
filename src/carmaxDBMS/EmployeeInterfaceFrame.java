@@ -2,12 +2,10 @@ package carmaxDBMS;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
-import java.sql.*;
-import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Date;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -15,7 +13,6 @@ import java.awt.event.ActionEvent;
 public class EmployeeInterfaceFrame extends JFrame {
 
 	private JPanel contentPane;
-	private Connection connection = null;
 	InventoryPanel inventory = new InventoryPanel();
 	StaffPanel staff = new StaffPanel();
 	ClientsPanel clients = new ClientsPanel();
@@ -25,6 +22,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 	ServiceTicketsPanel tickets = new ServiceTicketsPanel();
 	
 	private static JLabel lblClock;
+	private final String PATH_TO_ICON = "/CarmaxDBMS/resources/img/dealership_app_icon.png";
 	
 	/**
 	 * Launch the application.
@@ -46,6 +44,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public EmployeeInterfaceFrame() {
+		//setIcon(PATH_TO_ICON); // TODO - Add Icon to Frame
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 700);
@@ -90,15 +89,20 @@ public class EmployeeInterfaceFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Logging out...");
 				dispose();
-				LoginFrame logInFrame = new LoginFrame();
 				//Call to LoginFrame.java's main method to initialize and set JFrame visible
-				logInFrame.main(null);
+				LoginFrame.main(null);
 			}
 		});
 		btnLogOut.setFont(new Font("Arial", Font.PLAIN, 12));
 		btnLogOut.setBounds(407, 607, 89, 23);
 		contentPane.add(btnLogOut);
 	}
+	
+	/***
+	 * This method initiates a thread used to run a loop.
+	 * The loop gets the current time every second and updates
+	 * the UI' lblClock component with the value.
+	 */
 	
 	public static void clock() {
 		Thread clock = new Thread() {
@@ -117,5 +121,46 @@ public class EmployeeInterfaceFrame extends JFrame {
 		};
 		
 		clock.start();
+	}
+	
+	
+	/***
+	 * This method takes in the path of the image to be converted
+	 * into an ImageIcon to be used as the application's icon.
+	 * @param pathToIcon
+	 */
+	private void setIcon(String pathToIcon) {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(pathToIcon)));
+	}
+	
+	
+	/***
+	 * This method resizes the size of the column on a table
+	 * in order to display the data correctly on without needing 
+	 * to manually resize the column.
+	 * @param table
+	 */
+	
+	public static void resizeTableColumns(JTable table) {
+		for (int column = 0; column < table.getColumnCount(); column++) {
+		    TableColumn tableColumn = table.getColumnModel().getColumn(column);
+		    int preferredWidth = tableColumn.getMinWidth();
+		    int maxWidth = tableColumn.getMaxWidth();
+		 
+		    for (int row = 0; row < table.getRowCount(); row++) {
+		        TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
+		        Component c = table.prepareRenderer(cellRenderer, row, column);
+		        int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
+		        preferredWidth = Math.max(preferredWidth, width);
+		 
+		        //  We've exceeded the maximum width, no need to check other rows
+		        if (preferredWidth >= maxWidth) {
+		            preferredWidth = maxWidth;
+		            break;
+		        }
+		    }
+		    
+		    tableColumn.setPreferredWidth(preferredWidth + 15);
+		}
 	}
 }

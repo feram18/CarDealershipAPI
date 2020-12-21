@@ -22,8 +22,10 @@ import javax.swing.SwingConstants;
 
 import net.proteanit.sql.DbUtils;
 
-public class LocationsPanel extends JPanel {
+public class LocationsPanel extends JPanel implements GUIPanel {
 	private Connection connection = null;
+	private String query;
+	private int parameterCount;
 	private JTable locationsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -31,9 +33,15 @@ public class LocationsPanel extends JPanel {
 	private JTextField textFieldLocationID;
 	private JTextField textFieldLocationName;
 	private JTextField textFieldCity;
-	private JTextField textFieldState;
+	private JComboBox<String> comboBoxState;
 	private JTextField textFieldZIP;
 	private JComboBox<String> comboBoxManager;
+	
+	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
+			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
+			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
+			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
+			"WA", "WI", "WV", "WY"};
 	
 	private JTextField inputLocationID = new JTextField();
 	private JTextField inputLocationName = new JTextField();
@@ -77,19 +85,15 @@ public class LocationsPanel extends JPanel {
 		menuItemEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane updatePane = new JOptionPane();
-				updatePane.setVisible(false);
-				
 				try {
 					populateToUpdate();
-					updatePane.setVisible(true);
 					
-					int choice = updatePane.showOptionDialog(null, inputFields, "Update Location", JOptionPane.DEFAULT_OPTION,
+					int choice = JOptionPane.showOptionDialog(null, inputFields, "Update Location", JOptionPane.DEFAULT_OPTION,
 							JOptionPane.INFORMATION_MESSAGE, null, updateOptions, null);
 					
 					if(choice == 0) {
 						System.out.println("Updating Location... ");
-						updateDatabase();
+						update();
 					}
 					
 					clearFields();
@@ -103,7 +107,7 @@ public class LocationsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					deleteFromDatabase();
+					delete();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -157,11 +161,11 @@ public class LocationsPanel extends JPanel {
 		lblState.setBounds(10, 135, 97, 15);
 		add(lblState);
 		
-		textFieldState = new JTextField();
-		lblState.setLabelFor(textFieldState);
-		textFieldState.setFont(new Font("Arial", Font.PLAIN, 12));
-		textFieldState.setBounds(117, 132, 86, 20);
-		add(textFieldState);
+		comboBoxState = new JComboBox<String>(stateAbbreviations);
+		lblState.setLabelFor(comboBoxState);
+		comboBoxState.setFont(new Font("Arial", Font.PLAIN, 12));
+		comboBoxState.setBounds(117, 132, 86, 20);
+		add(comboBoxState);
 		
 		JLabel lblZipCode = new JLabel("ZIP Code");
 		lblZipCode.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -193,7 +197,7 @@ public class LocationsPanel extends JPanel {
 		btnSearchLocations.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					searchLocations();
+					search();
 				} catch (SQLException exception) {
 					exception.printStackTrace();
 				}
@@ -207,11 +211,16 @@ public class LocationsPanel extends JPanel {
 		btnAddLocation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(JOptionPane.showOptionDialog(null, inputFields, "Add Location", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, addOptions, null) == 0) {
+					populateToAdd();
+					
+					if(JOptionPane.showOptionDialog(null, inputFields, "Add Location",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+							null, addOptions, null) == 0) {
 						System.out.print("Adding new Location to database...");
-						addToDatabase();
+						add();
 					}
 					
+					clearFields();
 				} catch (Exception exception) {
 					exception.printStackTrace();
 				}
@@ -228,18 +237,21 @@ public class LocationsPanel extends JPanel {
 	 * and as a means of input validation.
 	 */
 	
-	private void populateComboBoxes() {
+	@Override
+	public void populateComboBoxes() {
 		try {
 			connection = SQLConnection.ConnectDb();
 			
-			String query = "SELECT DISTINCT siteManagerSSN_FK FROM lramos6db.Location WHERE siteManagerSSN_FK IS NOT NULL";
+			query = "SELECT DISTINCT siteManagerSSN_FK FROM Location WHERE siteManagerSSN_FK IS NOT NULL;";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxManager.addItem(null);
-			while(result.next() == true) {
+			while(result.next()) {
 				comboBoxManager.addItem(result.getString("siteManagerSSN_FK"));
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error querying data for combobox");
 			e.printStackTrace();
@@ -253,63 +265,44 @@ public class LocationsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void searchLocations() throws SQLException {
+	@Override
+	public void search() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
-			int parameterCount = 0;
-			String query = "SELECT * FROM lramos6db.Location WHERE "; //Base query
+			parameterCount = 0;
+			query = "SELECT `locationID` as `Location ID`, " +
+					"`locationName` AS `Location Name`, " +
+					"`address` AS `Address`, " +
+					"`siteManagerSSN_FK` AS `Site Manager SSN` " +
+					"FROM Location WHERE "; //Base query
 			
-			if(!textFieldLocationID.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldLocationID.getText().isEmpty()) {
+				addToQuery();
 				query += "locationID ='" + textFieldLocationID.getText() + "'";
 			}
 			
-			if(!textFieldLocationName.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldLocationName.getText().isEmpty()) {
+				addToQuery();
 				query += "locationName ='" + textFieldLocationName.getText() + "'";
 			}
 			
-			if(!textFieldCity.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldCity.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldCity.getText() + "%'";
 			}
 			
-			if(!textFieldState.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
-				query += "address LIKE '%" + textFieldState.getText() + "%'";
+			if (comboBoxState.getSelectedItem() != null) {
+				addToQuery();
+				query += "address LIKE '%" + comboBoxState.getSelectedItem() + "%'";
 			}
 			
-			if(!textFieldZIP.getText().isEmpty()) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (!textFieldZIP.getText().isEmpty()) {
+				addToQuery();
 				query += "address LIKE '%" + textFieldZIP.getText() + "%'";
 			}
 			
-			if(comboBoxManager.getSelectedItem() != null) {
-				parameterCount++;
-				if(parameterCount > 1) {
-					query += " AND ";
-				}
-				
+			if (comboBoxManager.getSelectedItem() != null) {
+				addToQuery();
 				query += "siteManagerSSN_FK ='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
@@ -325,6 +318,11 @@ public class LocationsPanel extends JPanel {
 			}
 			
 			parameterCount = 0;
+			
+			locationsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			EmployeeInterfaceFrame.resizeTableColumns(locationsTable);
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.println("Error: Invalid query.");
 			e.printStackTrace();
@@ -337,11 +335,12 @@ public class LocationsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void addToDatabase() throws SQLException  {
+	@Override
+	public void add() throws SQLException  {
 		try {
 			connection = SQLConnection.ConnectDb();
-			String query = "INSERT INTO lramos6db.Location (locationID, locationName, address, siteManagerSSN_FK)"
-							+ " values (?, ?, ?, ?)";
+			query = "INSERT INTO Location (locationID, locationName, address, siteManagerSSN_FK)" +
+					" VALUES (?, ?, ?, ?);";
 			PreparedStatement stmt = connection.prepareStatement(query);
 			stmt.setString(1, inputLocationID.getText());
 			stmt.setString(2, inputLocationName.getText());
@@ -364,34 +363,38 @@ public class LocationsPanel extends JPanel {
 	 * current data to allow the user to edit the existing information.
 	 * @throws SQLException
 	 */
-	private void populateToUpdate() throws SQLException {
+	
+	@Override
+	public void populateToUpdate() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = locationsTable.getSelectedRow();
 			if(selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
-				String query = "SELECT DISTINCT siteManagerSSN FROM lramos6db.SiteManager WHERE siteManagerSSN";
+				query = "SELECT DISTINCT siteManagerSSN FROM SiteManager WHERE siteManagerSSN;";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				
 				inputManagerSSN.addItem(null);
-				while(result.next() == true) {
+				while(result.next()) {
 					inputManagerSSN.addItem(result.getString("siteManagerSSN"));
 				}
 				
 				String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
-				query = "SELECT * FROM lramos6db.Location WHERE locationID='" + locationID + "'";
+				query = "SELECT * FROM Location WHERE locationID='" + locationID + "'";
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 				
-				if(result.next() == true) {
+				if(result.next()) {
 					inputLocationID.setText(result.getString("locationID"));
 					inputLocationName.setText(result.getString("locationName"));
 					inputAddress.setText(result.getString("address"));
 					inputManagerSSN.setSelectedItem(result.getString("siteManagerSSN_FK"));
 				}
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			System.out.print("Error retrieving data.");
 			e.printStackTrace();
@@ -404,12 +407,13 @@ public class LocationsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void updateDatabase() throws SQLException {
+	@Override
+	public void update() throws SQLException {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = locationsTable.getSelectedRow();
 			String locationID = (locationsTable.getModel().getValueAt(selectedRow, 0)).toString();
-			String query = "UPDATE lramos6db.Location SET " +
+			query = "UPDATE Location SET " +
 					"locationID ='" + inputLocationID.getText() +
 					"', locationName ='" + inputLocationName.getText() +
 					"', address ='" + inputAddress.getText() +
@@ -435,15 +439,17 @@ public class LocationsPanel extends JPanel {
 	 * @throws SQLException
 	 */
 	
-	private void deleteFromDatabase() throws SQLException {
-		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+	@Override
+	public void delete() throws SQLException {
+		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
+				"Delete", JOptionPane.YES_NO_OPTION);
 		
 		if(confirmation == 0) {
 			try {
 				int selectedRow = locationsTable.getSelectedRow();
 				String locationID = locationsTable.getModel().getValueAt(selectedRow, 0).toString();
 				connection = SQLConnection.ConnectDb();
-				String query = "DELETE FROM lramos6db.Location WHERE locationID='" + locationID + "';";
+				query = "DELETE FROM Location WHERE locationID='" + locationID + "';";
 				PreparedStatement stmt = connection.prepareStatement(query);
 				
 				stmt.execute();
@@ -464,10 +470,52 @@ public class LocationsPanel extends JPanel {
 	 * data on following edit attempt
 	 */
 	
-	private void clearFields() {
+	@Override
+	public void clearFields() {
 		inputLocationID.setText(null);
 		inputLocationName.setText(null);
 		inputAddress.setText(null);
 		inputManagerSSN.removeAllItems();
+	}
+	
+	/**
+	 * This method increases the parameter count, and adds the
+	 * SQL keyword to allow an additional parameter to be added
+	 * to SQL query
+	 */
+
+	@Override
+	public void addToQuery() {
+		parameterCount++;
+		if (parameterCount > 1) {
+			query += " AND ";
+		}
+	}
+	
+	/**
+	 * This method populates the comboboxes on the Add Location popup
+	 * window, as a means of input validation.
+	 */
+
+	@Override
+	public void populateToAdd() throws SQLException {
+		try {
+			connection = SQLConnection.ConnectDb();
+			
+			query = "SELECT siteManagerSSN FROM SiteManager;";
+			PreparedStatement stmt = connection.prepareStatement(query);
+			ResultSet result = stmt.executeQuery();
+			
+			while(result.next()) {
+				inputManagerSSN.addItem(result.getString("siteManagerSSN"));
+			}
+			
+			stmt.close();
+			result.close();
+			connection.close();
+		} catch (Exception e) {
+			System.out.print("Error retrieving data.");
+			e.printStackTrace();
+		}
 	}
 }
