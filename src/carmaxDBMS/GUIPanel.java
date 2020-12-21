@@ -2,7 +2,12 @@ package carmaxDBMS;
 
 import java.sql.SQLException;
 
+/**
+ * The Interface GUIPanel defines the methods to be
+ * implemented across the GUI Panels.
+ */
 public interface GUIPanel {
+
 	void populateComboBoxes();
 	void search() throws SQLException;
 	void add() throws SQLException;

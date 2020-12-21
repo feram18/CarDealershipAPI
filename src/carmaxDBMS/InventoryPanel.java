@@ -1,7 +1,6 @@
 package carmaxDBMS;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,7 +11,6 @@ import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -26,9 +24,12 @@ import javax.swing.SwingConstants;
 import net.proteanit.sql.DbUtils;
 
 public class InventoryPanel extends JPanel implements GUIPanel {
+	// Utility variables
 	private Connection connection = null;
 	private String query;
 	private int parameterCount;
+	
+	// UI components to filter data when searching
 	private JTable inventoryTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -46,6 +47,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 	private JTextField textFieldMaxPrice;
 	private JComboBox<String> comboBoxLocation;
 	
+	// UI components to be shown when updating, or adding a new record to database
 	private JTextField inputVIN = new JTextField();
 	private JTextField inputMake = new JTextField();
 	private JTextField inputModel = new JTextField();
@@ -59,15 +61,18 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 	private JComboBox<String> inputLocation = new JComboBox<String>();
 	private JComboBox<String> inputCarBayID = new JComboBox<String>();
 	
+	// Array to populate comboBoxMPG
 	private final String[] MPG = {null, "> 10", "> 15", "> 20", "> 25", "> 30", "> 35",
 					"> 40", "> 45", "> 50"};
 	
+	// Array to populate comboBoxMileage
 	private final String[] Mileage = {null, "< 10000", "< 20000", "< 30000", "< 40000",
 						"< 50000", "< 60000", "< 70000", "< 80000", "< 90000",
 						"< 100000", "< 110000", "< 110000", "< 120000"};
 	
-//	JTextFields to be passed to input dialog for adding, and updating a Vehicle
-	Object[] inputFields = {
+
+	// Arrays to be passed into JOptionPane's
+	private final Object[] inputFields = {
 			"VIN", inputVIN,
 			"Make", inputMake,
 			"Model", inputModel,
@@ -81,17 +86,12 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			"Location", inputLocation,
 			"Car Bay ID", inputCarBayID
 	};
-	
-//	Button options for Add Vehicle dialog
 	private final String[] addOptions = {"Add", "Cancel"};
-	
-//	Button options for Update Vehicle dialog 
 	private final String[] updateOptions = {"Save Changes", "Cancel"}; 
 	
 	/**
 	 * Create the panel.
 	 */
-	
 	public InventoryPanel() {
 		setLayout(null);
 		setBackground(Color.WHITE);
@@ -103,6 +103,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		inventoryTable = new JTable();
 		inventoryTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		scrollPaneInventory.setViewportView(inventoryTable);
+		inventoryTable.setEnabled(false);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -342,6 +343,15 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 	
 	@Override
 	public void populateComboBoxes() {
+		// Delete current options
+		comboBoxMake.removeAllItems();
+		comboBoxYear.removeAllItems();
+		comboBoxColor.removeAllItems();
+		comboBoxType.removeAllItems();
+		comboBoxTransmission.removeAllItems();
+		comboBoxLocation.removeAllItems();
+												
+		// Populate with updated options
 		try {
 			connection = SQLConnection.ConnectDb();
 
@@ -350,7 +360,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxMake.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxMake.addItem(result.getString("make"));
 			}
 			
@@ -359,7 +369,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			result = stmt.executeQuery();
 			
 			comboBoxYear.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxYear.addItem(result.getString("year"));
 			}
 			
@@ -368,7 +378,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			result = stmt.executeQuery();
 			
 			comboBoxColor.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxColor.addItem(result.getString("color"));
 			}
 			
@@ -377,7 +387,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			result = stmt.executeQuery();
 			
 			comboBoxType.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxType.addItem(result.getString("vehicleType"));
 			}
 			
@@ -386,7 +396,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			result = stmt.executeQuery();
 			
 			comboBoxTransmission.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxTransmission.addItem(result.getString("transmission"));
 			}
 			
@@ -395,7 +405,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			result = stmt.executeQuery();
 			
 			comboBoxLocation.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxLocation.addItem(result.getString("location"));
 			}
 			
@@ -406,11 +416,13 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from Vehicle table are populated in the inventoryTable.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -498,7 +510,6 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				inventoryTable.setModel(DbUtils.resultSetToTableModel(result));
-				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
@@ -517,10 +528,12 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		connection.close();
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to add the a new row
 	 * to the database's Vehicle table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -549,16 +562,20 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception exception) {
 			System.out.println("Error inserting to database.");
 			exception.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method populates the fields of the Vehicle object with the 
 	 * current data to allow the user to edit the existing information.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -566,7 +583,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = inventoryTable.getSelectedRow();
-			if(selectedRow < 0) {
+			if (selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				query = "SELECT carBayID FROM CarBay ORDER BY carBayID ASC";
@@ -590,7 +607,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
-				if(result.next()) {
+				if (result.next()) {
 					inputVIN.setText(result.getString("VIN"));
 					inputMake.setText(result.getString("make"));
 					inputModel.setText(result.getString("model"));
@@ -617,10 +634,12 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Vehicle table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -649,6 +668,8 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -656,17 +677,19 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's Vehicle table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
 	public void delete() throws SQLException {
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = inventoryTable.getSelectedRow();
 				String VIN = inventoryTable.getModel().getValueAt(selectedRow, 0).toString();
@@ -685,11 +708,14 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 		}
 		
 		connection.close();
+		
+		populateComboBoxes(); // Re-populate ComboBoxes with updated data
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method clears the input fields to avoid incorrect
-	 * data on following edit attempt
+	 * data on following edit attempt.
 	 */
 	
 	@Override
@@ -711,7 +737,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method increases the parameter count, and adds the
 	 * SQL keyword to allow an additional parameter to be added
-	 * to SQL query
+	 * to SQL query.
 	 */
 
 	@Override
@@ -721,9 +747,12 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			query += " AND ";
 		}
 	}
+	
 	/**
 	 * This method populates the comboboxes on the Add Vehicle popup
 	 * window, as a means of input validation.
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -735,7 +764,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputLocation.addItem(result.getString("locationName"));
 			}
 			
@@ -743,7 +772,7 @@ public class InventoryPanel extends JPanel implements GUIPanel {
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputCarBayID.addItem(result.getString("carBayID"));
 			}
 			

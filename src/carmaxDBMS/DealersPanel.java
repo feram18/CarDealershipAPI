@@ -24,9 +24,12 @@ import javax.swing.SwingConstants;
 import net.proteanit.sql.DbUtils;
 
 public class DealersPanel extends JPanel implements GUIPanel {
+	// Utility variables
 	private Connection connection = null;
 	private String query;
 	private int parameterCount;
+	
+	// UI components to filter data when searching
 	private JTable dealersTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -40,13 +43,15 @@ public class DealersPanel extends JPanel implements GUIPanel {
 	private JComboBox<String> comboBoxState;
 	private JTextField textFieldZIP;
 	private JComboBox<String> comboBoxAssociateSSN;
-	
+
+	// Array to populate comboBoxState
 	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
 			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
 			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
 			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
 			"WA", "WI", "WV", "WY"};
 	
+	// UI components to be shown when updating, or adding a new record to database
 	private JTextField inputSSN = new JTextField();
 	private JTextField inputFirstName = new JTextField();
 	private JTextField inputLastName = new JTextField();
@@ -55,7 +60,8 @@ public class DealersPanel extends JPanel implements GUIPanel {
 	private JTextField inputAddress = new JTextField();
 	private JComboBox<String> inputAssociateSSN = new JComboBox<String>();
 	
-	Object[] inputFields = {
+	// Arrays to be passed into JOptionPane's
+	private final Object[] inputFields = {
 			"SSN", inputSSN,
 			"First Name", inputFirstName,
 			"Last Name", inputLastName,
@@ -64,9 +70,8 @@ public class DealersPanel extends JPanel implements GUIPanel {
 			"Address", inputAddress,
 			"Associate SSN", inputAssociateSSN
 	};
-	
-	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	private final String[] addOptions = {"Add", "Cancel"};
+	private final String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -83,6 +88,7 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		dealersTable = new JTable();
 		dealersTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		scrollPaneInventory.setViewportView(dealersTable);
+		dealersTable.setEnabled(false);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -282,6 +288,10 @@ public class DealersPanel extends JPanel implements GUIPanel {
 	
 	@Override
 	public void populateComboBoxes() {
+		// Delete current options
+		comboBoxAssociateSSN.removeAllItems();
+										
+		// Populate with updated options
 		try {
 			connection = SQLConnection.ConnectDb();
 			
@@ -301,11 +311,13 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from Dealer table are populated in the dealersTable.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -373,7 +385,6 @@ public class DealersPanel extends JPanel implements GUIPanel {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				dealersTable.setModel(DbUtils.resultSetToTableModel(result));
-				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
@@ -388,10 +399,12 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to add the a new row
 	 * to the database's Dealer table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -414,16 +427,20 @@ public class DealersPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception exception) {
 			System.out.println("Error inserting to database.");
 			exception.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method populates the fields of the Dealer object with the 
 	 * current data to allow the user to edit the existing information.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -465,10 +482,12 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Dealer table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -493,6 +512,8 @@ public class DealersPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -500,10 +521,12 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's Dealer table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -530,11 +553,14 @@ public class DealersPanel extends JPanel implements GUIPanel {
 		}
 		
 		connection.close();
+		
+		populateComboBoxes(); // Re-populate ComboBoxes with updated data
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method clears the input fields to avoid incorrect
-	 * data on following edit attempt
+	 * data on following edit attempt.
 	 */
 	
 	@Override
@@ -551,7 +577,7 @@ public class DealersPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method increases the parameter count, and adds the
 	 * SQL keyword to allow an additional parameter to be added
-	 * to SQL query
+	 * to SQL query.
 	 */
 	
 	@Override
@@ -565,6 +591,8 @@ public class DealersPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method populates the comboboxes on the Add Dealer popup
 	 * window, as a means of input validation.
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override

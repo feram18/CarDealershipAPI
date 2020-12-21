@@ -23,9 +23,12 @@ import javax.swing.SwingConstants;
 import net.proteanit.sql.DbUtils;
 
 public class LocationsPanel extends JPanel implements GUIPanel {
+	// Utility variables
 	private Connection connection = null;
 	private String query;
 	private int parameterCount;
+	
+	// UI components to filter data when searching
 	private JTable locationsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -37,26 +40,28 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 	private JTextField textFieldZIP;
 	private JComboBox<String> comboBoxManager;
 	
+	// Array to populate comboBoxState
 	private final String[] stateAbbreviations = {null, "AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT",
 			"DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
 			"ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY",
 			"OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT",
 			"WA", "WI", "WV", "WY"};
 	
+	// UI components to be shown when updating, or adding a new record to database
 	private JTextField inputLocationID = new JTextField();
 	private JTextField inputLocationName = new JTextField();
 	private JTextField inputAddress = new JTextField();
 	private JComboBox<String> inputManagerSSN = new JComboBox<String>();
 	
-	Object[] inputFields = {
+	// Arrays to be passed into JOptionPane's
+	private final Object[] inputFields = {
 			"Location ID", inputLocationID,
 			"Location Name", inputLocationName,
 			"Address", inputAddress,
 			"Manager SSN", inputManagerSSN
 	};
-	
-	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	private final String[] addOptions = {"Add", "Cancel"};
+	private final String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -72,6 +77,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		locationsTable = new JTable();
 		locationsTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		scrollPaneStaff.setViewportView(locationsTable);
+		locationsTable.setEnabled(false);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -239,6 +245,10 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 	
 	@Override
 	public void populateComboBoxes() {
+		// Delete current options
+		comboBoxManager.removeAllItems();
+											
+		// Populate with updated options
 		try {
 			connection = SQLConnection.ConnectDb();
 			
@@ -247,7 +257,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 			ResultSet result = stmt.executeQuery();
 			
 			comboBoxManager.addItem(null);
-			while(result.next()) {
+			while (result.next()) {
 				comboBoxManager.addItem(result.getString("siteManagerSSN_FK"));
 			}
 			
@@ -258,11 +268,13 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from Location table are populated in the locationsTable.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -306,13 +318,12 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 				query += "siteManagerSSN_FK ='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
-			query += ";";
+			query += ";"; //end SQL statement
 			
 			if(parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				locationsTable.setModel(DbUtils.resultSetToTableModel(result));
-				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
@@ -329,10 +340,12 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to add the a new row
 	 * to the database's Location table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -352,16 +365,20 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception exception) {
 			System.out.println("Error inserting to database.");
 			exception.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method populates the fields of the Location object with the 
 	 * current data to allow the user to edit the existing information.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -369,7 +386,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = locationsTable.getSelectedRow();
-			if(selectedRow < 0) {
+			if (selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				query = "SELECT DISTINCT siteManagerSSN FROM SiteManager WHERE siteManagerSSN;";
@@ -377,7 +394,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 				ResultSet result = stmt.executeQuery();
 				
 				inputManagerSSN.addItem(null);
-				while(result.next()) {
+				while (result.next()) {
 					inputManagerSSN.addItem(result.getString("siteManagerSSN"));
 				}
 				
@@ -386,7 +403,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 				
-				if(result.next()) {
+				if (result.next()) {
 					inputLocationID.setText(result.getString("locationID"));
 					inputLocationName.setText(result.getString("locationName"));
 					inputAddress.setText(result.getString("address"));
@@ -401,10 +418,12 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Location table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -426,6 +445,8 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -433,10 +454,12 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's Location table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -444,7 +467,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
 				"Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = locationsTable.getSelectedRow();
 				String locationID = locationsTable.getModel().getValueAt(selectedRow, 0).toString();
@@ -463,11 +486,14 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 		}
 		
 		connection.close();
+		
+		populateComboBoxes(); // Re-populate ComboBoxes with updated data
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method clears the input fields to avoid incorrect
-	 * data on following edit attempt
+	 * data on following edit attempt.
 	 */
 	
 	@Override
@@ -481,7 +507,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method increases the parameter count, and adds the
 	 * SQL keyword to allow an additional parameter to be added
-	 * to SQL query
+	 * to SQL query.
 	 */
 
 	@Override
@@ -495,6 +521,8 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method populates the comboboxes on the Add Location popup
 	 * window, as a means of input validation.
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -506,7 +534,7 @@ public class LocationsPanel extends JPanel implements GUIPanel {
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputManagerSSN.addItem(result.getString("siteManagerSSN"));
 			}
 			

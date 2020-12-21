@@ -8,9 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Properties;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -18,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -26,14 +28,13 @@ import org.jdatepicker.impl.UtilDateModel;
 
 import net.proteanit.sql.DbUtils;
 
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-
 public class ServiceTicketsPanel extends JPanel implements GUIPanel {
+	// Utility variables
 	private Connection connection = null;
 	private String query;
 	private int parameterCount;
+	
+	// UI components to filter data when searching
 	private JTable ticketsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -43,22 +44,23 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 	private JComboBox<String> comboBoxMechanic;
 	private JDatePickerImpl datePicker;
 	
+	// UI components to be shown when updating, or adding a new record to database
 	private JTextField inputTicketNo = new JTextField();
 	private JComboBox<String> inputVIN = new JComboBox<String>();
 	private JComboBox<String> inputMechanicSSN = new JComboBox<String>();
 	private JTextField inputComment = new JTextField();
-	private JTextField inputServiceDate = new JTextField(); //TODO pick date
+	private JTextField inputServiceDate = new JTextField();
 	
-	Object[] inputFields = {
+	// Arrays to be passed into JOptionPane's
+	private final Object[] inputFields = {
 			"Service Ticket Number", inputTicketNo,
 			"VIN", inputVIN,
 			"Mechanic SSN", inputMechanicSSN,
 			"Comments", inputComment,
 			"Service Date", inputServiceDate
 	};
-	
-	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	private final String[] addOptions = {"Add", "Cancel"};
+	private final String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -74,6 +76,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		ticketsTable = new JTable();
 		ticketsTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		scrollPaneStaff.setViewportView(ticketsTable);
+		ticketsTable.setEnabled(false);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -212,7 +215,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		populateComboBoxes();
 	}
 	
-	/***
+	/**
 	 * This method populates the Mechanic combobox on ticketsTable with data
 	 * retrieved from Mechanic table, which serve as a filter for the user
 	 * and as a means of input validation.
@@ -220,6 +223,10 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 	
 	@Override
 	public void populateComboBoxes() {
+		// Delete current options
+		comboBoxMechanic.removeAllItems();
+						
+		// Populate with updated options
 		try {
 			connection = SQLConnection.ConnectDb();
 			
@@ -239,11 +246,12 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from ServiceTicket table are populated in the ticketsTable.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -289,7 +297,6 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				ticketsTable.setModel(DbUtils.resultSetToTableModel(result));
-				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
@@ -305,10 +312,12 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to add the a new row
 	 * to the database's ServiceTicket table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -329,16 +338,19 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception exception) {
 			System.out.println("Error inserting to database.");
 			exception.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
 	 * This method populates the fields of the ServiceTicket object with the 
 	 * current data to allow the user to edit the existing information.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -346,7 +358,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = ticketsTable.getSelectedRow();
-			if(selectedRow < 0) {
+			if (selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				String ticketNo = (ticketsTable.getModel().getValueAt(selectedRow, 0)).toString();
@@ -370,7 +382,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 							
-				if(result.next()) {
+				if (result.next()) {
 					inputTicketNo.setText(result.getString("serviceTicketNo"));
 					inputVIN.setSelectedItem(result.getString("VIN_FK"));
 					inputMechanicSSN.setSelectedItem(result.getString("mechanicSSN_FK"));
@@ -386,10 +398,11 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
 	 * This method makes the SQL query to update the selected record in the
 	 * database's ServiceTicket table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -412,6 +425,8 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -419,17 +434,18 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		}
 	}
 	
-	/***
+	/**
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's ServiceTicket table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
 	public void delete() throws SQLException {
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = ticketsTable.getSelectedRow();
 				String serviceTicketNo = ticketsTable.getModel().getValueAt(selectedRow, 0).toString();
@@ -448,11 +464,13 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 		}
 		
 		connection.close();
+		
+		populateComboBoxes(); // Re-populate ComboBoxes with updated data
 	}
 	
-	/***
+	/**
 	 * This method clears the input fields to avoid incorrect
-	 * data on following edit attempt
+	 * data on following edit attempt.
 	 */
 	
 	@Override
@@ -467,7 +485,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method increases the parameter count, and adds the
 	 * SQL keyword to allow an additional parameter to be added
-	 * to SQL query
+	 * to SQL query.
 	 */
 
 	@Override
@@ -481,6 +499,8 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 	/**
 	 * This method populates the comboboxes on the Add Service Ticket popup
 	 * window, as a means of input validation.
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -492,7 +512,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputVIN.addItem(result.getString("VIN"));
 			}
 			
@@ -500,7 +520,7 @@ public class ServiceTicketsPanel extends JPanel implements GUIPanel {
 			stmt = connection.prepareStatement(query);
 			result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputMechanicSSN.addItem(result.getString("mechanicSSN"));
 			}
 			

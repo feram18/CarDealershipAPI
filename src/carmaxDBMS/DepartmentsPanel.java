@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -15,18 +17,18 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import net.proteanit.sql.DbUtils;
 
-import javax.swing.JTextField;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-
 public class DepartmentsPanel extends JPanel implements GUIPanel{
+	// Utility variables
 	private Connection connection = null;
 	private String query;
 	private int parameterCount;
+	
+	// UI components to filter data when searching
 	private JTable departmentsTable;
 	private JPopupMenu popupMenu;
 	private JMenuItem menuItemEdit;
@@ -35,18 +37,19 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 	private JTextField textFieldDptName;
 	private JComboBox<String> comboBoxManager;
 
+	// UI components to be shown when updating, or adding a new record to database
 	private JTextField inputDptNo = new JTextField();
 	private JTextField inputDptName = new JTextField();
 	private JComboBox<String> inputManagerSSN = new JComboBox<String>();
 	
-	Object[] inputFields = {
+	// Arrays to be passed into JOptionPane's
+	private final Object[] inputFields = {
 			"Department Number", inputDptNo,
 			"Department Name", inputDptName,
 			"Manager SSN", inputManagerSSN
 	};
-	
-	String[] addOptions = {"Add", "Cancel"};
-	String[] updateOptions = {"Save Changes", "Cancel"};
+	private final String[] addOptions = {"Add", "Cancel"};
+	private final String[] updateOptions = {"Save Changes", "Cancel"};
 	
 	/**
 	 * Create the panel.
@@ -62,6 +65,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		departmentsTable = new JTable();
 		departmentsTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		scrollPaneStaff.setViewportView(departmentsTable);
+		departmentsTable.setEnabled(false);
 		
 		popupMenu = new JPopupMenu();
 		menuItemEdit = new JMenuItem("Edit Record");
@@ -193,6 +197,10 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 	
 	@Override
 	public void populateComboBoxes() {
+		// Delete current options
+		comboBoxManager.removeAllItems();
+										
+		// Populate with updated options
 		try {
 			connection = SQLConnection.ConnectDb();
 			
@@ -212,11 +220,13 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method checks for the fields user entered data on and
 	 * makes the SQL query with the parameters provided by the user.
 	 * Results from Department table are populated in the departmentsTable.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -239,18 +249,17 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 				query += "departmentName ='" + textFieldDptName.getText() + "'";
 			}
 			
-			if(comboBoxManager.getSelectedItem() != null) {
+			if (comboBoxManager.getSelectedItem() != null) {
 				addToQuery();
 				query += "managerSSN_FK2 ='" + comboBoxManager.getSelectedItem().toString() +"'";
 			}
 			
 			query += ";";
 			
-			if(parameterCount > 0) {
+			if (parameterCount > 0) {
 				PreparedStatement stmt = connection.prepareStatement(query);
 				ResultSet result = stmt.executeQuery();
 				departmentsTable.setModel(DbUtils.resultSetToTableModel(result));
-				System.out.println(query);
 			} else {
 				JOptionPane.showMessageDialog(null, "No criteria selected.");
 			}
@@ -267,10 +276,12 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to add the a new row
 	 * to the database's Department table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -289,16 +300,20 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception exception) {
 			System.out.println("Error inserting to database.");
 			exception.printStackTrace();
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method populates the fields of the Departments object with the 
 	 * current data to allow the user to edit the existing information.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -306,7 +321,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		try {
 			connection = SQLConnection.ConnectDb();
 			int selectedRow = departmentsTable.getSelectedRow();
-			if(selectedRow < 0) {
+			if (selectedRow < 0) {
 				JOptionPane.showMessageDialog(null, "No rows selected. Select a row first.");
 			} else {
 				query = "SELECT DISTINCT managerSSN FROM Manager WHERE managerSSN";
@@ -314,7 +329,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 				ResultSet result = stmt.executeQuery();
 				
 				inputManagerSSN.addItem(null);
-				while(result.next()) {
+				while (result.next()) {
 					inputManagerSSN.addItem(result.getString("managerSSN"));
 				}
 				
@@ -323,7 +338,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 				stmt = connection.prepareStatement(query);
 				result = stmt.executeQuery();
 
-				if(result.next()) {
+				if (result.next()) {
 					inputDptNo.setText(result.getString("departmentNo"));
 					inputDptName.setText(result.getString("departmentName"));
 					inputManagerSSN.setSelectedItem(result.getString("managerSSN_FK2"));
@@ -337,10 +352,12 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to update the selected record in the
 	 * database's Department table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -361,6 +378,8 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 			
 			stmt.close();
 			connection.close();
+			
+			populateComboBoxes(); // Re-populate ComboBoxes with updated data
 		} catch (Exception e) {
 			System.out.print("Error updating record on database.");
 			JOptionPane.showMessageDialog(null, "Record failed to update.");
@@ -368,10 +387,12 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		}
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method makes the SQL query to delete the selected record (table row)
 	 * from the database's Department table.
-	 * @throws SQLException
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	
 	@Override
@@ -379,7 +400,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
 				"Delete", JOptionPane.YES_NO_OPTION);
 		
-		if(confirmation == 0) {
+		if (confirmation == 0) {
 			try {
 				int selectedRow = departmentsTable.getSelectedRow();
 				String departmentNo = departmentsTable.getModel().getValueAt(selectedRow, 0).toString();
@@ -398,11 +419,14 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 		}
 		
 		connection.close();
+		
+		populateComboBoxes(); // Re-populate ComboBoxes with updated data
 	}
 	
-	/***
+	/**
+	 * *
 	 * This method clears the input fields to avoid incorrect
-	 * data on following edit attempt
+	 * data on following edit attempt.
 	 */
 	
 	@Override
@@ -415,7 +439,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 	/**
 	 * This method increases the parameter count, and adds the
 	 * SQL keyword to allow an additional parameter to be added
-	 * to SQL query
+	 * to SQL query.
 	 */
 
 	@Override
@@ -429,6 +453,8 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 	/**
 	 * This method populates the comboboxes on the Add Department popup
 	 * window, as a means of input validation.
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 
 	@Override
@@ -440,7 +466,7 @@ public class DepartmentsPanel extends JPanel implements GUIPanel{
 			PreparedStatement stmt = connection.prepareStatement(query);
 			ResultSet result = stmt.executeQuery();
 			
-			while(result.next()) {
+			while (result.next()) {
 				inputManagerSSN.addItem(result.getString("managerSSN"));
 			}
 			

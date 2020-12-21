@@ -10,9 +10,13 @@ import java.util.Date;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * The Class EmployeeInterfaceFrame holds all the panels shown
+ * on the UI. Made visible once user has entered valid credentials
+ */
 public class EmployeeInterfaceFrame extends JFrame {
-
 	private JPanel contentPane;
+	
 	InventoryPanel inventory = new InventoryPanel();
 	StaffPanel staff = new StaffPanel();
 	ClientsPanel clients = new ClientsPanel();
@@ -89,8 +93,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Logging out...");
 				dispose();
-				//Call to LoginFrame.java's main method to initialize and set JFrame visible
-				LoginFrame.main(null);
+				LoginFrame.main(null); //Call to LoginFrame.java's main method to initialize and set JFrame visible
 			}
 		});
 		btnLogOut.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -98,7 +101,7 @@ public class EmployeeInterfaceFrame extends JFrame {
 		contentPane.add(btnLogOut);
 	}
 	
-	/***
+	/**
 	 * This method initiates a thread used to run a loop.
 	 * The loop gets the current time every second and updates
 	 * the UI' lblClock component with the value.
@@ -124,20 +127,22 @@ public class EmployeeInterfaceFrame extends JFrame {
 	}
 	
 	
-	/***
+	/**
 	 * This method takes in the path of the image to be converted
 	 * into an ImageIcon to be used as the application's icon.
-	 * @param pathToIcon
+	 *
+	 * @param pathToIcon the new icon
 	 */
 	private void setIcon(String pathToIcon) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource(pathToIcon)));
 	}
 	
 	
-	/***
+	/**
 	 * This method resizes the size of the column on a table
 	 * in order to display the data correctly on without needing 
 	 * to manually resize the column.
+	 *
 	 * @param table
 	 */
 	
