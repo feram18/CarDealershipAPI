@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 public class SQLConnection {
     private static Connection connection = null;
     private static Properties properties = new Properties();
-    private final static String PATH = "D:\\Projects\\COSC457-Carmax-Database\\resources\\dbCredentials.properties";
+    private final static String PATH = "resources\\dbCredentials.properties";
     
     /**
      * Read credentials from properties file to create connection to SQL server. 
