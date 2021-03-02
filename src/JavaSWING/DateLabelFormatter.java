@@ -1,4 +1,4 @@
-package carmaxDBMS;
+package JavaSWING;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 
 import java.text.ParseException;

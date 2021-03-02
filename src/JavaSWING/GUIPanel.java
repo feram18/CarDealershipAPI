@@ -1,4 +1,4 @@
-package carmaxDBMS;
+package JavaSWING;
 
 import java.sql.SQLException;
 
