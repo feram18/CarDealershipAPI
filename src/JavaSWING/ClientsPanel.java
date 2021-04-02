@@ -71,7 +71,7 @@ public class ClientsPanel extends JPanel implements GUIPanel {
 			"SSN", inputSSN,
 			"First Name", inputFirstName,
 			"Last Name", inputLastName,
-			"Sex", inputSex,
+			"Gender", inputSex,
 			"Email", inputEmail,
 			"Phone Number", inputPhoneNumber,
 			"Address", inputAddress,
@@ -180,7 +180,7 @@ public class ClientsPanel extends JPanel implements GUIPanel {
 		textFieldLastName.setBounds(103, 108, 86, 20);
 		add(textFieldLastName);
 
-		JLabel lblSex = new JLabel("Sex");
+		JLabel lblSex = new JLabel("Gender");
 		lblSex.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSex.setFont(new Font("Arial", Font.PLAIN, 12));
 		lblSex.setBounds(10, 140, 83, 15);
@@ -350,7 +350,7 @@ public class ClientsPanel extends JPanel implements GUIPanel {
 			connection = SQLConnection.ConnectDb();
 			parameterCount = 0;
 			query = "SELECT `clientSSN` AS `SSN`, " + "`fName` AS `First Name`, " + "`lName` AS `Last Name`, "
-					+ "`sex` AS `Sex`, " + "`email` AS `Email`, " + "`phoneNo` AS `Phone Number`, "
+					+ "`sex` AS `Gender`, " + "`email` AS `Email`, " + "`phoneNo` AS `Phone Number`, "
 					+ "`address` AS `Adress`, " + "`associateSSN_FK2` AS `Associate SSN`, "
 					+ "`minimumPrice` AS `Min. Price`, " + "`maximumPrice` AS `Max. Price` " + "FROM Client WHERE "; // Base
 																														// query

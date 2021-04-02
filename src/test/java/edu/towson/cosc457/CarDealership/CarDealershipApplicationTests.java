@@ -1,4 +1,4 @@
-package edu.towson.cosc7.CarDealership;
+package edu.towson.cosc457.CarDealership;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

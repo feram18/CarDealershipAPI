@@ -82,7 +82,7 @@ public class StaffPanel extends JPanel implements GUIPanel {
 			"First Name", inputFirstName,
 			"Last Name", inputLastName,
 			"M.I.", inputMiddleInitial,
-			"Sex", inputSex,
+			"Gender", inputSex,
 			"Date of Birth", inputDoB,
 			"Phone Number", inputPhoneNumber,
 			"Employee Type", inputEmployeeType,
@@ -204,7 +204,7 @@ public class StaffPanel extends JPanel implements GUIPanel {
 		lblEmployeeType.setBounds(10, 173, 96, 15);
 		add(lblEmployeeType);
 
-		JLabel lblSex = new JLabel("Sex");
+		JLabel lblSex = new JLabel("Gender");
 		lblSex.setHorizontalAlignment(SwingConstants.TRAILING);
 		lblSex.setFont(new Font("Arial", Font.PLAIN, 12));
 		lblSex.setBounds(10, 142, 96, 15);
@@ -417,7 +417,7 @@ public class StaffPanel extends JPanel implements GUIPanel {
 			connection = SQLConnection.ConnectDb();
 			parameterCount = 0;
 			query = "SELECT SSN, " + "`fName` AS `First Name`, " + "`lName` AS `Last Name`, " + "`mInit` AS `M.I.`, "
-					+ "`sex` AS `Sex`, " + "DOB, " + "`phoneNo` AS `Phone Number`, "
+					+ "`sex` AS `Gender`, " + "DOB, " + "`phoneNo` AS `Phone Number`, "
 					+ "`employeeType` AS `Employee Type`, " + "`workLocation` AS `Work Location`, "
 					+ "`salary` AS `Salary`, " + "`yearsWorked` AS `Years Worked`, " + "`address` AS `Address`, "
 					+ "`hoursWorked` AS `Hours Worked`, " + "`username` AS `Username`, " + "`password` AS `Password`, "
