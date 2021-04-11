@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MechanicRepository extends EmployeeRepository {
+public interface MechanicRepository extends EmployeeRepository<Mechanic> {
     Optional<List<Mechanic>> findByManager(Manager manager);
     Optional<List<Mechanic>> findByDepartment(Department department);
 }

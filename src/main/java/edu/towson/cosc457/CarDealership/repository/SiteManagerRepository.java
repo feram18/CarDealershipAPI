@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SiteManagerRepository extends EmployeeRepository {
+public interface SiteManagerRepository extends EmployeeRepository<SiteManager> {
     Optional<SiteManager> findByLocation(Location location);
 }
