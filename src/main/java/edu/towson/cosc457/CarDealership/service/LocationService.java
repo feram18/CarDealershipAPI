@@ -25,7 +25,10 @@ public class LocationService {
     private final MechanicService mechanicService;
 
     @Autowired
-    public LocationService(LocationRepository locationRepository, LotService lotService, DepartmentService departmentService, MechanicService mechanicService) {
+    public LocationService(LocationRepository locationRepository,
+                           LotService lotService,
+                           DepartmentService departmentService,
+                           MechanicService mechanicService) {
         this.locationRepository = locationRepository;
         this.lotService = lotService;
         this.departmentService = departmentService;
@@ -89,12 +92,12 @@ public class LocationService {
     }
 
     @Transactional
-    public Location addDepartment(Long locationId, Long departmentId) {
+    public Location addDepartmentToLocation(Long locationId, Long departmentId) {
         Location location = getLocation(locationId);
         Department department = departmentService.getDepartment(departmentId);
         if (Objects.nonNull(department.getLocation())) {
             throw new AlreadyAssignedException(
-                    Entity.DEPARTMENT.toString(),
+                    Entity.LOT.toString(),
                     departmentId,
                     Entity.LOCATION.toString(),
                     department.getLocation().getId()
@@ -106,7 +109,7 @@ public class LocationService {
     }
 
     @Transactional
-    public Location removeDepartment(Long locationId, Long departmentId) {
+    public Location removeDepartmentFromLocation(Long locationId, Long departmentId) {
         Location location = getLocation(locationId);
         Department department = departmentService.getDepartment(departmentId);
         location.removeDepartment(department);

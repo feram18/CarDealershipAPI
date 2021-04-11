@@ -18,6 +18,8 @@ public class DepartmentDto {
     private List<MechanicDto> mechanicsDto = new ArrayList<>();
     private List<SalesAssociateDto> salesAssociatesDto = new ArrayList<>();
 
+    public DepartmentDto() { }
+
     public static DepartmentDto from (Department department) {
         DepartmentDto departmentDto = new DepartmentDto();
         departmentDto.setId(department.getId());

@@ -1,5 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
 import lombok.Data;
@@ -21,15 +23,18 @@ public class Department {
     @Column(name = "dept_name",
             unique = true)
     private String name;
+    @JsonBackReference
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "manager_id")
     private Manager manager;
-    @NotNull
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
+    @JsonBackReference
+    @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
+    @JsonManagedReference
     @OneToMany(mappedBy = "department")
     private List<Mechanic> mechanics;
+    @JsonManagedReference
     @OneToMany(mappedBy = "department")
     private List<SalesAssociate> salesAssociates;
 
@@ -37,12 +42,10 @@ public class Department {
 
     public Department(String name,
                       Manager manager,
-                      Location location,
                       List<Mechanic> mechanics,
                       List<SalesAssociate> salesAssociates) {
         this.name = name;
         this.manager = manager;
-        this.location = location;
         this.mechanics = mechanics;
         this.salesAssociates = salesAssociates;
     }

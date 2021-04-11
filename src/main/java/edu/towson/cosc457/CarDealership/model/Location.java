@@ -1,5 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.LocationDto;
 
@@ -23,24 +25,35 @@ public class Location {
     @Column(name = "location_name",
             unique = true)
     private String name;
-    @Column(name = "address")
-    private String address;
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
+    @JsonBackReference
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "site_manager_id")
     private SiteManager siteManager;
-    @OneToMany(mappedBy = "location")
+    @JsonManagedReference
+    @OneToMany(mappedBy = "location",
+                cascade = CascadeType.ALL,
+                orphanRemoval = true)
     private List<Lot> lots = new ArrayList<>();
-    @OneToMany(mappedBy = "location")
-    private List<Department> departments = new ArrayList<>();
+    @JsonManagedReference
+    @OneToMany(mappedBy = "location",
+                cascade = CascadeType.ALL,
+                orphanRemoval = true)
+    private List<Department> departments;
+    @JsonManagedReference
     @OneToMany(mappedBy = "workLocation")
     private List<Mechanic> mechanics;
+    @JsonManagedReference
     @OneToMany(mappedBy = "workLocation")
     private List<SalesAssociate> salesAssociates;
 
     public Location() { }
 
     public Location(String name,
-                    String address,
+                    Address address,
                     SiteManager siteManager,
                     List<Lot> lots,
                     List<Department> departments,
@@ -95,8 +108,6 @@ public class Location {
         location.setSiteManager(locationDto.getSiteManager());
         location.setLots(locationDto.getLotsDto()
                 .stream().map(Lot::from).collect(Collectors.toList()));
-        location.setDepartments(locationDto.getDepartmentsDto()
-                .stream().map(Department::from).collect(Collectors.toList()));
         location.setMechanics(locationDto.getMechanicsDto()
                 .stream().map(Mechanic::from).collect(Collectors.toList()));
         location.setSalesAssociates(locationDto.getSalesAssociatesDto()

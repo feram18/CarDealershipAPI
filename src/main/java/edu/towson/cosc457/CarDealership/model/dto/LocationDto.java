@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.model.dto;
 
+import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.SiteManager;
 import lombok.Data;
@@ -12,12 +13,14 @@ import java.util.stream.Collectors;
 public class LocationDto {
     private Long id;
     private String name;
-    private String address;
+    private Address address;
     private SiteManager siteManager;
     private List<LotDto> lotsDto = new ArrayList<>();
     private List<DepartmentDto> departmentsDto = new ArrayList<>();
     private List<MechanicDto> mechanicsDto = new ArrayList<>();
     private List<SalesAssociateDto> salesAssociatesDto = new ArrayList<>();
+
+    public LocationDto() { }
 
     public static LocationDto from (Location location) {
         LocationDto locationDto = new LocationDto();

@@ -1,7 +1,11 @@
 package edu.towson.cosc457.CarDealership.controller;
 
+import com.mysql.cj.log.Log;
 import edu.towson.cosc457.CarDealership.model.Location;
+import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
 import edu.towson.cosc457.CarDealership.model.dto.LocationDto;
+import edu.towson.cosc457.CarDealership.model.dto.LotDto;
+import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,6 +57,13 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}/lots")
+    public ResponseEntity<List<LotDto>> getLots(@PathVariable final Long id) {
+        Location location = locationService.getLocation(id);
+        List<LotDto> lotsDto = location.getLots().stream().map(LotDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(lotsDto, HttpStatus.OK);
+    }
+
     @PostMapping(value = "{id}/lots/{id}/add")
     public ResponseEntity<LocationDto> addLotToLocation(@PathVariable final Long locationId,
                                                         @PathVariable final Long lotId) {
@@ -67,18 +78,34 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}/departments")
+    public ResponseEntity<List<DepartmentDto>> getDepartments(@PathVariable final Long id) {
+        Location location = locationService.getLocation(id);
+        List<DepartmentDto> departmentsDto = location.getDepartments()
+                .stream().map(DepartmentDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(departmentsDto, HttpStatus.OK);
+    }
+
     @PostMapping(value = "{id}/departments/{id}/add")
-    public ResponseEntity<LocationDto> addDepartment(@PathVariable final Long locationId,
-                                                     @PathVariable final Long departmentId) {
-        Location location = locationService.addDepartment(locationId, departmentId);
+    public ResponseEntity<LocationDto> addDepartmentToLocation(@PathVariable final Long locationId,
+                                                               @PathVariable final Long departmentId) {
+        Location location = locationService.addDepartmentToLocation(locationId, departmentId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "{id}/departments/{id}/remove")
-    public ResponseEntity<LocationDto> removeDepartment(@PathVariable final Long locationId,
-                                                        @PathVariable final Long departmentId) {
-        Location location = locationService.removeDepartment(locationId, departmentId);
+    public ResponseEntity<LocationDto> removeDepartmentFromLocation(@PathVariable final Long locationId,
+                                                                    @PathVariable final Long departmentId) {
+        Location location = locationService.removeDepartmentFromLocation(locationId, departmentId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/mechanics")
+    public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
+        Location location = locationService.getLocation(id);
+        List<MechanicDto> mechanicsDto = location.getMechanics()
+                .stream().map(MechanicDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "{id}/mechanics/{id}/add")
