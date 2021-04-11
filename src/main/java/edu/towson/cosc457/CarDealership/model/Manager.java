@@ -30,7 +30,7 @@ public class Manager extends Employee {
     private List<Mechanic> mechanics;
     @JsonManagedReference
     @OneToMany(mappedBy = "manager")
-    private List<SalesAssociate> salesAssociates;
+    private List<SalesAssociate> salesAssociates;;
 
     public Manager() { }
 

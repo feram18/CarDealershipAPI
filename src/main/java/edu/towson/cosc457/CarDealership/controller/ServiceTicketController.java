@@ -51,8 +51,8 @@ public class ServiceTicketController {
     @PutMapping(value = "{id}")
     public ResponseEntity<ServiceTicketDto> editServiceTicket(@PathVariable final Long id,
                                                               @RequestBody final ServiceTicketDto serviceTicketDto) {
-        ServiceTicket serviceTicket = serviceTicketService.editServiceTicket(id, ServiceTicket
-                .from(serviceTicketDto));
+        ServiceTicket serviceTicket = serviceTicketService
+                .editServiceTicket(id, ServiceTicket.from(serviceTicketDto));
         return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
     }
 

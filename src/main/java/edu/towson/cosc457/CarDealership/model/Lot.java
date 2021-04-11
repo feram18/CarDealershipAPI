@@ -32,18 +32,18 @@ public class Lot {
 
     public Lot() { }
 
+    public Lot(Double size, Location location, List<Vehicle> vehicles) {
+        this.size = size;
+        this.location = location;
+        this.vehicles = vehicles;
+    }
+
     public void addVehicleToLot(Vehicle vehicle) {
         vehicles.add(vehicle);
     }
 
     public void removeVehicleFromLot(Vehicle vehicle) {
         vehicles.add(vehicle);
-    }
-
-    public Lot(Double size, Location location, List<Vehicle> vehicles) {
-        this.size = size;
-        this.location = location;
-        this.vehicles = vehicles;
     }
 
     public static Lot from(LotDto lotDto) {
