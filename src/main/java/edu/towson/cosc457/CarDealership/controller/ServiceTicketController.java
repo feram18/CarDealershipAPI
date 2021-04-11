@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.controller;
 
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
+import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.service.ServiceTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,14 @@ public class ServiceTicketController {
         ServiceTicket serviceTicket = serviceTicketService.editServiceTicket(id, ServiceTicket
                 .from(serviceTicketDto));
         return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "{id}/comments")
+    public ResponseEntity<List<CommentDto>> getComments(@PathVariable final Long id) {
+        ServiceTicket serviceTicket = serviceTicketService.getServiceTicket(id);
+        List<CommentDto> commentsDto = serviceTicket.getComments()
+                .stream().map(CommentDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(commentsDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "{id}/comments/{id}/add")

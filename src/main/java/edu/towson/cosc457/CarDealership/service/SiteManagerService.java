@@ -32,7 +32,8 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         return siteManagerRepository.save(siteManager);
     }
 
-    public List<Employee> getEmployees() {
+    @Override
+    public List<SiteManager> getEmployees() {
         return StreamSupport
                 .stream(siteManagerRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
@@ -40,7 +41,7 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
 
     @Override
     public SiteManager getEmployee(Long id) {
-        return (SiteManager) siteManagerRepository.findById(id)
+        return siteManagerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.SITE_MANAGER.toString(), id));
     }
 

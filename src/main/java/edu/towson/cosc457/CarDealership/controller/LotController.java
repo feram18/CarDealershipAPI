@@ -2,6 +2,7 @@ package edu.towson.cosc457.CarDealership.controller;
 
 import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
+import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.LotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,13 @@ public class LotController {
                                           @RequestBody final LotDto lotDto) {
         Lot editedLot = lotService.editLot(id, Lot.from(lotDto));
         return new ResponseEntity<>(LotDto.from(editedLot), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "{id}/vehicles")
+    public ResponseEntity<List<VehicleDto>> getVehicles(@PathVariable final Long id) {
+        Lot lot = lotService.getLot(id);
+        List<VehicleDto> vehiclesDto = lot.getVehicles().stream().map(VehicleDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(vehiclesDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "{id}/vehicles/{id}/add")

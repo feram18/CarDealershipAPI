@@ -32,7 +32,8 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
         return salesAssociateRepository.save(salesAssociate);
     }
 
-    public List<Employee> getEmployees() {
+    @Override
+    public List<SalesAssociate> getEmployees() {
         return StreamSupport
                 .stream(salesAssociateRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
@@ -40,7 +41,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
 
     @Override
     public SalesAssociate getEmployee(Long id) {
-        return (SalesAssociate) salesAssociateRepository.findById(id)
+        return salesAssociateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.SALES_ASSOCIATE.toString(), id));
     }
 
@@ -79,7 +80,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
 
     @Transactional
     public SalesAssociate assignClient(Long associateId, Long clientId) {
-        SalesAssociate associate = getEmployee(associateId);
+        SalesAssociate salesAssociate = getEmployee(associateId);
         Client client = clientService.getClient(clientId);
         if (Objects.nonNull(client.getSalesAssociate())) {
             throw new AlreadyAssignedException(
@@ -89,16 +90,16 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
                     client.getSalesAssociate().getId()
             );
         }
-        associate.addClient(client);
-        client.setSalesAssociate(associate);
-        return associate;
+        salesAssociate.addClient(client);
+        client.setSalesAssociate(salesAssociate);
+        return salesAssociate;
     }
 
     @Transactional
     public SalesAssociate removeClient(Long associateId, Long clientId) {
-        SalesAssociate associate = getEmployee(associateId);
+        SalesAssociate salesAssociate = getEmployee(associateId);
         Client client = clientService.getClient(clientId);
-        associate.removeClient(client);
-        return associate;
+        salesAssociate.removeClient(client);
+        return salesAssociate;
     }
 }

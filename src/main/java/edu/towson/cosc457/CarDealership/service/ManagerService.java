@@ -32,16 +32,16 @@ public class ManagerService implements EmployeeService<Manager> {
         return managerRepository.save(manager);
     }
 
-//    @Override
-//    public List<Employee> getEmployees() {
-//        return StreamSupport
-//                .stream(managerRepository.findAll().spliterator(), false)
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    public List<Manager> getEmployees() {
+        return StreamSupport
+                .stream(managerRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Manager getEmployee(Long id) {
-        return (Manager) managerRepository.findById(id)
+        return managerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.MANAGER.toString(), id));
     }
 

@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.controller;
 
 import edu.towson.cosc457.CarDealership.model.Vehicle;
+import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,14 @@ public class VehicleController {
                                                   @RequestBody final VehicleDto vehicleDto) {
         Vehicle vehicle = vehicleService.editVehicle(id, Vehicle.from(vehicleDto));
         return new ResponseEntity<>(VehicleDto.from(vehicle), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "{id}/tickets")
+    public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
+        Vehicle vehicle = vehicleService.getVehicle(id);
+        List<ServiceTicketDto> serviceTicketsDto = vehicle.getTickets()
+                .stream().map(ServiceTicketDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(serviceTicketsDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "{id}/tickets/{id}/add")

@@ -33,16 +33,16 @@ public class MechanicService implements EmployeeService<Mechanic> {
         return mechanicRepository.save(mechanic);
     }
 
-//    @Override
-//    public List<Employee> getEmployees() {
-//        return StreamSupport
-//                .stream(mechanicRepository.findAll().spliterator(), false)
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    public List<Mechanic> getEmployees() {
+        return StreamSupport
+                .stream(mechanicRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Mechanic getEmployee(Long id) {
-        return (Mechanic) mechanicRepository.findById(id)
+        return mechanicRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.MECHANIC.toString(), id));
     }
 

@@ -23,33 +23,33 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<ClientDto> addClient(@RequestBody final ClientDto clientDto) {
-        Client location = clientService.addClient(Client.from(clientDto));
-        return new ResponseEntity<>(ClientDto.from(location), HttpStatus.OK);
+        Client client = clientService.addClient(Client.from(clientDto));
+        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<ClientDto>> getClients() {
-        List<Client> locations = clientService.getClients();
-        List<ClientDto> locationsDto = locations.stream().map(ClientDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(locationsDto, HttpStatus.OK);
+        List<Client> clients = clientService.getClients();
+        List<ClientDto> clientsDto = clients.stream().map(ClientDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(clientsDto, HttpStatus.OK);
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<ClientDto> getClient(@PathVariable final Long id) {
-        Client location = clientService.getClient(id);
-        return new ResponseEntity<>(ClientDto.from(location), HttpStatus.OK);
+        Client client = clientService.getClient(id);
+        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ClientDto> deleteClient(@PathVariable final Long id) {
-        Client location = clientService.deleteClient(id);
-        return new ResponseEntity<>(ClientDto.from(location), HttpStatus.OK);
+        Client client = clientService.deleteClient(id);
+        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<ClientDto> editClient(@PathVariable final Long id,
                                                 @RequestBody final ClientDto clientDto) {
-        Client location = clientService.editClient(id, Client.from(clientDto));
-        return new ResponseEntity<>(ClientDto.from(location), HttpStatus.OK);
+        Client client = clientService.editClient(id, Client.from(clientDto));
+        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
     }
 }

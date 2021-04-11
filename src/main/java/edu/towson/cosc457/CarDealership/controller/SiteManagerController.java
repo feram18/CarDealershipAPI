@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.controller;
 
 import edu.towson.cosc457.CarDealership.model.SiteManager;
+import edu.towson.cosc457.CarDealership.model.dto.ManagerDto;
 import edu.towson.cosc457.CarDealership.model.dto.SiteManagerDto;
 import edu.towson.cosc457.CarDealership.service.SiteManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/site-managers")
-public class SiteManagerController extends EmployeeController<SiteManager> {
+public class SiteManagerController extends EmployeeController<SiteManagerService> {
     private final SiteManagerService siteManagerService;
 
     @Autowired
@@ -23,51 +24,57 @@ public class SiteManagerController extends EmployeeController<SiteManager> {
     }
 
     @PostMapping
-    public ResponseEntity<SiteManagerDto> addEmployee(@RequestBody final SiteManagerDto managerDto) {
-        SiteManager manager = siteManagerService.addEmployee(SiteManager.from(managerDto));
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+    public ResponseEntity<SiteManagerDto> addEmployee(@RequestBody final SiteManagerDto siteManagerDto) {
+        SiteManager siteManager = siteManagerService.addEmployee(SiteManager.from(siteManagerDto));
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
-    // TODO - From Super
-
-//    @GetMapping
-//    public ResponseEntity<List<SiteManagerDto>> getEmployees() {
-//        List<SiteManager> siteManagers = siteManagerService.getEmployees();
-//        List<SiteManagerDto> siteManagersDto = siteManagers
-//                .stream().map(SiteManagerDto::from).collect(Collectors.toList());
-//        return new ResponseEntity<>(siteManagersDto, HttpStatus.OK);
-//    }
+    @GetMapping
+    public ResponseEntity<List<SiteManagerDto>> getEmployees() {
+        List<SiteManager> siteManagers = siteManagerService.getEmployees();
+        List<SiteManagerDto> siteManagersDto = siteManagers
+                .stream().map(SiteManagerDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(siteManagersDto, HttpStatus.OK);
+    }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> getEmployee(@PathVariable final Long id) {
-        SiteManager manager = siteManagerService.getEmployee(id);
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+        SiteManager siteManager = siteManagerService.getEmployee(id);
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> deleteEmployee(@PathVariable final Long id) {
-        SiteManager manager = siteManagerService.deleteEmployee(id);
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+        SiteManager siteManager = siteManagerService.deleteEmployee(id);
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> editEmployee(@PathVariable final Long id,
-                                                       @PathVariable final SiteManagerDto managerDto) {
-        SiteManager manager = siteManagerService.editEmployee(id, SiteManager.from(managerDto));
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+                                                       @PathVariable final SiteManagerDto siteManagerDto) {
+        SiteManager siteManager = siteManagerService.editEmployee(id, SiteManager.from(siteManagerDto));
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/mechanics/{id}/add")
-    public ResponseEntity<SiteManagerDto> assignToManager(@PathVariable final Long managerId,
+    @GetMapping(value = "{id}/managers")
+    public ResponseEntity<List<ManagerDto>> getAssignedManagers(@PathVariable final Long id) {
+        SiteManager siteManager = siteManagerService.getEmployee(id);
+        List<ManagerDto> managersDto = siteManager.getManagers()
+                .stream().map(ManagerDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(managersDto, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "{id}/managers/{id}/add")
+    public ResponseEntity<SiteManagerDto> assignToManager(@PathVariable final Long siteManagerId,
                                                           @PathVariable final Long mechanicId) {
-        SiteManager manager = siteManagerService.assignToManager(managerId, mechanicId);
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+        SiteManager siteManager = siteManagerService.assignToManager(siteManagerId, mechanicId);
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/mechanics/{id}/remove")
-    public ResponseEntity<SiteManagerDto> removeFromManager(@PathVariable final Long managerId,
+    @DeleteMapping(value = "{id}/managers/{id}/remove")
+    public ResponseEntity<SiteManagerDto> removeFromManager(@PathVariable final Long siteManagerId,
                                                             @PathVariable final Long mechanicId) {
-        SiteManager manager = siteManagerService.removeFromManager(managerId, mechanicId);
-        return new ResponseEntity<>(SiteManagerDto.from(manager), HttpStatus.OK);
+        SiteManager siteManager = siteManagerService.removeFromManager(siteManagerId, mechanicId);
+        return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 }

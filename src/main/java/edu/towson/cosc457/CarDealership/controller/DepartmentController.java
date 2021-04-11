@@ -2,6 +2,7 @@ package edu.towson.cosc457.CarDealership.controller;
 
 import edu.towson.cosc457.CarDealership.model.Department;
 import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
+import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,14 @@ public class DepartmentController {
                                                         @RequestBody final DepartmentDto departmentDto) {
         Department location = departmentService.editDepartment(id, Department.from(departmentDto));
         return new ResponseEntity<>(DepartmentDto.from(location), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "{id}/mechanics")
+    public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
+        Department department = departmentService.getDepartment(id);
+        List<MechanicDto> mechanicsDto = department.getMechanics()
+                .stream().map(MechanicDto::from).collect(Collectors.toList());
+        return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "{id}/mechanics/{id}/add")

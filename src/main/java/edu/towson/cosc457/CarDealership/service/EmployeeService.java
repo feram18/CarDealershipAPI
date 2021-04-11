@@ -6,8 +6,7 @@ import java.util.List;
 
 public interface EmployeeService <T extends Employee> {
     T addEmployee(T employee);
-    // TODO - Parameter
-//    List<T> getEmployees();
+    List<T> getEmployees();
     T getEmployee(Long id);
     T deleteEmployee(Long id);
     T editEmployee(Long id, T employee);
