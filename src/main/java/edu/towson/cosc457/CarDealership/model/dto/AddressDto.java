@@ -11,6 +11,8 @@ public class AddressDto {
     private String state;
     private Integer zipCode;
 
+    public AddressDto() { }
+
     public static AddressDto from (Address address) {
         AddressDto addressDto = new AddressDto();
         addressDto.setId(address.getId());

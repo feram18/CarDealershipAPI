@@ -1,5 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.ManagerDto;
@@ -13,22 +15,26 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "MANAGER")
-@DiscriminatorValue("MANAGER")
+@DiscriminatorValue("Manager")
 public class Manager extends Employee {
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "site_manager_id")
     private SiteManager siteManager;
+    @JsonBackReference
     @OneToOne(mappedBy = "manager",
                 cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     private Department department;
+    @JsonManagedReference
     @OneToMany(mappedBy = "manager")
     private List<Mechanic> mechanics;
+    @JsonManagedReference
     @OneToMany(mappedBy = "manager")
     private List<SalesAssociate> salesAssociates;
 
     public Manager() { }
 
-    public Manager(Integer ssn,
+    public Manager(String ssn,
                    String firstName,
                    Character middleInitial,
                    String lastName,
@@ -39,8 +45,9 @@ public class Manager extends Employee {
                    Location workLocation,
                    Double salary,
                    LocalDate dateStarted,
-                   String address,
+                   Address address,
                    Double hoursWorked,
+                   Boolean isActive,
                    Role role,
                    String username,
                    String password,
@@ -61,6 +68,7 @@ public class Manager extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
+                isActive,
                 role,
                 username,
                 password);

@@ -1,5 +1,8 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
@@ -18,42 +21,46 @@ public class Vehicle {
     @Column(name = "vehicle_id",
             updatable = false)
     private Long id;
+    @NotNull
     @Column(name = "vin",
             length = 17)
     private String vin;
-    @Column(name = "make",
-            nullable = false)
+    @NotNull
+    @Column(name = "make")
     private String make;
-    @Column(name = "model",
-            nullable = false)
+    @NotNull
+    @Column(name = "model")
     private String model;
+    @NotNull
     @Column(name = "year",
-            length = 4,
-            nullable = false)
+            length = 4)
     private Integer year;
-    @Column(name = "color",
-            nullable = false)
+    @NotNull
+    @Column(name = "color")
     private String color;
-    @Column(name = "type",
-            nullable = false)
+    @NotNull
+    @Column(name = "vehicle_type")
+    @Enumerated(value = EnumType.STRING)
     private VehicleType type;
-    @Column(name = "transmission",
-            nullable = false)
+    @NotNull
+    @Column(name = "transmission")
     @Enumerated(value = EnumType.STRING)
     private TransmissionType transmission;
     @Column(name = "features")
     private String features;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinColumn(name = "lot_id")
-    private Lot lot;
-    @Column(name = "mpg",
-            nullable = false)
+    @NotNull
+    @Column(name = "mpg")
     private Integer mpg;
-    @Column(name = "mileage",
-            nullable = false)
+    @NotNull
+    @Column(name = "mileage")
     private Integer mileage;
     @Column(name = "price")
     private Double price;
+    @JsonBackReference
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
+    @JoinColumn(name = "lot_id")
+    private Lot lot;
+    @JsonManagedReference
     @OneToMany(mappedBy = "vehicle")
     private List<ServiceTicket> tickets;
 
@@ -67,10 +74,10 @@ public class Vehicle {
                    VehicleType type,
                    TransmissionType transmission,
                    String features,
-                   Lot lot,
                    Integer mpg,
                    Integer mileage,
                    Double price,
+                   Lot lot,
                    List<ServiceTicket> tickets) {
         this.vin = vin;
         this.make = make;
@@ -80,10 +87,10 @@ public class Vehicle {
         this.type = type;
         this.transmission = transmission;
         this.features = features;
-        this.lot = lot;
         this.mpg = mpg;
         this.mileage = mileage;
         this.price = price;
+        this.lot = lot;
         this.tickets = tickets;
     }
 
@@ -110,12 +117,12 @@ public class Vehicle {
         vehicle.setType(vehicleDto.getType());
         vehicle.setTransmission(vehicleDto.getTransmission());
         vehicle.setFeatures(vehicleDto.getFeatures());
-        vehicle.setLot(vehicleDto.getLot());
         vehicle.setMpg(vehicleDto.getMpg());
         vehicle.setMileage(vehicleDto.getMileage());
         vehicle.setPrice(vehicleDto.getPrice());
-        vehicle.setTickets(vehicleDto.getTicketsDto()
-                .stream().map(ServiceTicket::from).collect(Collectors.toList()));
+        vehicle.setLot(vehicleDto.getLot());
+//        vehicle.setTickets(vehicleDto.getTicketsDto()
+//                .stream().map(ServiceTicket::from).collect(Collectors.toList()));
         return vehicle;
     }
 }

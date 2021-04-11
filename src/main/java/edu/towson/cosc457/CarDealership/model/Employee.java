@@ -1,7 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
-import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import lombok.Data;
@@ -24,9 +24,9 @@ public abstract class Employee {
     private Long id;
     @NotNull
     @Column(name = "ssn",
-            length = 9,
+            length = 11,
             unique = true)
-    private Integer ssn;
+    private String ssn;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "middle_init",
@@ -39,23 +39,30 @@ public abstract class Employee {
     private Gender gender;
     @Column(name = "dob")
     private LocalDate dateOfBirth;
-    @Column(name = "phone_no")
+    @Column(name = "phone_no",
+            length = 12)
     private String phoneNumber;
     @Column(name = "email")
     private String email;
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinColumn(name = "work_loc")
+    @JoinColumn(name = "work_location_id")
     private Location workLocation;
     @Column(name = "salary")
     private Double salary;
     @Column(name = "date_started")
     private LocalDate dateStarted;
-    @Column(name = "address")
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
     @Column(name = "hours_worked")
     private Double hoursWorked;
+    @NotNull
+    @Column(name = "is_active",
+            columnDefinition = "boolean default true")
+    private Boolean isActive;
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "user_role")
     private Role role;
     @NotNull
     @Column(name = "username",
@@ -67,7 +74,7 @@ public abstract class Employee {
 
     public Employee() { }
 
-    public Employee(Integer ssn,
+    public Employee(String ssn,
                     String firstName,
                     Character middleInitial,
                     String lastName,
@@ -78,8 +85,9 @@ public abstract class Employee {
                     Location workLocation,
                     Double salary,
                     LocalDate dateStarted,
-                    String address,
+                    Address address,
                     Double hoursWorked,
+                    Boolean isActive,
                     Role role,
                     String username,
                     String password) {
@@ -96,6 +104,7 @@ public abstract class Employee {
         this.dateStarted = dateStarted;
         this.address = address;
         this.hoursWorked = hoursWorked;
+        this.isActive = isActive;
         this.role = role;
         this.username = username;
         this.password = password;

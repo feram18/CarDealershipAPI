@@ -21,11 +21,13 @@ public class VehicleDto {
     private VehicleType type;
     private TransmissionType transmission;
     private String features;
-    private Lot lot;
     private Integer mpg;
     private Integer mileage;
     private Double price;
-    private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
+    private Lot lot;
+//    private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
+
+    public VehicleDto() { }
 
     public static VehicleDto from (Vehicle vehicle) {
         VehicleDto vehicleDto = new VehicleDto();
@@ -38,12 +40,12 @@ public class VehicleDto {
         vehicleDto.setType(vehicle.getType());
         vehicleDto.setTransmission(vehicle.getTransmission());
         vehicleDto.setFeatures(vehicle.getFeatures());
-        vehicleDto.setLot(vehicle.getLot());
         vehicleDto.setMpg(vehicle.getMpg());
         vehicleDto.setMileage(vehicle.getMileage());
         vehicleDto.setPrice(vehicle.getPrice());
-        vehicleDto.setTicketsDto(vehicle.getTickets()
-                .stream().map(ServiceTicketDto::from).collect(Collectors.toList()));
+        vehicleDto.setLot(vehicle.getLot());
+//        vehicleDto.setTicketsDto(vehicle.getTickets()
+//                .stream().map(ServiceTicketDto::from).collect(Collectors.toList()));
         return vehicleDto;
     }
 }

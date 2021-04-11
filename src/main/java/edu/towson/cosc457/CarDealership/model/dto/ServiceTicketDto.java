@@ -21,6 +21,8 @@ public class ServiceTicketDto {
     private Status status;
     private List<CommentDto> comments = new ArrayList<>();
 
+    public ServiceTicketDto() { }
+
     public static ServiceTicketDto from (ServiceTicket serviceTicket) {
         ServiceTicketDto serviceTicketDto = new ServiceTicketDto();
         serviceTicketDto.setId(serviceTicket.getId());

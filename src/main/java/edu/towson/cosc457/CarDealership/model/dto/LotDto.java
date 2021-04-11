@@ -16,6 +16,8 @@ public class LotDto {
     private Location location;
     private List<VehicleDto> vehiclesDto = new ArrayList<>();
 
+    public LotDto() { }
+
     public static LotDto from(Lot lot) {
         LotDto lotDto = new LotDto();
         lotDto.setId(lot.getId());

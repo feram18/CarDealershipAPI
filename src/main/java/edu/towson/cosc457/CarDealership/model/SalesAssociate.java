@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
-import edu.towson.cosc457.CarDealership.misc.EmployeeType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.SalesAssociateDto;
@@ -15,20 +16,23 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "SALES_ASSOCIATE")
-@DiscriminatorValue("SALES_ASSOCIATE")
+@DiscriminatorValue("Sales Associate")
 public class SalesAssociate extends Employee {
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "manager_id")
     private Manager manager;
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "dept_id")
     private Department department;
+    @JsonManagedReference
     @OneToMany(mappedBy = "salesAssociate")
     private List<Client> clients = new ArrayList<>();
 
     public SalesAssociate() { }
 
-    public SalesAssociate(Integer ssn,
+    public SalesAssociate(String ssn,
                           String firstName,
                           Character middleInitial,
                           String lastName,
@@ -39,8 +43,9 @@ public class SalesAssociate extends Employee {
                           Location workLocation,
                           Double salary,
                           LocalDate dateStarted,
-                          String address,
+                          Address address,
                           Double hoursWorked,
+                          Boolean isActive,
                           Role role,
                           String username,
                           String password,
@@ -60,6 +65,7 @@ public class SalesAssociate extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
+                isActive,
                 role,
                 username,
                 password);

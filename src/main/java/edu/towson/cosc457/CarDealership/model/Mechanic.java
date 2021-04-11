@@ -1,5 +1,7 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
@@ -13,22 +15,26 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "MECHANIC")
-@DiscriminatorValue("MECHANIC")
+@DiscriminatorValue("Mechanic")
 public class Mechanic extends Employee {
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "manager_id")
     private Manager manager;
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "dept_id")
     private Department department;
+    @JsonManagedReference
     @OneToMany(mappedBy = "mechanic")
     private List<ServiceTicket> tickets;
+    @JsonManagedReference
     @OneToMany(mappedBy = "mechanic")
     private List<Comment> comments;
 
     public Mechanic() { }
 
-    public Mechanic(Integer ssn,
+    public Mechanic(String ssn,
                     String firstName,
                     Character middleInitial,
                     String lastName,
@@ -39,8 +45,9 @@ public class Mechanic extends Employee {
                     Location workLocation,
                     Double salary,
                     LocalDate dateStarted,
-                    String address,
+                    Address address,
                     Double hoursWorked,
+                    Boolean isActive,
                     Role role,
                     String username,
                     String password,
@@ -61,6 +68,7 @@ public class Mechanic extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
+                isActive,
                 role,
                 username,
                 password);

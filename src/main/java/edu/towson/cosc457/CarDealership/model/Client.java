@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
@@ -19,8 +20,8 @@ public class Client {
     @NotNull
     @Column(name = "client_ssn",
             unique = true,
-            length = 9)
-    private Integer ssn;
+            length = 11)
+    private String ssn;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")
@@ -30,10 +31,13 @@ public class Client {
     private Gender gender;
     @Column(name = "email")
     private String email;
-    @Column(name = "phone_no")
+    @Column(name = "phone_no",
+            length = 12)
     private String phoneNumber;
-    @Column(name = "address")
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
+    @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "sales_associate_id")
     private SalesAssociate salesAssociate;
@@ -44,13 +48,13 @@ public class Client {
 
     public Client() { }
 
-    public Client(Integer ssn,
+    public Client(String ssn,
                   String firstName,
                   String lastName,
                   Gender gender,
                   String email,
                   String phoneNumber,
-                  String address,
+                  Address address,
                   SalesAssociate salesAssociate,
                   Double minimumPrice,
                   Double maximumPrice) {

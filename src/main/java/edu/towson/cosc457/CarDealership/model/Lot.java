@@ -1,5 +1,8 @@
 package edu.towson.cosc457.CarDealership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import lombok.Data;
 
@@ -18,9 +21,12 @@ public class Lot {
     private Long id;
     @Column(name = "lot_size")
     private Double size; // in sq. ft.
+    @JsonBackReference
+    @NotNull
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "location_id")
     private Location location;
+    @JsonManagedReference
     @OneToMany(mappedBy = "lot")
     private List<Vehicle> vehicles;
 

@@ -2,22 +2,25 @@ package edu.towson.cosc457.CarDealership.model.dto;
 
 import edu.towson.cosc457.CarDealership.model.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class ManagerDto extends EmployeeDto {
     private SiteManager siteManager;
     private Department department;
     private List<MechanicDto> mechanicsDto = new ArrayList<>();
     private List<SalesAssociateDto> salesAssociatesDto = new ArrayList<>();
 
+    public ManagerDto() { }
+
     public static ManagerDto from (Manager manager) {
         ManagerDto managerDto = new ManagerDto();
         managerDto.setId(manager.getId());
-        managerDto.setSsn(manager.getSsn());
         managerDto.setFirstName(manager.getFirstName());
         managerDto.setMiddleInitial(manager.getMiddleInitial());
         managerDto.setLastName(manager.getLastName());
@@ -31,7 +34,6 @@ public class ManagerDto extends EmployeeDto {
         managerDto.setAddress(manager.getAddress());
         managerDto.setHoursWorked(manager.getHoursWorked());
         managerDto.setUsername(manager.getUsername());
-        managerDto.setPassword(manager.getPassword());
         managerDto.setSiteManager(manager.getSiteManager());
         managerDto.setDepartment(manager.getDepartment());
         managerDto.setMechanicsDto(manager.getMechanics()

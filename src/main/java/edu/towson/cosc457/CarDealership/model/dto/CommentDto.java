@@ -15,6 +15,8 @@ public class CommentDto {
     private LocalDate dateCreated;
     private String content;
 
+    public CommentDto() { }
+
     public static CommentDto from (Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
