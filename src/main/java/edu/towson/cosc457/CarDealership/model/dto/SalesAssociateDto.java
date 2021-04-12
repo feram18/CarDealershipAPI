@@ -32,6 +32,7 @@ public class SalesAssociateDto extends EmployeeDto {
         salesAssociateDto.setDateStarted(salesAssociate.getDateStarted());
         salesAssociateDto.setAddress(salesAssociate.getAddress());
         salesAssociateDto.setHoursWorked(salesAssociate.getHoursWorked());
+        salesAssociateDto.setEmployeeType(salesAssociate.getEmployeeType());
         salesAssociateDto.setUsername(salesAssociate.getUsername());
         salesAssociateDto.setManager(salesAssociate.getManager());
         salesAssociateDto.setDepartment(salesAssociate.getDepartment());

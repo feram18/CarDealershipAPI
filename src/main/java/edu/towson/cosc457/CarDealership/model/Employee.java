@@ -2,6 +2,7 @@ package edu.towson.cosc457.CarDealership.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
+import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import lombok.Data;
@@ -58,6 +59,10 @@ public abstract class Employee {
     @Column(name = "hours_worked")
     private Double hoursWorked;
     @NotNull
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "employee_type")
+    private EmployeeType employeeType;
+    @NotNull
     @Column(name = "is_active",
             columnDefinition = "boolean default true")
     private Boolean isActive;
@@ -87,6 +92,7 @@ public abstract class Employee {
                     LocalDate dateStarted,
                     Address address,
                     Double hoursWorked,
+                    EmployeeType employeeType,
                     Boolean isActive,
                     Role role,
                     String username,
@@ -104,6 +110,7 @@ public abstract class Employee {
         this.dateStarted = dateStarted;
         this.address = address;
         this.hoursWorked = hoursWorked;
+        this.employeeType = employeeType;
         this.isActive = isActive;
         this.role = role;
         this.username = username;

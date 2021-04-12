@@ -25,7 +25,7 @@ public class VehicleDto {
     private Integer mileage;
     private Double price;
     private Lot lot;
-//    private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
+    private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
 
     public VehicleDto() { }
 
@@ -44,8 +44,8 @@ public class VehicleDto {
         vehicleDto.setMileage(vehicle.getMileage());
         vehicleDto.setPrice(vehicle.getPrice());
         vehicleDto.setLot(vehicle.getLot());
-//        vehicleDto.setTicketsDto(vehicle.getTickets()
-//                .stream().map(ServiceTicketDto::from).collect(Collectors.toList()));
+        vehicleDto.setTicketsDto(vehicle.getTickets()
+                .stream().map(ServiceTicketDto::from).collect(Collectors.toList()));
         return vehicleDto;
     }
 }

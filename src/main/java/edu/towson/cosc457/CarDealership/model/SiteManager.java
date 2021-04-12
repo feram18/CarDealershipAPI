@@ -2,10 +2,12 @@ package edu.towson.cosc457.CarDealership.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.SiteManagerDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -15,7 +17,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "SITE_MANAGER")
-@DiscriminatorValue("Site Manager")
+@DiscriminatorValue("SITE_MANAGER")
+@EqualsAndHashCode(callSuper = true)
 public class SiteManager extends Employee {
     @JsonBackReference
     @OneToOne(mappedBy = "siteManager",
@@ -41,6 +44,7 @@ public class SiteManager extends Employee {
                        LocalDate dateStarted,
                        Address address,
                        Double hoursWorked,
+                       EmployeeType employeeType,
                        Boolean isActive,
                        Role role,
                        String username,
@@ -60,6 +64,7 @@ public class SiteManager extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
+                employeeType,
                 isActive,
                 role,
                 username,

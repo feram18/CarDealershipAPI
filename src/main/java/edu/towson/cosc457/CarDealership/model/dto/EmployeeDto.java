@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.model.dto;
 
+import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.Address;
@@ -23,6 +24,7 @@ public abstract class EmployeeDto {
     private LocalDate dateStarted;
     private Address address;
     private Double hoursWorked;
+    private EmployeeType employeeType;
     private Boolean isActive;
     private Role role;
     private String username;

@@ -73,7 +73,6 @@ public class Client {
     public static Client from (ClientDto clientDto) {
         Client client = new Client();
         client.setId(clientDto.getId());
-        client.setSsn(clientDto.getSsn());
         client.setFirstName(clientDto.getFirstName());
         client.setLastName(clientDto.getLastName());
         client.setGender(clientDto.getGender());

@@ -2,10 +2,12 @@ package edu.towson.cosc457.CarDealership.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -15,7 +17,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "MECHANIC")
-@DiscriminatorValue("Mechanic")
+@DiscriminatorValue("MECHANIC")
+@EqualsAndHashCode(callSuper = true)
 public class Mechanic extends Employee {
     @JsonBackReference
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
@@ -47,6 +50,7 @@ public class Mechanic extends Employee {
                     LocalDate dateStarted,
                     Address address,
                     Double hoursWorked,
+                    EmployeeType employeeType,
                     Boolean isActive,
                     Role role,
                     String username,
@@ -68,6 +72,7 @@ public class Mechanic extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
+                employeeType,
                 isActive,
                 role,
                 username,

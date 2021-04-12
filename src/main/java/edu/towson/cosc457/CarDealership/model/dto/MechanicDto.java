@@ -35,6 +35,7 @@ public class MechanicDto extends EmployeeDto {
         mechanicDto.setDateStarted(mechanic.getDateStarted());
         mechanicDto.setAddress(mechanic.getAddress());
         mechanicDto.setHoursWorked(mechanic.getHoursWorked());
+        mechanicDto.setEmployeeType(mechanic.getEmployeeType());
         mechanicDto.setUsername(mechanic.getUsername());
         mechanicDto.setManager(mechanic.getManager());
         mechanicDto.setDepartment(mechanic.getDepartment());
