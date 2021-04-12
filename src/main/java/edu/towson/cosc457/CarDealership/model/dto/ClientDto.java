@@ -9,7 +9,6 @@ import lombok.Data;
 @Data
 public class ClientDto {
     private Long id;
-    private String ssn;
     private String firstName;
     private String lastName;
     private Gender gender;
@@ -25,7 +24,6 @@ public class ClientDto {
     public static ClientDto from (Client client) {
         ClientDto clientDto = new ClientDto();
         clientDto.setId(client.getId());
-        clientDto.setSsn(client.getSsn());
         clientDto.setFirstName(client.getFirstName());
         clientDto.setLastName(client.getLastName());
         clientDto.setGender(client.getGender());
