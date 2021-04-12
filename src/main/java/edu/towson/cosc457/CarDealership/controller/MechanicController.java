@@ -3,7 +3,6 @@ package edu.towson.cosc457.CarDealership.controller;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
-import edu.towson.cosc457.CarDealership.service.EmployeeService;
 import edu.towson.cosc457.CarDealership.service.MechanicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

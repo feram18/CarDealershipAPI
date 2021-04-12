@@ -1,6 +1,5 @@
 package edu.towson.cosc457.CarDealership.controller;
 
-import com.mysql.cj.log.Log;
 import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
 import edu.towson.cosc457.CarDealership.model.dto.LocationDto;
