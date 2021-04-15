@@ -13,18 +13,18 @@ import java.util.Optional;
 
 @NoRepositoryBean
 public interface EmployeeRepository<T extends Employee> extends JpaRepository<T, Long> {
-    Optional<List<T>> findBySsn(String ssn);
+    Optional<T> findBySsn(String ssn);
     Optional<List<T>> findByFirstName(String firstName);
     Optional<List<T>> findByLastName(String lastName);
     Optional<List<T>> findByGender(Gender gender);
     Optional<List<T>> findByDateOfBirth(LocalDate dateOfBirth);
-    Optional<List<T>> findByPhoneNumber(String phoneNumber);
-    Optional<List<T>> findByEmail(String email);
+    Optional<T> findByPhoneNumber(String phoneNumber);
+    Optional<T> findByEmail(String email);
     Optional<List<T>> findByWorkLocation(Location location);
     Optional<List<T>> findByDateStarted(LocalDate dateStarted);
     Optional<List<T>> findBySalaryLessThan(Double salary);
     Optional<List<T>> findBySalaryGreaterThan(Double salary);
     Optional<List<T>> findBySalaryBetween(Double minSalary, Double maxSalary);
     Optional<List<T>> findByRole(Role role);
-    Optional<List<T>> findByUsername(String username);
+    Optional<T> findByUsername(String username);
 }

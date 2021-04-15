@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
-    Optional<List<Vehicle>> findByVin(String vin);
+    Optional<Vehicle> findByVin(String vin);
     Optional<List<Vehicle>> findByMake(String make);
     Optional<List<Vehicle>> findByYear(Integer year);
     Optional<List<Vehicle>> findByMakeAndModel(String make, String model);
