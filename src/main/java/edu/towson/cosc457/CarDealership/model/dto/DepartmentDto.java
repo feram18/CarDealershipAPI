@@ -3,13 +3,17 @@ package edu.towson.cosc457.CarDealership.model.dto;
 import edu.towson.cosc457.CarDealership.model.Department;
 import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.Manager;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class DepartmentDto {
     private Long id;
     private String name;
@@ -17,8 +21,6 @@ public class DepartmentDto {
     private Location location;
     private List<MechanicDto> mechanicsDto = new ArrayList<>();
     private List<SalesAssociateDto> salesAssociatesDto = new ArrayList<>();
-
-    public DepartmentDto() { }
 
     public static DepartmentDto from (Department department) {
         DepartmentDto departmentDto = new DepartmentDto();

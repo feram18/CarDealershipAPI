@@ -7,6 +7,7 @@ import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.SiteManager;
 import edu.towson.cosc457.CarDealership.repository.SiteManagerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class SiteManagerService implements EmployeeService<SiteManager> {
     private final SiteManagerRepository siteManagerRepository;
     private final ManagerService managerService;
-
-    @Autowired
-    public SiteManagerService(SiteManagerRepository siteManagerRepository, ManagerService managerService) {
-        this.siteManagerRepository = siteManagerRepository;
-        this.managerService = managerService;
-    }
 
     @Override
     public SiteManager addEmployee(SiteManager siteManager) {

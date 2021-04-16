@@ -4,13 +4,17 @@ import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
 import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class VehicleDto {
     private Long id;
     private String vin;
@@ -26,8 +30,6 @@ public class VehicleDto {
     private Double price;
     private Lot lot;
     private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
-
-    public VehicleDto() { }
 
     public static VehicleDto from (Vehicle vehicle) {
         VehicleDto vehicleDto = new VehicleDto();

@@ -5,7 +5,9 @@ import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,6 +16,8 @@ import java.time.Period;
 @Data
 @Entity
 @Table(name = "EMPLOYEE")
+@AllArgsConstructor
+@NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING,
                         name = "employee_type")
@@ -76,8 +80,6 @@ public abstract class Employee {
     @NotNull
     @Column(name = "password")
     private String password;
-
-    public Employee() { }
 
     public Employee(String ssn,
                     String firstName,

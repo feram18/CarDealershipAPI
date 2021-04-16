@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.repository.MechanicRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +19,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class MechanicService implements EmployeeService<Mechanic> {
     private final MechanicRepository mechanicRepository;
     private final ServiceTicketService ticketService;
-
-    @Autowired
-    public MechanicService(MechanicRepository mechanicRepository, ServiceTicketService ticketService) {
-        this.mechanicRepository = mechanicRepository;
-        this.ticketService = ticketService;
-    }
 
     @Override
     public Mechanic addEmployee(Mechanic mechanic) {

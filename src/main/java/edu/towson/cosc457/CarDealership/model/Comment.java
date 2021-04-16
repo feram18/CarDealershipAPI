@@ -3,7 +3,9 @@ package edu.towson.cosc457.CarDealership.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,6 +13,8 @@ import java.time.LocalDate;
 @Data
 @Entity
 @Table(name = "Comment")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +37,6 @@ public class Comment {
     @NotNull
     @Column(name = "content")
     private String content;
-
-    public Comment() { }
 
     public Comment(ServiceTicket serviceTicket, Mechanic mechanic, LocalDate dateCreated, String content) {
         this.serviceTicket = serviceTicket;

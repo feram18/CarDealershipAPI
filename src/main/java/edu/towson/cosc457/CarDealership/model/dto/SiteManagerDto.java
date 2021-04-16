@@ -2,20 +2,22 @@ package edu.towson.cosc457.CarDealership.model.dto;
 
 import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.SiteManager;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class SiteManagerDto extends EmployeeDto {
     private Location location;
     private List<ManagerDto> managers = new ArrayList<>();
-
-    public SiteManagerDto() { }
 
     public static SiteManagerDto from(SiteManager siteManager) {
         SiteManagerDto siteManagerDto = new SiteManagerDto();

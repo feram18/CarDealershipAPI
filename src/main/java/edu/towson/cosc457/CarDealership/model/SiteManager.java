@@ -6,8 +6,10 @@ import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.SiteManagerDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "SITE_MANAGER")
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("SITE_MANAGER")
 @EqualsAndHashCode(callSuper = true)
 public class SiteManager extends Employee {
@@ -28,8 +32,6 @@ public class SiteManager extends Employee {
     @OneToMany(mappedBy = "siteManager",
                 cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     private List<Manager> managers;
-
-    public SiteManager() { }
 
     public SiteManager(String ssn,
                        String firstName,

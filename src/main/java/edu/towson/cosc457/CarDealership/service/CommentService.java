@@ -4,6 +4,7 @@ import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.repository.CommentRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-
-    @Autowired
-    public CommentService(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
 
     public Comment addComment(Comment comment) {
         return commentRepository.save(comment);

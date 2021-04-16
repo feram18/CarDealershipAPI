@@ -7,6 +7,7 @@ import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.ManagerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class ManagerService implements EmployeeService<Manager> {
     private final ManagerRepository managerRepository;
     private final MechanicService mechanicService;
-
-    @Autowired
-    public ManagerService(ManagerRepository managerRepository, MechanicService mechanicService) {
-        this.managerRepository = managerRepository;
-        this.mechanicService = mechanicService;
-    }
 
     @Override
     public Manager addEmployee(Manager manager) {

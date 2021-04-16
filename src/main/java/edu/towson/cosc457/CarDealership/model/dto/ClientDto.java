@@ -4,9 +4,13 @@ import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.SalesAssociate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClientDto {
     private Long id;
     private String firstName;
@@ -18,8 +22,6 @@ public class ClientDto {
     private SalesAssociate salesAssociate;
     private Double minimumPrice;
     private Double maximumPrice;
-
-    public ClientDto() { }
 
     public static ClientDto from (Client client) {
         ClientDto clientDto = new ClientDto();

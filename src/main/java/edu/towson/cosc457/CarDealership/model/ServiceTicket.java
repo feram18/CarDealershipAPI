@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.Status;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "SERVICE_TICKET")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ServiceTicket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +50,6 @@ public class ServiceTicket {
                 cascade = CascadeType.ALL,
                 orphanRemoval = true)
     private List<Comment> comments;
-
-    public ServiceTicket() { }
 
     public ServiceTicket(Vehicle vehicle,
                          Mechanic mechanic,

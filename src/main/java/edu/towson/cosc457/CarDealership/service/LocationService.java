@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.LocationRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,22 +19,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LotService lotService;
     private final DepartmentService departmentService;
     private final MechanicService mechanicService;
-
-    @Autowired
-    public LocationService(LocationRepository locationRepository,
-                           LotService lotService,
-                           DepartmentService departmentService,
-                           MechanicService mechanicService) {
-        this.locationRepository = locationRepository;
-        this.lotService = lotService;
-        this.departmentService = departmentService;
-        this.mechanicService = mechanicService;
-    }
 
     public Location addLocation(Location location) {
         return locationRepository.save(location);

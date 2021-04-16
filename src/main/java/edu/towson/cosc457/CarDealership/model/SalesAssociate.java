@@ -6,8 +6,10 @@ import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.SalesAssociateDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "SALES_ASSOCIATE")
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("SALES_ASSOCIATE")
 @EqualsAndHashCode(callSuper = true)
 public class SalesAssociate extends Employee {
@@ -32,8 +36,6 @@ public class SalesAssociate extends Employee {
     @JsonManagedReference
     @OneToMany(mappedBy = "salesAssociate")
     private List<Client> clients = new ArrayList<>();
-
-    public SalesAssociate() { }
 
     public SalesAssociate(String ssn,
                           String firstName,

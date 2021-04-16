@@ -6,6 +6,7 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.LotRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class LotService {
     private final LotRepository lotRepository;
     private final VehicleService vehicleService;
-
-    @Autowired
-    public LotService(LotRepository lotRepository, VehicleService vehicleService) {
-        this.lotRepository = lotRepository;
-        this.vehicleService = vehicleService;
-    }
 
     public Lot addLot(Lot lot){
         return lotRepository.save(lot);

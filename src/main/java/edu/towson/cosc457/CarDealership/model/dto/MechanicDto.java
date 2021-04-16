@@ -3,22 +3,24 @@ package edu.towson.cosc457.CarDealership.model.dto;
 import edu.towson.cosc457.CarDealership.model.Department;
 import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class MechanicDto extends EmployeeDto {
     private Manager manager;
     private Department department;
     private List<ServiceTicketDto> ticketsDto = new ArrayList<>();
     private List<CommentDto> commentsDto = new ArrayList<>();
-
-    public MechanicDto() { }
 
     public static MechanicDto from (Mechanic mechanic) {
         MechanicDto mechanicDto = new MechanicDto();

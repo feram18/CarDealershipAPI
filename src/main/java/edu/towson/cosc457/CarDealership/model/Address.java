@@ -2,13 +2,17 @@ package edu.towson.cosc457.CarDealership.model;
 
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.AddressDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "Address")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +31,6 @@ public class Address {
     @Column(name = "zip_code",
             length = 5)
     private Integer zipCode;
-
-    public Address() { }
 
     public Address(String street, String city, String state, Integer zipCode) {
         this.street = street;

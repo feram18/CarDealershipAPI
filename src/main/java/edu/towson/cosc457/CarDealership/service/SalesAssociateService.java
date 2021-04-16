@@ -7,6 +7,7 @@ import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.SalesAssociate;
 import edu.towson.cosc457.CarDealership.repository.SalesAssociateRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,15 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     private final SalesAssociateRepository salesAssociateRepository;
     private final ClientService clientService;
-
-    @Autowired
-    public SalesAssociateService(SalesAssociateRepository salesAssociateRepository, ClientService clientService) {
-        this.salesAssociateRepository = salesAssociateRepository;
-        this.clientService = clientService;
-    }
 
     @Override
     public SalesAssociate addEmployee(SalesAssociate salesAssociate) {

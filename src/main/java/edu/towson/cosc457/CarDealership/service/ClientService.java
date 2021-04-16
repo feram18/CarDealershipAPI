@@ -4,6 +4,7 @@ import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.repository.ClientRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
+
 public class ClientService {
     private final ClientRepository clientRepository;
-
-    @Autowired
-    public ClientService(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
-    }
 
     public Client addClient(Client client) {
         return clientRepository.save(client);

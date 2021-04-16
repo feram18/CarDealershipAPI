@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "LOT")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Lot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +33,6 @@ public class Lot {
     @JsonManagedReference
     @OneToMany(mappedBy = "lot")
     private List<Vehicle> vehicles;
-
-    public Lot() { }
 
     public Lot(Double size, Location location, List<Vehicle> vehicles) {
         this.size = size;

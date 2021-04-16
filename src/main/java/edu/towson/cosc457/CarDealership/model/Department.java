@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "DEPARTMENT")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +41,6 @@ public class Department {
     @JsonManagedReference
     @OneToMany(mappedBy = "department")
     private List<SalesAssociate> salesAssociates;
-
-    public Department() { }
 
     public Department(String name,
                       Manager manager,

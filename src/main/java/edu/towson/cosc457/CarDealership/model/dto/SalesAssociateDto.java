@@ -1,21 +1,23 @@
 package edu.towson.cosc457.CarDealership.model.dto;
 
 import edu.towson.cosc457.CarDealership.model.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class SalesAssociateDto extends EmployeeDto {
     private Manager manager;
     private Department department;
     private List<ClientDto> clientsDto = new ArrayList<>();
-
-    public SalesAssociateDto() { }
 
     public static SalesAssociateDto from (SalesAssociate salesAssociate) {
         SalesAssociateDto salesAssociateDto = new SalesAssociateDto();

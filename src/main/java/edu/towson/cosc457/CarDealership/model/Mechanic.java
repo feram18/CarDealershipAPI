@@ -6,8 +6,10 @@ import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "MECHANIC")
+@AllArgsConstructor
+@NoArgsConstructor
 @DiscriminatorValue("MECHANIC")
 @EqualsAndHashCode(callSuper = true)
 public class Mechanic extends Employee {
@@ -34,8 +38,6 @@ public class Mechanic extends Employee {
     @JsonManagedReference
     @OneToMany(mappedBy = "mechanic")
     private List<Comment> comments;
-
-    public Mechanic() { }
 
     public Mechanic(String ssn,
                     String firstName,

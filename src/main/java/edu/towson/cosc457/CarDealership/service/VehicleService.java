@@ -6,6 +6,7 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.VehicleRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final ServiceTicketService ticketService;
-
-    @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, ServiceTicketService ticketService) {
-        this.vehicleRepository = vehicleRepository;
-        this.ticketService = ticketService;
-    }
 
     public Vehicle addVehicle(Vehicle vehicle) {
         return vehicleRepository.save(vehicle);

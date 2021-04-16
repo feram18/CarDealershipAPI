@@ -4,13 +4,17 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "CLIENT")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,30 +49,6 @@ public class Client {
     private Double minimumPrice;
     @Column(name = "max_price")
     private Double maximumPrice;
-
-    public Client() { }
-
-    public Client(String ssn,
-                  String firstName,
-                  String lastName,
-                  Gender gender,
-                  String email,
-                  String phoneNumber,
-                  Address address,
-                  SalesAssociate salesAssociate,
-                  Double minimumPrice,
-                  Double maximumPrice) {
-        this.ssn = ssn;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.gender = gender;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.salesAssociate = salesAssociate;
-        this.minimumPrice = minimumPrice;
-        this.maximumPrice = maximumPrice;
-    }
 
     public static Client from (ClientDto clientDto) {
         Client client = new Client();

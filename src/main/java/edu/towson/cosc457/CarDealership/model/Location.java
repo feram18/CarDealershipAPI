@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.model.dto.LocationDto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "LOCATION")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,8 +53,6 @@ public class Location {
     @JsonManagedReference
     @OneToMany(mappedBy = "workLocation")
     private List<SalesAssociate> salesAssociates;
-
-    public Location() { }
 
     public Location(String name,
                     Address address,

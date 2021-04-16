@@ -6,7 +6,9 @@ import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "VEHICLE")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,8 +67,6 @@ public class Vehicle {
     @JsonManagedReference
     @OneToMany(mappedBy = "vehicle")
     private List<ServiceTicket> tickets;
-
-    public Vehicle() { }
 
     public Vehicle(String vin,
                    String make,
