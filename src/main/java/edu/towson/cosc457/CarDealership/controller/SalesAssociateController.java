@@ -56,7 +56,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
         return new ResponseEntity<>(SalesAssociateDto.from(salesAssociate), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/clients")
+    @GetMapping(value = "{associateId}/clients")
     public ResponseEntity<List<ClientDto>> getAssignedClients(@PathVariable final Long id) {
         SalesAssociate salesAssociate = associateService.getEmployee(id);
         List<ClientDto> clientsDto = salesAssociate.getClients()
@@ -64,14 +64,14 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
         return new ResponseEntity<>(clientsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/clients/{id}/add")
+    @PostMapping(value = "{associateId}/clients/{clientId}/add")
     public ResponseEntity<SalesAssociateDto> assignClient(@PathVariable final Long associateId,
                                                           @PathVariable final Long clientId) {
         SalesAssociate associate = associateService.assignClient(associateId, clientId);
         return new ResponseEntity<>(SalesAssociateDto.from(associate), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/clients/{id}/remove")
+    @DeleteMapping(value = "{associateId}/clients/{clientId}/remove")
     public ResponseEntity<SalesAssociateDto> removeClient(@PathVariable final Long associateId,
                                                           @PathVariable final Long clientId) {
         SalesAssociate associate = associateService.removeClient(associateId, clientId);

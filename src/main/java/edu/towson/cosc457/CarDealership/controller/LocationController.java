@@ -56,28 +56,28 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{id}/lots")
+    @GetMapping(value = "/{locationId}/lots")
     public ResponseEntity<List<LotDto>> getLots(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<LotDto> lotsDto = location.getLots().stream().map(LotDto::from).collect(Collectors.toList());
         return new ResponseEntity<>(lotsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/lots/{id}/add")
+    @PostMapping(value = "{locationId}/lots/{lotId}/add")
     public ResponseEntity<LocationDto> addLotToLocation(@PathVariable final Long locationId,
                                                         @PathVariable final Long lotId) {
         Location location = locationService.addLotToLocation(locationId, lotId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/lots/{id}/remove")
+    @DeleteMapping(value = "{locationId}/lots/{lotId}/remove")
     public ResponseEntity<LocationDto> removeLotFromLocation(@PathVariable final Long locationId,
                                                              @PathVariable final Long lotId) {
         Location location = locationService.removeLotFromLocation(locationId, lotId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{id}/departments")
+    @GetMapping(value = "/{locationId}/departments")
     public ResponseEntity<List<DepartmentDto>> getDepartments(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<DepartmentDto> departmentsDto = location.getDepartments()
@@ -85,21 +85,21 @@ public class LocationController {
         return new ResponseEntity<>(departmentsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/departments/{id}/add")
+    @PostMapping(value = "{locationId}/departments/{departmentId}/add")
     public ResponseEntity<LocationDto> addDepartmentToLocation(@PathVariable final Long locationId,
                                                                @PathVariable final Long departmentId) {
         Location location = locationService.addDepartmentToLocation(locationId, departmentId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/departments/{id}/remove")
+    @DeleteMapping(value = "{locationId}/departments/{departmentId}/remove")
     public ResponseEntity<LocationDto> removeDepartmentFromLocation(@PathVariable final Long locationId,
                                                                     @PathVariable final Long departmentId) {
         Location location = locationService.removeDepartmentFromLocation(locationId, departmentId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{id}/mechanics")
+    @GetMapping(value = "/{locationId}/mechanics")
     public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<MechanicDto> mechanicsDto = location.getMechanics()
@@ -107,14 +107,14 @@ public class LocationController {
         return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/mechanics/{id}/add")
+    @PostMapping(value = "{locationId}/mechanics/{mechanicId}/add")
     public ResponseEntity<LocationDto> assignMechanic(@PathVariable final Long locationId,
                                                       @PathVariable final Long mechanicId) {
         Location location = locationService.assignMechanic(locationId, mechanicId);
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/mechanics/{id}/remove")
+    @DeleteMapping(value = "{locationId}/mechanics/{mechanicId}/remove")
     public ResponseEntity<LocationDto> removeMechanic(@PathVariable final Long locationId,
                                                       @PathVariable final Long mechanicId) {
         Location location = locationService.removeMechanic(locationId, mechanicId);

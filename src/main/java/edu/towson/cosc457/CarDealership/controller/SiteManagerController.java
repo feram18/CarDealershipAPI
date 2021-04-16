@@ -64,17 +64,17 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
         return new ResponseEntity<>(managersDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/managers/{id}/add")
+    @PostMapping(value = "{siteManagerId}/managers/{managerId}/add")
     public ResponseEntity<SiteManagerDto> assignToManager(@PathVariable final Long siteManagerId,
-                                                          @PathVariable final Long mechanicId) {
-        SiteManager siteManager = siteManagerService.assignToManager(siteManagerId, mechanicId);
+                                                          @PathVariable final Long managerId) {
+        SiteManager siteManager = siteManagerService.assignToManager(siteManagerId, managerId);
         return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/managers/{id}/remove")
+    @DeleteMapping(value = "{siteManagerId}/managers/{managerId}/remove")
     public ResponseEntity<SiteManagerDto> removeFromManager(@PathVariable final Long siteManagerId,
-                                                            @PathVariable final Long mechanicId) {
-        SiteManager siteManager = siteManagerService.removeFromManager(siteManagerId, mechanicId);
+                                                            @PathVariable final Long managerId) {
+        SiteManager siteManager = siteManagerService.removeFromManager(siteManagerId, managerId);
         return new ResponseEntity<>(SiteManagerDto.from(siteManager), HttpStatus.OK);
     }
 }

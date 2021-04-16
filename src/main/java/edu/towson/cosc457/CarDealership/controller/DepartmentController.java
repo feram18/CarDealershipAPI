@@ -54,7 +54,7 @@ public class DepartmentController {
         return new ResponseEntity<>(DepartmentDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/mechanics")
+    @GetMapping(value = "{departmentId}/mechanics")
     public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
         Department department = departmentService.getDepartment(id);
         List<MechanicDto> mechanicsDto = department.getMechanics()
@@ -62,14 +62,14 @@ public class DepartmentController {
         return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/mechanics/{id}/add")
+    @PostMapping(value = "{departmentId}/mechanics/{mechanicId}/add")
     public ResponseEntity<DepartmentDto> addMechanicToDepartment(@PathVariable final Long departmentId,
                                                                  @PathVariable final Long mechanicId) {
         Department department = departmentService.assignMechanic(departmentId, mechanicId);
         return new ResponseEntity<>(DepartmentDto.from(department), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/mechanics/{id}/remove")
+    @DeleteMapping(value = "{departmentId}/mechanics/{mechanicId}/remove")
     public ResponseEntity<DepartmentDto> removeMechanicFromDepartment(@PathVariable final Long departmentId,
                                                                       @PathVariable final Long mechanicId) {
         Department department = departmentService.removeMechanic(departmentId, mechanicId);

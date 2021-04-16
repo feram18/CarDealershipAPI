@@ -56,7 +56,7 @@ public class ServiceTicketController {
         return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/comments")
+    @GetMapping(value = "{ticketId}/comments")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable final Long id) {
         ServiceTicket serviceTicket = serviceTicketService.getServiceTicket(id);
         List<CommentDto> commentsDto = serviceTicket.getComments()
@@ -64,14 +64,14 @@ public class ServiceTicketController {
         return new ResponseEntity<>(commentsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/comments/{id}/add")
+    @PostMapping(value = "{ticketId}/comments/{commentId}/add")
     public ResponseEntity<ServiceTicketDto> addCommentToTicket(@PathVariable final Long ticketId,
                                                                @PathVariable final Long commentId) {
         ServiceTicket serviceTicket = serviceTicketService.addCommentToTicket(ticketId, commentId);
         return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/comments/{id}/remove")
+    @DeleteMapping(value = "{ticketId}/comments/{commentId}/remove")
     public ResponseEntity<ServiceTicketDto> removeCommentFromTicket(@PathVariable final Long ticketId,
                                                                     @PathVariable final Long commentId) {
         ServiceTicket serviceTicket = serviceTicketService.removeCommentFromTicket(ticketId, commentId);

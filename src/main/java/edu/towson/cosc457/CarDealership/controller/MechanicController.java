@@ -55,7 +55,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
         return new ResponseEntity<>(MechanicDto.from(mechanic), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/tickets")
+    @GetMapping(value = "{mechanicId}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
         Mechanic mechanic = mechanicService.getEmployee(id);
         List<ServiceTicketDto> ticketsDto = mechanic.getTickets()
@@ -63,14 +63,14 @@ public class MechanicController extends EmployeeController<MechanicService> {
         return new ResponseEntity<>(ticketsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/tickets/{id}/add")
+    @PostMapping(value = "{mechanicId}/tickets/{ticketId}/add")
     public ResponseEntity<MechanicDto> assignTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {
         Mechanic mechanic = mechanicService.assignTicket(mechanicId, ticketId);
         return new ResponseEntity<>(MechanicDto.from(mechanic), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/tickets/{id}/remove")
+    @DeleteMapping(value = "{mechanicId}/tickets/{ticketId}/remove")
     public ResponseEntity<MechanicDto> removeTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {
         Mechanic mechanic = mechanicService.removeTicket(mechanicId, ticketId);

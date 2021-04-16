@@ -55,7 +55,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
         return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/mechanics")
+    @GetMapping(value = "{managerId}/mechanics")
     public ResponseEntity<List<MechanicDto>> getAssignedMechanics(@PathVariable final Long id) {
         Manager manager = managerService.getEmployee(id);
         List<MechanicDto> mechanicsDto = manager.getMechanics()
@@ -63,14 +63,14 @@ public class ManagerController extends EmployeeController<ManagerService> {
         return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/mechanics/{id}/add")
+    @PostMapping(value = "{managerId}/mechanics/{mechanicId}/add")
     public ResponseEntity<ManagerDto> assignToManager(@PathVariable final Long managerId,
                                                       @PathVariable final Long mechanicId) {
         Manager manager = managerService.assignToManager(managerId, mechanicId);
         return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/mechanics/{id}/remove")
+    @DeleteMapping(value = "{managerId}/mechanics/{mechanicId}/remove")
     public ResponseEntity<ManagerDto> removeFromManager(@PathVariable final Long managerId,
                                                         @PathVariable final Long mechanicId) {
         Manager manager = managerService.removeFromManager(managerId, mechanicId);

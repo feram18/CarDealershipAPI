@@ -54,21 +54,21 @@ public class LotController {
         return new ResponseEntity<>(LotDto.from(editedLot), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/vehicles")
+    @GetMapping(value = "{lotId}/vehicles")
     public ResponseEntity<List<VehicleDto>> getVehicles(@PathVariable final Long id) {
         Lot lot = lotService.getLot(id);
         List<VehicleDto> vehiclesDto = lot.getVehicles().stream().map(VehicleDto::from).collect(Collectors.toList());
         return new ResponseEntity<>(vehiclesDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/vehicles/{id}/add")
+    @PostMapping(value = "{lotId}/vehicles/{vehicleId}/add")
     public ResponseEntity<LotDto> addVehicleToLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
         Lot lot = lotService.addVehicleToLot(lotId, vehicleId);
         return new ResponseEntity<>(LotDto.from(lot), HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/vehicles/{id}/remove")
+    @PostMapping(value = "{lotId}/vehicles/{vehicleId}/remove")
     public ResponseEntity<LotDto> removeVehicleFromLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
         Lot lot = lotService.removeVehicleFromLot(lotId, vehicleId);

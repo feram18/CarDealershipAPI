@@ -54,7 +54,7 @@ public class VehicleController {
         return new ResponseEntity<>(VehicleDto.from(vehicle), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{id}/tickets")
+    @GetMapping(value = "{vehicleId}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
         Vehicle vehicle = vehicleService.getVehicle(id);
         List<ServiceTicketDto> serviceTicketsDto = vehicle.getTickets()
@@ -62,14 +62,14 @@ public class VehicleController {
         return new ResponseEntity<>(serviceTicketsDto, HttpStatus.OK);
     }
 
-    @PostMapping(value = "{id}/tickets/{id}/add")
+    @PostMapping(value = "{vehicleId}/tickets/{ticketId}/add")
     public ResponseEntity<VehicleDto> assignTicket(@PathVariable final Long vehicleId,
                                                    @PathVariable final Long ticketId) {
         Vehicle vehicle = vehicleService.assignTicket(vehicleId, ticketId);
         return new ResponseEntity<>(VehicleDto.from(vehicle), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "{id}/tickets/{id}/remove")
+    @DeleteMapping(value = "{vehicleId}/tickets/{ticketId}/remove")
     public ResponseEntity<VehicleDto> removeTicket(@PathVariable final Long vehicleId,
                                                    @PathVariable final Long ticketId) {
         Vehicle vehicle = vehicleService.removeTicket(vehicleId, ticketId);
