@@ -3,6 +3,7 @@ package edu.towson.cosc457.CarDealership.controller;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.model.dto.AddressDto;
 import edu.towson.cosc457.CarDealership.service.AddressService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +14,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/addresses")
+@AllArgsConstructor
 public class AddressController {
     private final AddressService addressService;
-
-    @Autowired
-    public AddressController(AddressService addressService) {
-        this.addressService = addressService;
-    }
 
     @PostMapping
     public ResponseEntity<AddressDto> addAddress(@RequestBody final AddressDto addressDto) {

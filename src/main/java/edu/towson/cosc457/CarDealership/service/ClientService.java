@@ -15,7 +15,6 @@ import java.util.stream.StreamSupport;
 
 @Service
 @AllArgsConstructor
-
 public class ClientService {
     private final ClientRepository clientRepository;
 

@@ -4,7 +4,7 @@ import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.service.ServiceTicketService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +14,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/tickets")
+@AllArgsConstructor
 public class ServiceTicketController {
     private final ServiceTicketService serviceTicketService;
-
-    @Autowired
-    public ServiceTicketController(ServiceTicketService serviceTicketService) {
-        this.serviceTicketService = serviceTicketService;
-    }
 
     @PostMapping
     public ResponseEntity<ServiceTicketDto> addServiceTicket(@RequestBody final ServiceTicketDto serviceTicketDto) {

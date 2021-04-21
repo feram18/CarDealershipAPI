@@ -3,7 +3,7 @@ package edu.towson.cosc457.CarDealership.controller;
 import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +13,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/comments")
+@AllArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-
-    @Autowired
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @PostMapping
     public ResponseEntity<CommentDto> addComment(@RequestBody final CommentDto commentDto) {

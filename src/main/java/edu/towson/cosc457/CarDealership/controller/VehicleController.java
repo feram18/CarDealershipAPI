@@ -4,7 +4,7 @@ import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.VehicleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +14,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/vehicles")
+@AllArgsConstructor
 public class VehicleController {
     private final VehicleService vehicleService;
-
-    @Autowired
-    public VehicleController(VehicleService vehicleService) {
-        this.vehicleService = vehicleService;
-    }
 
     @PostMapping
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody final VehicleDto vehicleDto) {

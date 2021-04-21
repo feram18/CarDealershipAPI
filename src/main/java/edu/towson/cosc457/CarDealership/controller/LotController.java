@@ -4,6 +4,7 @@ import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.LotService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/lots")
+@AllArgsConstructor
 public class LotController {
     private final LotService lotService;
-
-    @Autowired
-    public LotController(LotService lotService) {
-        this.lotService = lotService;
-    }
 
     @PostMapping
     public ResponseEntity<LotDto> addLot(@RequestBody final LotDto lotDto) {

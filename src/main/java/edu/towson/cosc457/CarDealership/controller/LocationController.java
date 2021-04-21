@@ -6,7 +6,7 @@ import edu.towson.cosc457.CarDealership.model.dto.LocationDto;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.service.LocationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +16,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/locations")
+@AllArgsConstructor
 public class LocationController {
     private final LocationService locationService;
-
-    @Autowired
-    public LocationController(LocationService locationService) {
-        this.locationService = locationService;
-    }
 
     @PostMapping
     public ResponseEntity<LocationDto> addLocation(@RequestBody final LocationDto locationDto) {

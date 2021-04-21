@@ -3,7 +3,7 @@ package edu.towson.cosc457.CarDealership.controller;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
 import edu.towson.cosc457.CarDealership.service.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +13,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/clients")
+@AllArgsConstructor
 public class ClientController {
     private final ClientService clientService;
-
-    @Autowired
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
-    }
 
     @PostMapping
     public ResponseEntity<ClientDto> addClient(@RequestBody final ClientDto clientDto) {
