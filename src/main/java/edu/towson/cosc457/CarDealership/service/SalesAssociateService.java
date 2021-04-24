@@ -65,9 +65,6 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
         salesAssociateToEdit.setDateStarted(salesAssociate.getDateStarted());
         salesAssociateToEdit.setAddress(salesAssociate.getAddress());
         salesAssociateToEdit.setHoursWorked(salesAssociate.getHoursWorked());
-        salesAssociateToEdit.setRole(salesAssociate.getRole());
-        salesAssociateToEdit.setUsername(salesAssociate.getUsername());
-        salesAssociateToEdit.setPassword(salesAssociate.getPassword());
         salesAssociateToEdit.setManager(salesAssociate.getManager());
         salesAssociateToEdit.setDepartment(salesAssociate.getDepartment());
         salesAssociateToEdit.setClients(salesAssociate.getClients());

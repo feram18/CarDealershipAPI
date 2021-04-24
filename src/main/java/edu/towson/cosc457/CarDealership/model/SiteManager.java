@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
-import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.SiteManagerDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,19 +17,17 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "SITE_MANAGER")
+@Table(name = "site_manager", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorValue("SITE_MANAGER")
 @EqualsAndHashCode(callSuper = true)
 public class SiteManager extends Employee {
     @JsonBackReference
-    @OneToOne(mappedBy = "siteManager",
-                cascade = {CascadeType.PERSIST, CascadeType.DETACH})
+    @OneToOne(mappedBy = "siteManager", cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     private Location location;
     @JsonManagedReference
-    @OneToMany(mappedBy = "siteManager",
-                cascade = {CascadeType.PERSIST, CascadeType.DETACH})
+    @OneToMany(mappedBy = "siteManager", cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     private List<Manager> managers;
 
     public SiteManager(String ssn,
@@ -47,10 +44,6 @@ public class SiteManager extends Employee {
                        Address address,
                        Double hoursWorked,
                        EmployeeType employeeType,
-                       Boolean isActive,
-                       Role role,
-                       String username,
-                       String password,
                        Location location,
                        List<Manager> managers) {
         super(ssn,
@@ -66,11 +59,7 @@ public class SiteManager extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
-                employeeType,
-                isActive,
-                role,
-                username,
-                password);
+                employeeType);
         this.location = location;
         this.managers = managers;
     }

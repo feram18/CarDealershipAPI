@@ -65,9 +65,6 @@ public class ManagerService implements EmployeeService<Manager> {
         managerToEdit.setDateStarted(manager.getDateStarted());
         managerToEdit.setAddress(manager.getAddress());
         managerToEdit.setHoursWorked(manager.getHoursWorked());
-        managerToEdit.setRole(manager.getRole());
-        managerToEdit.setUsername(manager.getUsername());
-        managerToEdit.setPassword(manager.getPassword());
         managerToEdit.setSiteManager(manager.getSiteManager());
         managerToEdit.setDepartment(manager.getDepartment());
         managerToEdit.setMechanics(manager.getMechanics());

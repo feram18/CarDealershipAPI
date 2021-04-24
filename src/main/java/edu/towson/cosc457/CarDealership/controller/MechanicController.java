@@ -55,7 +55,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
         return new ResponseEntity<>(MechanicDto.from(mechanic), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{mechanicId}/tickets")
+    @GetMapping(value = "{id}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
         Mechanic mechanic = mechanicService.getEmployee(id);
         List<ServiceTicketDto> ticketsDto = mechanic.getTickets()

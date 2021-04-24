@@ -66,9 +66,6 @@ public class MechanicService implements EmployeeService<Mechanic> {
         mechanicToEdit.setDateStarted(mechanic.getDateStarted());
         mechanicToEdit.setAddress(mechanic.getAddress());
         mechanicToEdit.setHoursWorked(mechanic.getHoursWorked());
-        mechanicToEdit.setRole(mechanic.getRole());
-        mechanicToEdit.setUsername(mechanic.getUsername());
-        mechanicToEdit.setPassword(mechanic.getPassword());
         mechanicToEdit.setManager(mechanic.getManager());
         mechanicToEdit.setDepartment(mechanic.getDepartment());
         mechanicToEdit.setTickets(mechanic.getTickets());

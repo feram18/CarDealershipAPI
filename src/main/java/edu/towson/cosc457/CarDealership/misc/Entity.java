@@ -3,6 +3,12 @@ package edu.towson.cosc457.CarDealership.misc;
 import java.util.Locale;
 
 public enum Entity {
+    USER {
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase(Locale.ROOT);
+        }
+    },
     ADDRESS {
         @Override
         public String toString() {

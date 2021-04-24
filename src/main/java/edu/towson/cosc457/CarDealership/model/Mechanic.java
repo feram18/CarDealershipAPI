@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
-import edu.towson.cosc457.CarDealership.misc.Role;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "MECHANIC")
+@Table(name = "mechanic", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorValue("MECHANIC")
@@ -53,10 +52,6 @@ public class Mechanic extends Employee {
                     Address address,
                     Double hoursWorked,
                     EmployeeType employeeType,
-                    Boolean isActive,
-                    Role role,
-                    String username,
-                    String password,
                     Manager manager,
                     Department department,
                     List<ServiceTicket> tickets,
@@ -74,11 +69,7 @@ public class Mechanic extends Employee {
                 dateStarted,
                 address,
                 hoursWorked,
-                employeeType,
-                isActive,
-                role,
-                username,
-                password);
+                employeeType);
         this.manager = manager;
         this.department = department;
         this.tickets = tickets;

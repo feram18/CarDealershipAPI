@@ -55,7 +55,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
         return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{managerId}/mechanics")
+    @GetMapping(value = "{id}/mechanics")
     public ResponseEntity<List<MechanicDto>> getAssignedMechanics(@PathVariable final Long id) {
         Manager manager = managerService.getEmployee(id);
         List<MechanicDto> mechanicsDto = manager.getMechanics()

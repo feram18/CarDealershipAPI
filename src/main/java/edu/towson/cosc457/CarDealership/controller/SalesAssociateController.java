@@ -56,7 +56,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
         return new ResponseEntity<>(SalesAssociateDto.from(salesAssociate), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{associateId}/clients")
+    @GetMapping(value = "{id}/clients")
     public ResponseEntity<List<ClientDto>> getAssignedClients(@PathVariable final Long id) {
         SalesAssociate salesAssociate = associateService.getEmployee(id);
         List<ClientDto> clientsDto = salesAssociate.getClients()

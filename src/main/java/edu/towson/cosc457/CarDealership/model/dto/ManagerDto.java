@@ -36,7 +36,6 @@ public class ManagerDto extends EmployeeDto {
         managerDto.setAddress(manager.getAddress());
         managerDto.setHoursWorked(manager.getHoursWorked());
         managerDto.setEmployeeType(manager.getEmployeeType());
-        managerDto.setUsername(manager.getUsername());
         managerDto.setSiteManager(manager.getSiteManager());
         managerDto.setDepartment(manager.getDepartment());
         managerDto.setMechanicsDto(manager.getMechanics()

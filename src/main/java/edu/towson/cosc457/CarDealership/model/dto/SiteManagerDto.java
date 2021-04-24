@@ -35,7 +35,6 @@ public class SiteManagerDto extends EmployeeDto {
         siteManagerDto.setAddress(siteManager.getAddress());
         siteManagerDto.setHoursWorked(siteManager.getHoursWorked());
         siteManagerDto.setEmployeeType(siteManager.getEmployeeType());
-        siteManagerDto.setUsername(siteManager.getUsername());
         siteManagerDto.setLocation(siteManager.getLocation());
         siteManagerDto.setManagers(siteManager.getManagers()
                 .stream().map(ManagerDto::from).collect(Collectors.toList()));

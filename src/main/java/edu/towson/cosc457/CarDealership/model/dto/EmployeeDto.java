@@ -25,7 +25,4 @@ public abstract class EmployeeDto {
     private Address address;
     private Double hoursWorked;
     private EmployeeType employeeType;
-    private Boolean isActive;
-    private Role role;
-    private String username;
 }

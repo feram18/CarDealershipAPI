@@ -66,9 +66,6 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         siteManagerToEdit.setDateStarted(siteManager.getDateStarted());
         siteManagerToEdit.setAddress(siteManager.getAddress());
         siteManagerToEdit.setHoursWorked(siteManager.getHoursWorked());
-        siteManagerToEdit.setRole(siteManager.getRole());
-        siteManagerToEdit.setUsername(siteManager.getUsername());
-        siteManagerToEdit.setPassword(siteManager.getPassword());
         siteManagerToEdit.setLocation(siteManager.getLocation());
         siteManagerToEdit.setManagers(siteManager.getManagers());
         return siteManagerToEdit;

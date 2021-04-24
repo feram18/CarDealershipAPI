@@ -30,11 +30,15 @@ CREATE TABLE "employee" (
 	date_started DATE DEFAULT now(),
 	address_id BIGINT UNIQUE,
 	hours_worked DECIMAL,
-	employee_type VARCHAR(15),
-	is_active BOOLEAN DEFAULT true,
-	user_role VARCHAR(5),
-	username VARCHAR(45) UNIQUE NOT NULL,
-	password VARCHAR(255) NOT NULL
+	employee_type VARCHAR(15)
+);
+
+CREATE TABLE "user" (
+    user_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
+    username VARCHAR(45) UNIQUE NOT NULL,
+    password VARCHAR(255),
+    user_role VARCHAR(5),
+    is_active BOOLEAN DEFAULT false
 );
 
 CREATE TABLE "site_manager" (
@@ -136,6 +140,13 @@ ALTER TABLE "employee"
 	ADD CONSTRAINT FK_employee_address
 	FOREIGN KEY (address_id)
 	REFERENCES "address" (address_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+ALTER TABLE "user"
+    ADD CONSTRAINT FK_user_id
+    FOREIGN KEY (user_id)
+    REFERENCES "employee" (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE;
 
