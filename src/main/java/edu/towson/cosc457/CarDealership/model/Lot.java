@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "LOT")
+@Table(name = "lot", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Lot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lot_id",
-            updatable = false)
+    @Column(name = "lot_id", updatable = false)
     private Long id;
     @Column(name = "lot_size")
     private Double size; // in sq. ft.

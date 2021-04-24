@@ -12,14 +12,13 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "Comment")
+@Table(name = "comment", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id",
-            updatable = false)
+    @Column(name = "comment_id", updatable = false)
     private Long id;
     @JsonBackReference
     @NotNull

@@ -14,18 +14,16 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "DEPARTMENT")
+@Table(name = "department", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "dept_id",
-            updatable = false)
+    @Column(name = "dept_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "dept_name",
-            unique = true)
+    @Column(name = "dept_name", unique = true)
     private String name;
     @JsonBackReference
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})

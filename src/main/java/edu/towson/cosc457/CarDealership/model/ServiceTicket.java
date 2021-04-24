@@ -16,14 +16,13 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "SERVICE_TICKET")
+@Table(name = "service_ticket", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceTicket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ticket_id",
-            updatable = false)
+    @Column(name = "ticket_id", updatable = false)
     private Long id;
     @JsonBackReference
     @NotNull
@@ -46,9 +45,7 @@ public class ServiceTicket {
     @Column(name = "ticket_status")
     private Status status;
     @JsonManagedReference
-    @OneToMany(mappedBy = "serviceTicket",
-                cascade = CascadeType.ALL,
-                orphanRemoval = true)
+    @OneToMany(mappedBy = "serviceTicket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
     public ServiceTicket(Vehicle vehicle,

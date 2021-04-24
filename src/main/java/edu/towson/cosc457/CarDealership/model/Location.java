@@ -16,18 +16,16 @@ import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "LOCATION")
+@Table(name = "location", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "location_id",
-            updatable = false)
+    @Column(name = "location_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "location_name",
-            unique = true)
+    @Column(name = "location_name", unique = true)
     private String name;
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
@@ -38,14 +36,10 @@ public class Location {
     @JoinColumn(name = "site_manager_id")
     private SiteManager siteManager;
     @JsonManagedReference
-    @OneToMany(mappedBy = "location",
-                cascade = CascadeType.ALL,
-                orphanRemoval = true)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lot> lots = new ArrayList<>();
     @JsonManagedReference
-    @OneToMany(mappedBy = "location",
-                cascade = CascadeType.ALL,
-                orphanRemoval = true)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Department> departments;
     @JsonManagedReference
     @OneToMany(mappedBy = "workLocation")

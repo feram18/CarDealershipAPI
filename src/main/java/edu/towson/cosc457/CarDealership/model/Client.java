@@ -12,19 +12,16 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "CLIENT")
+@Table(name = "client", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "client_id",
-            updatable = false)
+    @Column(name = "client_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "client_ssn",
-            unique = true,
-            length = 11)
+    @Column(name = "client_ssn", unique = true, length = 11)
     private String ssn;
     @Column(name = "first_name")
     private String firstName;
@@ -35,8 +32,7 @@ public class Client {
     private Gender gender;
     @Column(name = "email")
     private String email;
-    @Column(name = "phone_no",
-            length = 12)
+    @Column(name = "phone_no", length = 12)
     private String phoneNumber;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")

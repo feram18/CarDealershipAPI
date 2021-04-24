@@ -10,13 +10,13 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "Address")
+@Table(name = "address", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
+    @Column(name = "address_id", updatable = false)
     private Long id;
     @NotNull
     @Column(name = "street")
@@ -28,8 +28,7 @@ public class Address {
     @Column(name = "state")
     private String state;
     @NotNull
-    @Column(name = "zip_code",
-            length = 5)
+    @Column(name = "zip_code", length = 5)
     private Integer zipCode;
 
     public Address(String street, String city, String state, Integer zipCode) {

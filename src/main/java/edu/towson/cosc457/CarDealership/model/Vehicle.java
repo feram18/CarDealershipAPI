@@ -12,22 +12,19 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Entity
-@Table(name = "VEHICLE")
+@Table(name = "vehicle", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicle_id",
-            updatable = false)
+    @Column(name = "vehicle_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "vin",
-            length = 17)
+    @Column(name = "vin", length = 17)
     private String vin;
     @NotNull
     @Column(name = "make")
@@ -36,8 +33,7 @@ public class Vehicle {
     @Column(name = "model")
     private String model;
     @NotNull
-    @Column(name = "year",
-            length = 4)
+    @Column(name = "year", length = 4)
     private Integer year;
     @NotNull
     @Column(name = "color")
