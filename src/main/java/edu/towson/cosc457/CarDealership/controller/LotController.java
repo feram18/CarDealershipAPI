@@ -51,7 +51,7 @@ public class LotController {
         return new ResponseEntity<>(LotDto.from(editedLot), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{lotId}/vehicles")
+    @GetMapping(value = "{id}/vehicles")
     public ResponseEntity<List<VehicleDto>> getVehicles(@PathVariable final Long id) {
         Lot lot = lotService.getLot(id);
         List<VehicleDto> vehiclesDto = lot.getVehicles().stream().map(VehicleDto::from).collect(Collectors.toList());

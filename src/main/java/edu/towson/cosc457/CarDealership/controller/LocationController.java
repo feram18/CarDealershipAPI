@@ -52,7 +52,7 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{locationId}/lots")
+    @GetMapping(value = "/{id}/lots")
     public ResponseEntity<List<LotDto>> getLots(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<LotDto> lotsDto = location.getLots().stream().map(LotDto::from).collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{locationId}/departments")
+    @GetMapping(value = "/{id}/departments")
     public ResponseEntity<List<DepartmentDto>> getDepartments(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<DepartmentDto> departmentsDto = location.getDepartments()
@@ -95,7 +95,7 @@ public class LocationController {
         return new ResponseEntity<>(LocationDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/{locationId}/mechanics")
+    @GetMapping(value = "/{id}/mechanics")
     public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
         Location location = locationService.getLocation(id);
         List<MechanicDto> mechanicsDto = location.getMechanics()

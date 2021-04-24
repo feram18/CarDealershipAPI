@@ -52,7 +52,7 @@ public class ServiceTicketController {
         return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{ticketId}/comments")
+    @GetMapping(value = "{id}/comments")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable final Long id) {
         ServiceTicket serviceTicket = serviceTicketService.getServiceTicket(id);
         List<CommentDto> commentsDto = serviceTicket.getComments()

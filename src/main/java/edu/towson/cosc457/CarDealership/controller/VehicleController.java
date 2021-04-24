@@ -50,7 +50,7 @@ public class VehicleController {
         return new ResponseEntity<>(VehicleDto.from(vehicle), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{vehicleId}/tickets")
+    @GetMapping(value = "{id}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
         Vehicle vehicle = vehicleService.getVehicle(id);
         List<ServiceTicketDto> serviceTicketsDto = vehicle.getTickets()

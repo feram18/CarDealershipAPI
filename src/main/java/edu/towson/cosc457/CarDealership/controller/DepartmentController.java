@@ -50,7 +50,7 @@ public class DepartmentController {
         return new ResponseEntity<>(DepartmentDto.from(location), HttpStatus.OK);
     }
 
-    @GetMapping(value = "{departmentId}/mechanics")
+    @GetMapping(value = "{id}/mechanics")
     public ResponseEntity<List<MechanicDto>> getMechanics(@PathVariable final Long id) {
         Department department = departmentService.getDepartment(id);
         List<MechanicDto> mechanicsDto = department.getMechanics()
