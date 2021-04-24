@@ -5,7 +5,6 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.repository.AddressRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
