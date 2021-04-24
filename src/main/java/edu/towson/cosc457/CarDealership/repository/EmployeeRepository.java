@@ -25,6 +25,4 @@ public interface EmployeeRepository<T extends Employee> extends JpaRepository<T,
     Optional<List<T>> findBySalaryLessThan(Double salary);
     Optional<List<T>> findBySalaryGreaterThan(Double salary);
     Optional<List<T>> findBySalaryBetween(Double minSalary, Double maxSalary);
-    Optional<List<T>> findByRole(Role role);
-    Optional<T> findByUsername(String username);
 }
