@@ -6,6 +6,7 @@ import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.repository.CommentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,7 +31,7 @@ public class CommentService {
 
     public Comment getComment(Long id) {
         return commentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.COMMENT.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.COMMENT.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Comment deleteComment(Long id) {

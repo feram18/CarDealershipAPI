@@ -6,6 +6,7 @@ import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.repository.ClientRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,7 +31,7 @@ public class ClientService {
 
     public Client getClient(Long id) {
         return clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.CLIENT.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.CLIENT.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Client deleteClient(Long id) {

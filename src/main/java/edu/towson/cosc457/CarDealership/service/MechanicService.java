@@ -10,6 +10,7 @@ import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.repository.MechanicRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -39,7 +40,7 @@ public class MechanicService implements EmployeeService<Mechanic> {
     @Override
     public Mechanic getEmployee(Long id) {
         return mechanicRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.MECHANIC.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.MECHANIC.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -82,7 +83,8 @@ public class MechanicService implements EmployeeService<Mechanic> {
                     Entity.SERVICE_TICKET.toString(),
                     ticketId,
                     Entity.MECHANIC.toString(),
-                    ticket.getMechanic().getId()
+                    ticket.getMechanic().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         mechanic.addServiceTicket(ticket);

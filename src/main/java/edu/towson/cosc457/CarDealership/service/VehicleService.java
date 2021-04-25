@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,7 +35,7 @@ public class VehicleService {
 
     public Vehicle getVehicle(Long id) {
         return vehicleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.VEHICLE.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.VEHICLE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Vehicle deleteVehicle(Long id) {
@@ -70,7 +71,8 @@ public class VehicleService {
                     Entity.SERVICE_TICKET.toString(),
                     ticketId,
                     Entity.VEHICLE.toString(),
-                    ticket.getVehicle().getId()
+                    ticket.getVehicle().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         vehicle.assignTicket(ticket);

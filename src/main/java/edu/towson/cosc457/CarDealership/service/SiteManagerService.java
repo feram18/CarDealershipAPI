@@ -9,6 +9,7 @@ import edu.towson.cosc457.CarDealership.model.SiteManager;
 import edu.towson.cosc457.CarDealership.repository.SiteManagerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,7 +39,7 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
     @Override
     public SiteManager getEmployee(Long id) {
         return siteManagerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.SITE_MANAGER.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.SITE_MANAGER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
 
@@ -80,7 +81,8 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
                     Entity.MANAGER.toString(),
                     managerId,
                     Entity.SITE_MANAGER.toString(),
-                    manager.getSiteManager().getId()
+                    manager.getSiteManager().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         siteManager.assignManager(manager);

@@ -9,6 +9,7 @@ import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.ManagerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,7 +39,7 @@ public class ManagerService implements EmployeeService<Manager> {
     @Override
     public Manager getEmployee(Long id) {
         return managerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.MANAGER.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.MANAGER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -81,7 +82,8 @@ public class ManagerService implements EmployeeService<Manager> {
                     Entity.MECHANIC.toString(),
                     mechanicId,
                     Entity.MANAGER.toString(),
-                    mechanic.getManager().getId()
+                    mechanic.getManager().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         manager.assignMechanics(mechanic);

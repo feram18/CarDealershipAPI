@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.LotRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,7 +35,7 @@ public class LotService {
 
     public Lot getLot(Long id) {
         return lotRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.LOT.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.LOT.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Lot deleteLot(Long id) {
@@ -61,7 +62,8 @@ public class LotService {
                     Entity.VEHICLE.toString(),
                     vehicleId,
                     Entity.LOT.toString(),
-                    vehicle.getLot().getId()
+                    vehicle.getLot().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         lot.addVehicleToLot(vehicle);

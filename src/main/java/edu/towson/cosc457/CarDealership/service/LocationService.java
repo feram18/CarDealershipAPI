@@ -10,6 +10,7 @@ import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.LocationRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,7 +39,7 @@ public class LocationService {
 
     public Location getLocation(Long id) {
         return locationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.LOCATION.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.LOCATION.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Location deleteLocation(Long id) {
@@ -66,7 +67,8 @@ public class LocationService {
                     Entity.LOT.toString(),
                     lotId,
                     Entity.LOCATION.toString(),
-                    lot.getLocation().getId()
+                    lot.getLocation().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         location.addLot(lot);
@@ -91,7 +93,8 @@ public class LocationService {
                     Entity.LOT.toString(),
                     departmentId,
                     Entity.LOCATION.toString(),
-                    department.getLocation().getId()
+                    department.getLocation().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         location.addDepartment(department);
@@ -116,7 +119,8 @@ public class LocationService {
                     Entity.MECHANIC.toString(),
                     mechanicId,
                     Entity.LOCATION.toString(),
-                    mechanic.getWorkLocation().getId()
+                    mechanic.getWorkLocation().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         location.assignMechanic(mechanic);

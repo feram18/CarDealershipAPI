@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.DepartmentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,7 +35,7 @@ public class DepartmentService {
 
     public Department getDepartment(Long id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.DEPARTMENT.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.DEPARTMENT.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Department deleteDepartment(Long id) {
@@ -61,7 +62,8 @@ public class DepartmentService {
                     Entity.MECHANIC.toString(),
                     mechanicId,
                     Entity.DEPARTMENT.toString(),
-                    mechanic.getDepartment().getId()
+                    mechanic.getDepartment().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         department.assignMechanic(mechanic);

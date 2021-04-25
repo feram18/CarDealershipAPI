@@ -9,6 +9,7 @@ import edu.towson.cosc457.CarDealership.model.SalesAssociate;
 import edu.towson.cosc457.CarDealership.repository.SalesAssociateRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,7 +39,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     @Override
     public SalesAssociate getEmployee(Long id) {
         return salesAssociateRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.SALES_ASSOCIATE.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.SALES_ASSOCIATE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -80,7 +81,8 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
                     Entity.CLIENT.toString(),
                     clientId,
                     Entity.SALES_ASSOCIATE.toString(),
-                    client.getSalesAssociate().getId()
+                    client.getSalesAssociate().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         salesAssociate.addClient(client);

@@ -8,6 +8,7 @@ import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.repository.ServiceTicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,7 +35,7 @@ public class ServiceTicketService {
 
     public ServiceTicket getServiceTicket(Long id) {
         return serviceTicketRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.SERVICE_TICKET.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.SERVICE_TICKET.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public ServiceTicket deleteServiceTicket(Long id) {
@@ -63,7 +64,8 @@ public class ServiceTicketService {
                     Entity.COMMENT.toString(),
                     commentId,
                     Entity.SERVICE_TICKET.toString(),
-                    comment.getServiceTicket().getId()
+                    comment.getServiceTicket().getId(),
+                    HttpStatus.BAD_REQUEST
             );
         }
         ticket.addComment(comment);

@@ -5,6 +5,7 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.User;
 import edu.towson.cosc457.CarDealership.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class UserService {
 
     public User getUser(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Entity.USER.toString(), id));
+                .orElseThrow(() -> new NotFoundException(Entity.USER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public User deleteUser(Long id) {
