@@ -15,6 +15,7 @@
 	<description>Web application to access, and modify company&apos;s inventory and staff information.</description>
 	<properties>
 		<java.version>11</java.version>
+		<lombok.version>1.18.16</lombok.version>
 		<org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
 	</properties>
 	<dependencies>
@@ -53,6 +54,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
@@ -102,8 +104,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>{java.version}</source>
-					<target>{java.version}</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.mapstruct</groupId>
@@ -113,6 +115,12 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.1.0</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
