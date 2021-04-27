@@ -5,8 +5,10 @@ import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -17,6 +19,7 @@ import java.time.Period;
 @Table(name = "employee", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING, name = "employee_type")
 public abstract class Employee {
@@ -59,36 +62,6 @@ public abstract class Employee {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "employee_type")
     private EmployeeType employeeType;
-
-    public Employee(String ssn,
-                    String firstName,
-                    Character middleInitial,
-                    String lastName,
-                    Gender gender,
-                    LocalDate dateOfBirth,
-                    String phoneNumber,
-                    String email,
-                    Location workLocation,
-                    Double salary,
-                    LocalDate dateStarted,
-                    Address address,
-                    Double hoursWorked,
-                    EmployeeType employeeType) {
-        this.ssn = ssn;
-        this.firstName = firstName;
-        this.middleInitial = middleInitial;
-        this.lastName = lastName;
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.workLocation = workLocation;
-        this.salary = salary;
-        this.dateStarted = dateStarted;
-        this.address = address;
-        this.hoursWorked = hoursWorked;
-        this.employeeType = employeeType;
-    }
 
     public Integer getYearsWorked(Employee employee) {
         return Period.between(employee.getDateStarted(), LocalDate.now()).getYears();

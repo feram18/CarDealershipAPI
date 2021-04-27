@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.controller;
 
+import edu.towson.cosc457.CarDealership.mapper.CommentMapper;
 import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.service.CommentService;
@@ -17,36 +18,46 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
     @PostMapping
     public ResponseEntity<CommentDto> addComment(@RequestBody final CommentDto commentDto) {
-        Comment comment = commentService.addComment(Comment.from(commentDto));
-        return new ResponseEntity<>(CommentDto.from(comment), HttpStatus.OK);
+        Comment comment = commentService.addComment(commentMapper.fromDto(commentDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(commentMapper.toDto(comment));
     }
 
     @GetMapping
     public ResponseEntity<List<CommentDto>> getComments() {
         List<Comment> comments = commentService.getComments();
-        List<CommentDto> commentsDto = comments.stream().map(CommentDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(commentsDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(comments.stream().map(commentMapper::toDto).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<CommentDto> getComment(@PathVariable final Long id) {
         Comment comment = commentService.getComment(id);
-        return new ResponseEntity<>(CommentDto.from(comment), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(commentMapper.toDto(comment));
     }
 
     @DeleteMapping
     public ResponseEntity<CommentDto> deleteComment(@PathVariable final Long id) {
         Comment comment = commentService.deleteComment(id);
-        return new ResponseEntity<>(CommentDto.from(comment), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(commentMapper.toDto(comment));
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<CommentDto> editComment(@PathVariable final Long id,
                                                   @RequestBody final CommentDto commentDto) {
-        Comment editedComment = commentService.editComment(id, Comment.from(commentDto));
-        return new ResponseEntity<>(CommentDto.from(editedComment), HttpStatus.OK);
+        Comment comment = commentService.editComment(id, commentMapper.fromDto(commentDto));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(commentMapper.toDto(comment));
     }
 }

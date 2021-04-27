@@ -3,12 +3,10 @@ package edu.towson.cosc457.CarDealership.service;
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
 import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Entity;
-import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.SiteManager;
 import edu.towson.cosc457.CarDealership.repository.SiteManagerRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +65,7 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         siteManagerToEdit.setDateStarted(siteManager.getDateStarted());
         siteManagerToEdit.setAddress(siteManager.getAddress());
         siteManagerToEdit.setHoursWorked(siteManager.getHoursWorked());
-        siteManagerToEdit.setLocation(siteManager.getLocation());
+        siteManagerToEdit.setManagedLocation(siteManager.getManagedLocation());
         siteManagerToEdit.setManagers(siteManager.getManagers());
         return siteManagerToEdit;
     }

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface SiteManagerRepository extends EmployeeRepository<SiteManager> {
-    Optional<SiteManager> findByLocation(Location location);
+    Optional<SiteManager> findByManagedLocation(Location location);
 }

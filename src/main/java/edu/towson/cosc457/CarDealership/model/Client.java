@@ -3,8 +3,8 @@ package edu.towson.cosc457.CarDealership.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.Gender;
-import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +15,7 @@ import javax.persistence.*;
 @Table(name = "client", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,19 +46,4 @@ public class Client {
     private Double minimumPrice;
     @Column(name = "max_price")
     private Double maximumPrice;
-
-    public static Client from (ClientDto clientDto) {
-        Client client = new Client();
-        client.setId(clientDto.getId());
-        client.setFirstName(clientDto.getFirstName());
-        client.setLastName(clientDto.getLastName());
-        client.setGender(clientDto.getGender());
-        client.setEmail(clientDto.getEmail());
-        client.setPhoneNumber(clientDto.getPhoneNumber());
-        client.setAddress(clientDto.getAddress());
-        client.setSalesAssociate(clientDto.getSalesAssociate());
-        client.setMinimumPrice(clientDto.getMinimumPrice());
-        client.setMaximumPrice(clientDto.getMaximumPrice());
-        return client;
-    }
 }

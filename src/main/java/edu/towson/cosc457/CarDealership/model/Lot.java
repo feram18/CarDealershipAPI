@@ -3,20 +3,20 @@ package edu.towson.cosc457.CarDealership.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
-import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Entity
 @Table(name = "lot", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Lot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,26 +33,11 @@ public class Lot {
     @OneToMany(mappedBy = "lot")
     private List<Vehicle> vehicles;
 
-    public Lot(Double size, Location location, List<Vehicle> vehicles) {
-        this.size = size;
-        this.location = location;
-        this.vehicles = vehicles;
-    }
-
     public void addVehicleToLot(Vehicle vehicle) {
         vehicles.add(vehicle);
     }
 
     public void removeVehicleFromLot(Vehicle vehicle) {
         vehicles.add(vehicle);
-    }
-
-    public static Lot from(LotDto lotDto) {
-        Lot lot = new Lot();
-        lot.setId(lotDto.getId());
-        lot.setSize(lotDto.getSize());
-        lot.setLocation(lotDto.getLocation());
-        lot.setVehicles(lotDto.getVehiclesDto().stream().map(Vehicle::from).collect(Collectors.toList()));
-        return lot;
     }
 }

@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.controller;
 
+import edu.towson.cosc457.CarDealership.mapper.ClientMapper;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
 import edu.towson.cosc457.CarDealership.service.ClientService;
@@ -16,36 +17,46 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;
+    private final ClientMapper clientMapper;
 
     @PostMapping
     public ResponseEntity<ClientDto> addClient(@RequestBody final ClientDto clientDto) {
-        Client client = clientService.addClient(Client.from(clientDto));
-        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
+        Client client = clientService.addClient(clientMapper.fromDto(clientDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(clientMapper.toDto(client));
     }
 
     @GetMapping
     public ResponseEntity<List<ClientDto>> getClients() {
         List<Client> clients = clientService.getClients();
-        List<ClientDto> clientsDto = clients.stream().map(ClientDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(clientsDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clients.stream().map(clientMapper::toDto).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<ClientDto> getClient(@PathVariable final Long id) {
         Client client = clientService.getClient(id);
-        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clientMapper.toDto(client));
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ClientDto> deleteClient(@PathVariable final Long id) {
         Client client = clientService.deleteClient(id);
-        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clientMapper.toDto(client));
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<ClientDto> editClient(@PathVariable final Long id,
                                                 @RequestBody final ClientDto clientDto) {
-        Client client = clientService.editClient(id, Client.from(clientDto));
-        return new ResponseEntity<>(ClientDto.from(client), HttpStatus.OK);
+        Client client = clientService.editClient(id, clientMapper.fromDto(clientDto));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(clientMapper.toDto(client));
     }
 }

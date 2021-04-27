@@ -2,14 +2,17 @@ package edu.towson.cosc457.CarDealership.model.dto;
 
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
-import edu.towson.cosc457.CarDealership.misc.Role;
-import edu.towson.cosc457.CarDealership.model.Address;
-import edu.towson.cosc457.CarDealership.model.Location;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
 public abstract class EmployeeDto {
     private Long id;
     private String firstName;
@@ -19,10 +22,10 @@ public abstract class EmployeeDto {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private String email;
-    private Location workLocation;
+    private Long workLocationId;
     private Double salary;
     private LocalDate dateStarted;
-    private Address address;
+    private AddressDto address;
     private Double hoursWorked;
     private EmployeeType employeeType;
 }

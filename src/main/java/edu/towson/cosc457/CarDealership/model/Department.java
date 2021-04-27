@@ -3,20 +3,20 @@ package edu.towson.cosc457.CarDealership.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
-import edu.towson.cosc457.CarDealership.model.dto.DepartmentDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Entity
 @Table(name = "department", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,16 +40,6 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<SalesAssociate> salesAssociates;
 
-    public Department(String name,
-                      Manager manager,
-                      List<Mechanic> mechanics,
-                      List<SalesAssociate> salesAssociates) {
-        this.name = name;
-        this.manager = manager;
-        this.mechanics = mechanics;
-        this.salesAssociates = salesAssociates;
-    }
-
     public void assignMechanic(Mechanic mechanic) {
         mechanics.add(mechanic);
     }
@@ -64,18 +54,5 @@ public class Department {
 
     public void removeAssociates(SalesAssociate associate) {
         salesAssociates.remove(associate);
-    }
-
-    public static Department from (DepartmentDto departmentDto) {
-        Department department = new Department();
-        department.setId(departmentDto.getId());
-        department.setName(departmentDto.getName());
-        department.setManager(departmentDto.getManager());
-        department.setLocation(departmentDto.getLocation());
-        department.setMechanics(departmentDto.getMechanicsDto()
-                .stream().map(Mechanic::from).collect(Collectors.toList()));
-        department.setSalesAssociates(departmentDto.getSalesAssociatesDto()
-                .stream().map(SalesAssociate::from).collect(Collectors.toList()));
-        return department;
     }
 }

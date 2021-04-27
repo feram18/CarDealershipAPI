@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
-import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,6 +18,7 @@ import java.util.List;
 @Table(name = "vehicle", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,34 +65,6 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle")
     private List<ServiceTicket> tickets;
 
-    public Vehicle(String vin,
-                   String make,
-                   String model,
-                   Integer year,
-                   String color,
-                   VehicleType type,
-                   TransmissionType transmission,
-                   String features,
-                   Integer mpg,
-                   Integer mileage,
-                   Double price,
-                   Lot lot,
-                   List<ServiceTicket> tickets) {
-        this.vin = vin;
-        this.make = make;
-        this.model = model;
-        this.year = year;
-        this.color = color;
-        this.type = type;
-        this.transmission = transmission;
-        this.features = features;
-        this.mpg = mpg;
-        this.mileage = mileage;
-        this.price = price;
-        this.lot = lot;
-        this.tickets = tickets;
-    }
-
     public Location getLocation(Vehicle vehicle) {
         return vehicle.getLot().getLocation();
     }
@@ -102,25 +75,5 @@ public class Vehicle {
 
     public void removeTicket(ServiceTicket ticket) {
         tickets.remove(ticket);
-    }
-
-    public static Vehicle from (VehicleDto vehicleDto) {
-        Vehicle vehicle = new Vehicle();
-        vehicle.setId(vehicleDto.getId());
-        vehicle.setVin(vehicleDto.getVin());
-        vehicle.setMake(vehicleDto.getMake());
-        vehicle.setModel(vehicleDto.getModel());
-        vehicle.setYear(vehicleDto.getYear());
-        vehicle.setColor(vehicleDto.getColor());
-        vehicle.setType(vehicleDto.getType());
-        vehicle.setTransmission(vehicleDto.getTransmission());
-        vehicle.setFeatures(vehicleDto.getFeatures());
-        vehicle.setMpg(vehicleDto.getMpg());
-        vehicle.setMileage(vehicleDto.getMileage());
-        vehicle.setPrice(vehicleDto.getPrice());
-        vehicle.setLot(vehicleDto.getLot());
-//        vehicle.setTickets(vehicleDto.getTicketsDto()
-//                .stream().map(ServiceTicket::from).collect(Collectors.toList()));
-        return vehicle;
     }
 }

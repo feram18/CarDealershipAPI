@@ -1,8 +1,8 @@
 package edu.towson.cosc457.CarDealership.model;
 
 import com.sun.istack.NotNull;
-import edu.towson.cosc457.CarDealership.model.dto.AddressDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "address", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,21 +31,4 @@ public class Address {
     @NotNull
     @Column(name = "zip_code", length = 5)
     private Integer zipCode;
-
-    public Address(String street, String city, String state, Integer zipCode) {
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.zipCode = zipCode;
-    }
-
-    public static Address from (AddressDto addressDto) {
-        Address address = new Address();
-        address.setId(addressDto.getId());
-        address.setStreet(addressDto.getStreet());
-        address.setCity(addressDto.getCity());
-        address.setState(addressDto.getState());
-        address.setZipCode(addressDto.getZipCode());
-        return address;
-    }
 }

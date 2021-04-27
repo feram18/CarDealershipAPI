@@ -1,8 +1,9 @@
 package edu.towson.cosc457.CarDealership.controller;
 
+import edu.towson.cosc457.CarDealership.mapper.EmployeeMapper;
 import edu.towson.cosc457.CarDealership.model.Manager;
+import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.ManagerDto;
-import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.service.ManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,64 +17,79 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/managers")
 public class ManagerController extends EmployeeController<ManagerService> {
     private final ManagerService managerService;
+    private final EmployeeMapper employeeMapper;
 
     @Autowired
-    public ManagerController(ManagerService managerService) {
+    public ManagerController(ManagerService managerService, EmployeeMapper employeeMapper) {
         super(managerService);
         this.managerService = managerService;
+        this.employeeMapper = employeeMapper;
     }
 
     @PostMapping
     public ResponseEntity<ManagerDto> addEmployee(@RequestBody final ManagerDto managerDto) {
-        Manager manager = managerService.addEmployee(Manager.from(managerDto));
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        Manager manager = managerService.addEmployee((Manager) employeeMapper.fromDto(managerDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
     @GetMapping
-    public ResponseEntity<List<ManagerDto>> getEmployees() {
+    public ResponseEntity<List<EmployeeDto>> getEmployees() {
         List<Manager> managers = managerService.getEmployees();
-        List<ManagerDto> managersDto = managers.stream().map(ManagerDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(managersDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(managers.stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<ManagerDto> getEmployee(@PathVariable final Long id) {
         Manager manager = managerService.getEmployee(id);
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ManagerDto> deleteEmployee(@PathVariable final Long id) {
         Manager manager = managerService.deleteEmployee(id);
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<ManagerDto> editEmployee(@PathVariable final Long id,
                                                    @PathVariable final ManagerDto managerDto) {
-        Manager manager = managerService.editEmployee(id, Manager.from(managerDto));
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        Manager manager = managerService.editEmployee(id, (Manager) employeeMapper.fromDto(managerDto));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
     @GetMapping(value = "{id}/mechanics")
-    public ResponseEntity<List<MechanicDto>> getAssignedMechanics(@PathVariable final Long id) {
+    public ResponseEntity<List<EmployeeDto>> getAssignedMechanics(@PathVariable final Long id) {
         Manager manager = managerService.getEmployee(id);
-        List<MechanicDto> mechanicsDto = manager.getMechanics()
-                .stream().map(MechanicDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(mechanicsDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(manager.getMechanics().stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
     @PostMapping(value = "{managerId}/mechanics/{mechanicId}/add")
     public ResponseEntity<ManagerDto> assignToManager(@PathVariable final Long managerId,
                                                       @PathVariable final Long mechanicId) {
         Manager manager = managerService.assignToManager(managerId, mechanicId);
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
     @DeleteMapping(value = "{managerId}/mechanics/{mechanicId}/remove")
     public ResponseEntity<ManagerDto> removeFromManager(@PathVariable final Long managerId,
                                                         @PathVariable final Long mechanicId) {
         Manager manager = managerService.removeFromManager(managerId, mechanicId);
-        return new ResponseEntity<>(ManagerDto.from(manager), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body((ManagerDto) employeeMapper.toDto(manager));
     }
 }

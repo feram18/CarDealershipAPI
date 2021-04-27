@@ -1,5 +1,7 @@
 package edu.towson.cosc457.CarDealership.controller;
 
+import edu.towson.cosc457.CarDealership.mapper.CommentMapper;
+import edu.towson.cosc457.CarDealership.mapper.ServiceTicketMapper;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
@@ -17,60 +19,75 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceTicketController {
     private final ServiceTicketService serviceTicketService;
+    private final ServiceTicketMapper serviceTicketMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping
     public ResponseEntity<ServiceTicketDto> addServiceTicket(@RequestBody final ServiceTicketDto serviceTicketDto) {
-        ServiceTicket serviceTicket = serviceTicketService.addServiceTicket(ServiceTicket.from(serviceTicketDto));
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+        ServiceTicket serviceTicket = serviceTicketService
+                .addServiceTicket(serviceTicketMapper.fromDto(serviceTicketDto));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 
     @GetMapping
     public ResponseEntity<List<ServiceTicketDto>> getServiceTickets() {
         List<ServiceTicket> serviceTickets = serviceTicketService.getServiceTickets();
-        List<ServiceTicketDto> serviceTicketsDto = serviceTickets.stream().map(ServiceTicketDto::from)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(serviceTicketsDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTickets.stream().map(serviceTicketMapper::toDto).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<ServiceTicketDto> getServiceTicket(@PathVariable final Long id) {
         ServiceTicket serviceTicket = serviceTicketService.getServiceTicket(id);
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ServiceTicketDto> deleteServiceTicket(@PathVariable final Long id) {
         ServiceTicket serviceTicket = serviceTicketService.deleteServiceTicket(id);
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 
     @PutMapping(value = "{id}")
     public ResponseEntity<ServiceTicketDto> editServiceTicket(@PathVariable final Long id,
                                                               @RequestBody final ServiceTicketDto serviceTicketDto) {
         ServiceTicket serviceTicket = serviceTicketService
-                .editServiceTicket(id, ServiceTicket.from(serviceTicketDto));
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+                .editServiceTicket(id, serviceTicketMapper.fromDto(serviceTicketDto));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 
     @GetMapping(value = "{id}/comments")
     public ResponseEntity<List<CommentDto>> getComments(@PathVariable final Long id) {
         ServiceTicket serviceTicket = serviceTicketService.getServiceTicket(id);
-        List<CommentDto> commentsDto = serviceTicket.getComments()
-                .stream().map(CommentDto::from).collect(Collectors.toList());
-        return new ResponseEntity<>(commentsDto, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicket.getComments().stream().map(commentMapper::toDto).collect(Collectors.toList()));
     }
 
     @PostMapping(value = "{ticketId}/comments/{commentId}/add")
     public ResponseEntity<ServiceTicketDto> addCommentToTicket(@PathVariable final Long ticketId,
                                                                @PathVariable final Long commentId) {
         ServiceTicket serviceTicket = serviceTicketService.addCommentToTicket(ticketId, commentId);
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 
     @DeleteMapping(value = "{ticketId}/comments/{commentId}/remove")
     public ResponseEntity<ServiceTicketDto> removeCommentFromTicket(@PathVariable final Long ticketId,
                                                                     @PathVariable final Long commentId) {
         ServiceTicket serviceTicket = serviceTicketService.removeCommentFromTicket(ticketId, commentId);
-        return new ResponseEntity<>(ServiceTicketDto.from(serviceTicket), HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(serviceTicketMapper.toDto(serviceTicket));
     }
 }
