@@ -5,7 +5,6 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.repository.ClientRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
