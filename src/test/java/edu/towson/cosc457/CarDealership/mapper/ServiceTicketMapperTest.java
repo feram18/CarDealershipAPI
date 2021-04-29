@@ -17,12 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ServiceTicketMapperTest {
     private static ServiceTicketMapper serviceTicketMapper;
-    private static CommentMapper commentMapper;
 
     @BeforeAll
     public static void setUp() {
         serviceTicketMapper = new ServiceTicketMapperImpl();
-        commentMapper = new CommentMapperImpl();
+        CommentMapper commentMapper = new CommentMapperImpl();
         ReflectionTestUtils.setField(serviceTicketMapper, "commentMapper", commentMapper);
     }
 

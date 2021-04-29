@@ -15,12 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LocationMapperTest {
     private static LocationMapper locationMapper;
-    private static AddressMapper addressMapper;
 
     @BeforeAll
     public static void setUp() {
         locationMapper = new LocationMapperImpl();
-        addressMapper = new AddressMapperImpl();
+        AddressMapper addressMapper = new AddressMapperImpl();
         ReflectionTestUtils.setField(locationMapper, "addressMapper", addressMapper);
     }
 

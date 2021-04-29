@@ -16,12 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClientMapperTest {
     private static ClientMapper clientMapper;
-    private static AddressMapper addressMapper;
 
     @BeforeAll
     public static void setUp() {
         clientMapper = new ClientMapperImpl();
-        addressMapper = new AddressMapperImpl();
+        AddressMapper addressMapper = new AddressMapperImpl();
         ReflectionTestUtils.setField(clientMapper, "addressMapper", addressMapper);
     }
 
