@@ -38,6 +38,6 @@ public class Lot {
     }
 
     public void removeVehicleFromLot(Vehicle vehicle) {
-        vehicles.add(vehicle);
+        vehicles.remove(vehicle);
     }
 }
