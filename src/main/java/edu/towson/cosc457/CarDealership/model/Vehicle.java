@@ -65,8 +65,8 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle")
     private List<ServiceTicket> tickets;
 
-    public Location getLocation(Vehicle vehicle) {
-        return vehicle.getLot().getLocation();
+    public Location getLocation() {
+        return getLot().getLocation();
     }
 
     public void assignTicket(ServiceTicket ticket) {

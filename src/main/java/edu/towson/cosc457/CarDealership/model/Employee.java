@@ -63,11 +63,11 @@ public abstract class Employee {
     @Column(name = "employee_type")
     private EmployeeType employeeType;
 
-    public Integer getYearsWorked(Employee employee) {
-        return Period.between(employee.getDateStarted(), LocalDate.now()).getYears();
+    public Integer getYearsWorked() {
+        return Period.between(getDateStarted(), LocalDate.now()).getYears();
     }
 
-    public Integer getAge(Employee employee) {
-        return Period.between(employee.getDateOfBirth(), LocalDate.now()).getYears();
+    public Integer getAge() {
+        return Period.between(getDateOfBirth(), LocalDate.now()).getYears();
     }
 }
