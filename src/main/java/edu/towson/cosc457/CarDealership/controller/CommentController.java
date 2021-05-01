@@ -44,7 +44,7 @@ public class CommentController {
                 .body(commentMapper.toDto(comment));
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "{id}")
     public ResponseEntity<CommentDto> deleteComment(@PathVariable final Long id) {
         Comment comment = commentService.deleteComment(id);
         return ResponseEntity

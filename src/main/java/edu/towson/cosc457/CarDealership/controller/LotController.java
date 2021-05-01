@@ -46,7 +46,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "{id}")
     public ResponseEntity<LotDto> deleteLot(@PathVariable final Long id) {
         Lot lot = lotService.deleteLot(id);
         return ResponseEntity
@@ -80,7 +80,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
-    @PostMapping(value = "{lotId}/vehicles/{vehicleId}/remove")
+    @DeleteMapping(value = "{lotId}/vehicles/{vehicleId}/remove")
     public ResponseEntity<LotDto> removeVehicleFromLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
         Lot lot = lotService.removeVehicleFromLot(lotId, vehicleId);

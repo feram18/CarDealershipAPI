@@ -76,7 +76,7 @@ public class VehicleController {
                                                    @PathVariable final Long ticketId) {
         Vehicle vehicle = vehicleService.assignTicket(vehicleId, ticketId);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(vehicleMapper.toDto(vehicle));
     }
 
