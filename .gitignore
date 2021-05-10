@@ -249,3 +249,6 @@ target/
 .settings
 .springBeans
 .sts4-cache
+
+# SQL
+data.sql
