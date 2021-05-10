@@ -3,6 +3,7 @@ package edu.towson.cosc457.CarDealership.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,6 +16,7 @@ public class SiteManagerTest {
     void setUp() {
         siteManager = SiteManager.builder()
                 .id(1L)
+                .managers(new ArrayList<>())
                 .build();
 
         manager = Manager.builder()
