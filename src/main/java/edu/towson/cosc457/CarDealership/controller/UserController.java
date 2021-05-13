@@ -28,8 +28,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getUsers() {
+        List<User> users = userService.getUsers();
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(users.stream().map(userMapper::toDto).collect(Collectors.toList()));
