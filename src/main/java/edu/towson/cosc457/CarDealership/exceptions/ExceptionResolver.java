@@ -33,4 +33,12 @@ public class ExceptionResolver {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ErrorDto.builder().message(exception.getMessage()).build());
     }
+
+    @ExceptionHandler(value = AlreadyExistsException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorDto> handleException(final AlreadyExistsException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErrorDto.builder().message(exception.getMessage()).build());
+    }
 }
