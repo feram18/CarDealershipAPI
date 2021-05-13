@@ -3,12 +3,10 @@ package edu.towson.cosc457.CarDealership.service;
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
 import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Entity;
-import edu.towson.cosc457.CarDealership.model.Employee;
 import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.ManagerRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +51,7 @@ public class ManagerService implements EmployeeService<Manager> {
     @Transactional
     public Manager editEmployee(Long id, Manager manager) {
         Manager managerToEdit = getEmployee(id);
+        managerToEdit.setId(manager.getId());
         managerToEdit.setSsn(manager.getSsn());
         managerToEdit.setFirstName(manager.getFirstName());
         managerToEdit.setMiddleInitial(manager.getMiddleInitial());

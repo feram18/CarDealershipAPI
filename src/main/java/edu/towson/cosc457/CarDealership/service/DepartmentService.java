@@ -7,7 +7,6 @@ import edu.towson.cosc457.CarDealership.model.Department;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.DepartmentRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +49,9 @@ public class DepartmentService {
         departmentToEdit.setId(department.getId());
         departmentToEdit.setName(department.getName());
         departmentToEdit.setManager(department.getManager());
+        departmentToEdit.setLocation(department.getLocation());
+        departmentToEdit.setMechanics(department.getMechanics());
+        departmentToEdit.setSalesAssociates(department.getSalesAssociates());
         return departmentToEdit;
     }
 

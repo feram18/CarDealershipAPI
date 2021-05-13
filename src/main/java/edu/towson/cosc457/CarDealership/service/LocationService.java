@@ -9,7 +9,6 @@ import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.LocationRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +54,10 @@ public class LocationService {
         locationToEdit.setName(location.getName());
         locationToEdit.setAddress(location.getAddress());
         locationToEdit.setSiteManager(location.getSiteManager());
+        locationToEdit.setLots(location.getLots());
+        locationToEdit.setDepartments(location.getDepartments());
+        locationToEdit.setMechanics(location.getMechanics());
+        locationToEdit.setSalesAssociates(location.getSalesAssociates());
         return locationToEdit;
     }
 

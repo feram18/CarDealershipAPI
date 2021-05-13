@@ -7,7 +7,6 @@ import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.repository.ServiceTicketRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -50,8 +49,10 @@ public class ServiceTicketService {
         serviceTicketToEdit.setId(serviceTicket.getId());
         serviceTicketToEdit.setVehicle(serviceTicket.getVehicle());
         serviceTicketToEdit.setMechanic(serviceTicket.getMechanic());
-        serviceTicketToEdit.setComments(serviceTicket.getComments());
         serviceTicketToEdit.setDateCreated(serviceTicket.getDateCreated());
+        serviceTicketToEdit.setDateUpdated(serviceTicket.getDateUpdated());
+        serviceTicketToEdit.setStatus(serviceTicket.getStatus());
+        serviceTicketToEdit.setComments(serviceTicket.getComments());
         return serviceTicketToEdit;
     }
 

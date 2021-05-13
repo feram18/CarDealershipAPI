@@ -21,7 +21,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getUsers() {
         return StreamSupport
                 .stream(userRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());

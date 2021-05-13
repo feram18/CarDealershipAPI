@@ -7,7 +7,6 @@ import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +46,7 @@ public class VehicleService {
     @Transactional
     public Vehicle editVehicle(Long id, Vehicle vehicle) {
         Vehicle vehicleToEdit = getVehicle(id);
+        vehicleToEdit.setId(vehicle.getId());
         vehicleToEdit.setVin(vehicle.getVin());
         vehicleToEdit.setMake(vehicle.getMake());
         vehicleToEdit.setModel(vehicle.getModel());
@@ -55,10 +55,11 @@ public class VehicleService {
         vehicleToEdit.setType(vehicle.getType());
         vehicleToEdit.setTransmission(vehicle.getTransmission());
         vehicleToEdit.setFeatures(vehicle.getFeatures());
-        vehicleToEdit.setLot(vehicle.getLot());
         vehicleToEdit.setMpg(vehicle.getMpg());
         vehicleToEdit.setMileage(vehicle.getMileage());
         vehicleToEdit.setPrice(vehicle.getPrice());
+        vehicleToEdit.setLot(vehicle.getLot());
+        vehicleToEdit.setTickets(vehicle.getTickets());
         return vehicleToEdit;
     }
 

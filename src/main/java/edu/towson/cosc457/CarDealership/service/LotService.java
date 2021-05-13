@@ -7,7 +7,6 @@ import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.LotRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +49,7 @@ public class LotService {
         lotToEdit.setId(lot.getId());
         lotToEdit.setSize(lot.getSize());
         lotToEdit.setLocation(lot.getLocation());
+        lotToEdit.setVehicles(lot.getVehicles());
         return lotToEdit;
     }
 

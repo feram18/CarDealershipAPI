@@ -52,6 +52,7 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
     @Transactional
     public SiteManager editEmployee(Long id, SiteManager siteManager) {
         SiteManager siteManagerToEdit = getEmployee(id);
+        siteManagerToEdit.setId(siteManager.getId());
         siteManagerToEdit.setSsn(siteManager.getSsn());
         siteManagerToEdit.setFirstName(siteManager.getFirstName());
         siteManagerToEdit.setMiddleInitial(siteManager.getMiddleInitial());
