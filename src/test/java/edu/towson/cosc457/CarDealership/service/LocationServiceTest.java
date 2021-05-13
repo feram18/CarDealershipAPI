@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.*;
@@ -19,8 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LocationServiceTest {
@@ -37,6 +37,7 @@ public class LocationServiceTest {
     @Captor
     private ArgumentCaptor<Location> locationArgumentCaptor;
     private Location location;
+    private Location editedLocation;
     private Lot lot;
     private Department department;
     private Mechanic mechanic;
@@ -48,6 +49,24 @@ public class LocationServiceTest {
                 .name("Location A")
                 .address(Address.builder()
                         .id(1L)
+                        .street("123 Main St.")
+                        .city("New York City")
+                        .state("New York")
+                        .zipCode(12345)
+                        .build())
+                .siteManager(SiteManager.builder()
+                        .id(1L)
+                        .build())
+                .lots(new ArrayList<>())
+                .departments(new ArrayList<>())
+                .mechanics(new ArrayList<>())
+                .build();
+
+        editedLocation = Location.builder()
+                .id(1L)
+                .name("Location B")
+                .address(Address.builder()
+                        .id(2L)
                         .street("123 Main St.")
                         .city("New York City")
                         .state("New York")
@@ -111,6 +130,13 @@ public class LocationServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullLocation() {
+        locationService.addLocation(null);
+
+        verify(locationRepository, never()).save(any(Location.class));
+    }
+
+    @Test
     void shouldGetLocationById() {
         Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.of(location));
 
@@ -121,6 +147,15 @@ public class LocationServiceTest {
             assertThat(actualLocation).isNotNull();
             assertThat(actualLocation).usingRecursiveComparison().isEqualTo(location);
         });
+    }
+
+    @Test
+    void shouldFailToGetLocationById() {
+        Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> locationService.getLocation(location.getId()));
+
+        verify(locationRepository, times(1)).findById(location.getId());
     }
 
     @Test
@@ -145,7 +180,16 @@ public class LocationServiceTest {
     }
 
     @Test
-    void shouldDeleteLocationById() {
+    void shouldGetAllLocations_EmptyList() {
+        Mockito.when(locationRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Location> actualLocations = locationService.getLocations();
+
+        assertThat(actualLocations).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteLocation() {
         Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.of(location));
 
         Location deletedLocation = locationService.deleteLocation(location.getId());
@@ -157,26 +201,17 @@ public class LocationServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteLocation() {
+        Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> locationService.deleteLocation(location.getId()));
+
+        verify(locationRepository, never()).delete(any(Location.class));
+    }
+
+    @Test
     void shouldUpdateLocation() {
         Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.of(location));
-
-        Location editedLocation = Location.builder()
-                .id(1L)
-                .name("Location B")
-                .address(Address.builder()
-                        .id(2L)
-                        .street("123 Main St.")
-                        .city("New York City")
-                        .state("New York")
-                        .zipCode(12345)
-                        .build())
-                .siteManager(SiteManager.builder()
-                        .id(1L)
-                        .build())
-                .lots(new ArrayList<>())
-                .departments(new ArrayList<>())
-                .mechanics(new ArrayList<>())
-                .build();
 
         Location updatedLocation = locationService.editLocation(location.getId(), editedLocation);
 
@@ -184,6 +219,13 @@ public class LocationServiceTest {
             assertThat(updatedLocation).isNotNull();
             assertThat(updatedLocation).usingRecursiveComparison().isEqualTo(editedLocation);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateLocation() {
+        Mockito.when(locationRepository.findById(location.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> locationService.editLocation(location.getId(), editedLocation));
     }
 
     @Test

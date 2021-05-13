@@ -1,13 +1,13 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
 import edu.towson.cosc457.CarDealership.model.Location;
 import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.LotRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LotServiceTest {
@@ -35,6 +34,7 @@ public class LotServiceTest {
     @Captor
     private ArgumentCaptor<Lot> lotArgumentCaptor;
     private Lot lot;
+    private Lot editedLot;
     private Vehicle vehicle;
 
     @BeforeEach
@@ -42,6 +42,15 @@ public class LotServiceTest {
         lot = Lot.builder()
                 .id(1L)
                 .size(100.15)
+                .location(Location.builder()
+                        .id(1L)
+                        .build())
+                .vehicles(new ArrayList<>())
+                .build();
+
+        editedLot = Lot.builder()
+                .id(1L)
+                .size(300.56)
                 .location(Location.builder()
                         .id(1L)
                         .build())
@@ -74,6 +83,13 @@ public class LotServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullLot() {
+        lotService.addLot(null);
+
+        verify(lotRepository, never()).save(any(Lot.class));
+    }
+
+    @Test
     void shouldGetLotById() {
         Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.of(lot));
 
@@ -84,6 +100,15 @@ public class LotServiceTest {
             assertThat(actualLot).isNotNull();
             assertThat(actualLot).usingRecursiveComparison().isEqualTo(lot);
         });
+    }
+
+    @Test
+    void shouldFailToGetLotById() {
+        Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> lotService.getLot(lot.getId()));
+
+        verify(lotRepository, times(1)).findById(lot.getId());
     }
 
     @Test
@@ -108,7 +133,16 @@ public class LotServiceTest {
     }
 
     @Test
-    void shouldDeleteLotById() {
+    void shouldGetAllLots_EmptyList() {
+        Mockito.when(lotRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Lot> actualLots = lotService.getLots();
+
+        assertThat(actualLots).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteLot() {
         Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.of(lot));
 
         Lot deletedLot = lotService.deleteLot(lot.getId());
@@ -122,17 +156,17 @@ public class LotServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteLot() {
+        Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> lotService.deleteLot(lot.getId()));
+
+        verify(lotRepository, never()).delete(any(Lot.class));
+    }
+
+    @Test
     void shouldUpdateLot() {
         Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.of(lot));
-
-        Lot editedLot = Lot.builder()
-                .id(1L)
-                .size(300.56)
-                .location(Location.builder()
-                        .id(1L)
-                        .build())
-                .vehicles(new ArrayList<Vehicle>())
-                .build();
 
         Lot updatedLot = lotService.editLot(lot.getId(), editedLot);
 
@@ -140,6 +174,13 @@ public class LotServiceTest {
             assertThat(updatedLot).isNotNull();
             assertThat(updatedLot).usingRecursiveComparison().isEqualTo(editedLot);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateLot() {
+        Mockito.when(lotRepository.findById(lot.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> lotService.editLot(lot.getId(), editedLot));
     }
 
     @Test

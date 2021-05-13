@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.*;
@@ -32,6 +33,7 @@ public class DepartmentServiceTest {
     @Captor
     private ArgumentCaptor<Department> departmentArgumentCaptor;
     private Department department;
+    private Department editedDepartment;
     private Mechanic mechanic;
 
     @BeforeEach
@@ -41,6 +43,18 @@ public class DepartmentServiceTest {
                 .name("Department A")
                 .manager(Manager.builder()
                         .id(1L)
+                        .build())
+                .location(Location.builder()
+                        .id(1L)
+                        .build())
+                .mechanics(new ArrayList<>())
+                .build();
+
+        editedDepartment = Department.builder()
+                .id(1L)
+                .name("Department A")
+                .manager(Manager.builder()
+                        .id(2L)
                         .build())
                 .location(Location.builder()
                         .id(1L)
@@ -88,6 +102,13 @@ public class DepartmentServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullDepartment() {
+        departmentService.addDepartment(null);
+
+        verify(departmentRepository, never()).save(any(Department.class));
+    }
+
+    @Test
     void shouldGetDepartmentById() {
         Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.of(department));
 
@@ -98,6 +119,15 @@ public class DepartmentServiceTest {
             assertThat(actualDepartment).isNotNull();
             assertThat(actualDepartment).usingRecursiveComparison().isEqualTo(department);
         });
+    }
+
+    @Test
+    void shouldFailToGetDepartmentById() {
+        Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> departmentService.getDepartment(department.getId()));
+
+        verify(departmentRepository, times(1)).findById(department.getId());
     }
 
     @Test
@@ -122,6 +152,15 @@ public class DepartmentServiceTest {
     }
 
     @Test
+    void shouldGetAllDepartments_EmptyList() {
+        Mockito.when(departmentRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Department> actualDepartments = departmentService.getDepartments();
+
+        assertThat(actualDepartments).isEmpty();
+    }
+
+    @Test
     void shouldDeleteDepartment() {
         Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.of(department));
 
@@ -136,20 +175,17 @@ public class DepartmentServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteDepartment() {
+        Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> departmentService.deleteDepartment(department.getId()));
+
+        verify(departmentRepository, never()).delete(any(Department.class));
+    }
+
+    @Test
     void shouldUpdateDepartment() {
         Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.of(department));
-
-        Department editedDepartment = Department.builder()
-                .id(1L)
-                .name("Department A")
-                .manager(Manager.builder()
-                        .id(2L)
-                        .build())
-                .location(Location.builder()
-                        .id(1L)
-                        .build())
-                .mechanics(new ArrayList<>())
-                .build();
 
         Department updatedDepartment = departmentService.editDepartment(department.getId(), editedDepartment);
 
@@ -157,6 +193,14 @@ public class DepartmentServiceTest {
             assertThat(updatedDepartment).isNotNull();
             assertThat(updatedDepartment).usingRecursiveComparison().isEqualTo(editedDepartment);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateDepartment() {
+        Mockito.when(departmentRepository.findById(department.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> departmentService.editDepartment(department.getId(), editedDepartment));
     }
 
     @Test

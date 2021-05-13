@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.*;
@@ -19,8 +20,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SalesAssociateServiceTest {
@@ -33,6 +34,7 @@ public class SalesAssociateServiceTest {
     @Captor
     private ArgumentCaptor<SalesAssociate> salesAssociateArgumentCaptor;
     private SalesAssociate salesAssociate;
+    private SalesAssociate editedSalesAssociate;
     private Client client;
 
     @BeforeEach
@@ -47,6 +49,39 @@ public class SalesAssociateServiceTest {
                 .dateOfBirth(LocalDate.now())
                 .phoneNumber("123-456-7890")
                 .email("sales@company.com")
+                .workLocation(Location.builder()
+                        .id(1L)
+                        .build())
+                .salary(35000.00)
+                .dateStarted(LocalDate.now())
+                .address(Address.builder()
+                        .id(1L)
+                        .street("123 Main St.")
+                        .city("New York City")
+                        .state("New York")
+                        .zipCode(12345)
+                        .build())
+                .hoursWorked(780.00)
+                .employeeType(EmployeeType.SALES_ASSOCIATE)
+                .manager(Manager.builder()
+                        .id(2L)
+                        .build())
+                .department(Department.builder()
+                        .id(1L)
+                        .build())
+                .clients(new ArrayList<>())
+                .build();
+
+        editedSalesAssociate = SalesAssociate.builder()
+                .id(1L)
+                .ssn("123-45-6789")
+                .firstName("NewName")
+                .middleInitial('M')
+                .lastName("NewLName")
+                .gender(Gender.FEMALE)
+                .dateOfBirth(LocalDate.now())
+                .phoneNumber("123-456-7890")
+                .email("new-sales@company.com")
                 .workLocation(Location.builder()
                         .id(1L)
                         .build())
@@ -99,6 +134,13 @@ public class SalesAssociateServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullSalesAssociate() {
+        salesAssociateService.addEmployee(null);
+
+        verify(salesAssociateRepository, never()).save(any(SalesAssociate.class));
+    }
+
+    @Test
     void shouldGetSalesAssociateById() {
         Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.of(salesAssociate));
 
@@ -109,6 +151,15 @@ public class SalesAssociateServiceTest {
             assertThat(actualSalesAssociate).isNotNull();
             assertThat(actualSalesAssociate).usingRecursiveComparison().isEqualTo(salesAssociate);
         });
+    }
+
+    @Test
+    void shouldFailToGetSalesAssociateById() {
+        Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> salesAssociateService.getEmployee(salesAssociate.getId()));
+
+        verify(salesAssociateRepository, times(1)).findById(salesAssociate.getId());
     }
 
     @Test
@@ -133,6 +184,15 @@ public class SalesAssociateServiceTest {
     }
 
     @Test
+    void shouldGetAllSalesAssociates_EmptyList() {
+        Mockito.when(salesAssociateRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<SalesAssociate> actualSalesAssociates = salesAssociateService.getEmployees();
+
+        assertThat(actualSalesAssociates).isEmpty();
+    }
+
+    @Test
     void shouldDeleteSalesAssociate() {
         Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.of(salesAssociate));
 
@@ -147,41 +207,17 @@ public class SalesAssociateServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteSiteManager() {
+        Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> salesAssociateService.deleteEmployee(salesAssociate.getId()));
+
+        verify(salesAssociateRepository, never()).delete(any(SalesAssociate.class));
+    }
+
+    @Test
     void shouldUpdateSalesAssociate() {
         Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.of(salesAssociate));
-
-        SalesAssociate editedSalesAssociate = SalesAssociate.builder()
-                .id(1L)
-                .ssn("123-45-6789")
-                .firstName("NewName")
-                .middleInitial('M')
-                .lastName("NewLName")
-                .gender(Gender.FEMALE)
-                .dateOfBirth(LocalDate.now())
-                .phoneNumber("123-456-7890")
-                .email("new-sales@company.com")
-                .workLocation(Location.builder()
-                        .id(1L)
-                        .build())
-                .salary(35000.00)
-                .dateStarted(LocalDate.now())
-                .address(Address.builder()
-                        .id(1L)
-                        .street("123 Main St.")
-                        .city("New York City")
-                        .state("New York")
-                        .zipCode(12345)
-                        .build())
-                .hoursWorked(780.00)
-                .employeeType(EmployeeType.SALES_ASSOCIATE)
-                .manager(Manager.builder()
-                        .id(2L)
-                        .build())
-                .department(Department.builder()
-                        .id(1L)
-                        .build())
-                .clients(new ArrayList<>())
-                .build();
 
         SalesAssociate updatedSalesAssociate =
                 salesAssociateService.editEmployee(salesAssociate.getId(), editedSalesAssociate);
@@ -190,6 +226,14 @@ public class SalesAssociateServiceTest {
             assertThat(updatedSalesAssociate).isNotNull();
             assertThat(updatedSalesAssociate).usingRecursiveComparison().isEqualTo(editedSalesAssociate);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateSalesAssociate() {
+        Mockito.when(salesAssociateRepository.findById(salesAssociate.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> salesAssociateService.editEmployee(salesAssociate.getId(), editedSalesAssociate));
     }
 
     @Test

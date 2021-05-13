@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Status;
 import edu.towson.cosc457.CarDealership.misc.TransmissionType;
 import edu.towson.cosc457.CarDealership.misc.VehicleType;
@@ -20,8 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class VehicleServiceTest {
@@ -34,6 +34,7 @@ public class VehicleServiceTest {
     @Captor
     private ArgumentCaptor<Vehicle> vehicleArgumentCaptor;
     private Vehicle vehicle;
+    private Vehicle editedVehicle;
     private ServiceTicket serviceTicket;
 
     @BeforeEach
@@ -50,6 +51,25 @@ public class VehicleServiceTest {
                 .features("Sunroof")
                 .mpg(25)
                 .mileage(25)
+                .price(29000.00)
+                .lot(Lot.builder()
+                        .id(1L)
+                        .build())
+                .tickets(new ArrayList<>())
+                .build();
+
+        editedVehicle = Vehicle.builder()
+                .id(1L)
+                .vin("JH4DA3340KS005705")
+                .make("Make")
+                .model("Model")
+                .year(2021)
+                .color("Black")
+                .type(VehicleType.SEDAN)
+                .transmission(TransmissionType.AUTOMATIC)
+                .features("Sunroof")
+                .mpg(25)
+                .mileage(7000)
                 .price(29000.00)
                 .lot(Lot.builder()
                         .id(1L)
@@ -78,6 +98,13 @@ public class VehicleServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullVehicle() {
+        vehicleService.addVehicle(null);
+
+        verify(vehicleRepository, never()).save(any(Vehicle.class));
+    }
+
+    @Test
     void shouldGetVehicleById() {
         Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.of(vehicle));
 
@@ -88,6 +115,15 @@ public class VehicleServiceTest {
             assertThat(actualVehicle).isNotNull();
             assertThat(actualVehicle).usingRecursiveComparison().isEqualTo(vehicle);
         });
+    }
+
+    @Test
+    void shouldFailToGetVehicleById() {
+        Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> vehicleService.getVehicle(vehicle.getId()));
+
+        verify(vehicleRepository, times(1)).findById(vehicle.getId());
     }
 
     @Test
@@ -112,7 +148,16 @@ public class VehicleServiceTest {
     }
 
     @Test
-    void shouldDeleteVehicleById() {
+    void shouldGetAllVehicles_EmptyList() {
+        Mockito.when(vehicleRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Vehicle> actualVehicles = vehicleService.getVehicles();
+
+        assertThat(actualVehicles).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteVehicle() {
         Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.of(vehicle));
 
         Vehicle deletedVehicle = vehicleService.deleteVehicle(vehicle.getId());
@@ -126,27 +171,17 @@ public class VehicleServiceTest {
     }
 
     @Test
-    void shouldUpdateDepartment() {
-        Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.of(vehicle));
+    void shouldFailToDeleteVehicle() {
+        Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.empty());
 
-        Vehicle editedVehicle = Vehicle.builder()
-                .id(1L)
-                .vin("JH4DA3340KS005705")
-                .make("Make")
-                .model("Model")
-                .year(2021)
-                .color("Black")
-                .type(VehicleType.SEDAN)
-                .transmission(TransmissionType.AUTOMATIC)
-                .features("Sunroof")
-                .mpg(25)
-                .mileage(7000)
-                .price(29000.00)
-                .lot(Lot.builder()
-                        .id(1L)
-                        .build())
-                .tickets(new ArrayList<>())
-                .build();
+        assertThrows(NotFoundException.class, () -> vehicleService.deleteVehicle(vehicle.getId()));
+
+        verify(vehicleRepository, never()).delete(any(Vehicle.class));
+    }
+
+    @Test
+    void shouldUpdateVehicle() {
+        Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.of(vehicle));
 
         Vehicle updatedVehicle = vehicleService.editVehicle(vehicle.getId(), editedVehicle);
 
@@ -154,6 +189,13 @@ public class VehicleServiceTest {
             assertThat(updatedVehicle).isNotNull();
             assertThat(updatedVehicle).usingRecursiveComparison().isEqualTo(editedVehicle);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateVehicle() {
+        Mockito.when(vehicleRepository.findById(vehicle.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> vehicleService.editVehicle(vehicle.getId(), editedVehicle));
     }
 
     @Test

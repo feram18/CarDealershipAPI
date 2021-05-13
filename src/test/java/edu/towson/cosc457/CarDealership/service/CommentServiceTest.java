@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.service;
 
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +30,7 @@ public class CommentServiceTest {
     @Captor
     private ArgumentCaptor<Comment> commentArgumentCaptor;
     private Comment comment;
+    private Comment editedComment;
 
     @BeforeEach
     public void setUp() {
@@ -42,6 +45,18 @@ public class CommentServiceTest {
                 .dateCreated(LocalDate.now())
                 .content("Content")
                 .build();
+
+        editedComment = Comment.builder()
+                .id(1L)
+                .serviceTicket(ServiceTicket.builder()
+                        .id(1L)
+                        .build())
+                .mechanic(Mechanic.builder()
+                        .id(1L)
+                        .build())
+                .dateCreated(LocalDate.now())
+                .content("New Content")
+                .build();
     }
 
     @Test
@@ -51,6 +66,13 @@ public class CommentServiceTest {
         verify(commentRepository, times(1)).save(commentArgumentCaptor.capture());
 
         assertThat(commentArgumentCaptor.getValue()).usingRecursiveComparison().isEqualTo(comment);
+    }
+
+    @Test
+    void shouldFailToSaveNullComment() {
+        commentService.addComment(null);
+
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
@@ -64,6 +86,15 @@ public class CommentServiceTest {
             assertThat(actualComment).isNotNull();
             assertThat(actualComment).usingRecursiveComparison().isEqualTo(comment);
         });
+    }
+
+    @Test
+    void shouldFailToGetCommentById() {
+        Mockito.when(commentRepository.findById(comment.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> commentService.getComment(comment.getId()));
+
+        verify(commentRepository, times(1)).findById(comment.getId());
     }
 
     @Test
@@ -88,7 +119,16 @@ public class CommentServiceTest {
     }
 
     @Test
-    void shouldDeleteCommentById() {
+    void shouldGetAllComments_EmptyList() {
+        Mockito.when(commentRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Comment> actualComments = commentService.getComments();
+
+        assertThat(actualComments).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteComment() {
         Mockito.when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
 
         Comment deletedComment = commentService.deleteComment(comment.getId());
@@ -101,20 +141,17 @@ public class CommentServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteComment() {
+        Mockito.when(commentRepository.findById(comment.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> commentService.deleteComment(comment.getId()));
+
+        verify(commentRepository, never()).delete(any(Comment.class));
+    }
+
+    @Test
     void shouldUpdateComment() {
         Mockito.when(commentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-
-        Comment editedComment = Comment.builder()
-                .id(1L)
-                .serviceTicket(ServiceTicket.builder()
-                        .id(1L)
-                        .build())
-                .mechanic(Mechanic.builder()
-                        .id(1L)
-                        .build())
-                .dateCreated(LocalDate.now())
-                .content("New Content")
-                .build();
 
         Comment updatedComment = commentService.editComment(comment.getId(), editedComment);
 
@@ -122,5 +159,12 @@ public class CommentServiceTest {
             assertThat(updatedComment).isNotNull();
             assertThat(updatedComment).usingRecursiveComparison().isEqualTo(editedComment);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateComment() {
+        Mockito.when(commentRepository.findById(comment.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> commentService.editComment(comment.getId(), editedComment));
     }
 }

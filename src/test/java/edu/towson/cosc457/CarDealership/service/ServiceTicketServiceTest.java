@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Status;
 import edu.towson.cosc457.CarDealership.model.*;
 import edu.towson.cosc457.CarDealership.repository.ServiceTicketRepository;
@@ -18,8 +19,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ServiceTicketServiceTest {
@@ -32,6 +33,7 @@ public class ServiceTicketServiceTest {
     @Captor
     private ArgumentCaptor<ServiceTicket> serviceTicketArgumentCaptor;
     private ServiceTicket serviceTicket;
+    private ServiceTicket editedServiceTicket;
     private Comment comment;
 
     @BeforeEach
@@ -47,6 +49,20 @@ public class ServiceTicketServiceTest {
                 .dateCreated(LocalDate.now())
                 .dateUpdated(LocalDate.now())
                 .status(Status.OPEN)
+                .comments(new ArrayList<>())
+                .build();
+
+        editedServiceTicket = ServiceTicket.builder()
+                .id(1L)
+                .vehicle(Vehicle.builder()
+                        .id(1L)
+                        .build())
+                .mechanic(Mechanic.builder()
+                        .id(1L)
+                        .build())
+                .dateCreated(LocalDate.now())
+                .dateUpdated(LocalDate.now())
+                .status(Status.RESOLVED)
                 .comments(new ArrayList<>())
                 .build();
 
@@ -70,6 +86,13 @@ public class ServiceTicketServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullServiceTicket() {
+        serviceTicketService.addServiceTicket(null);
+
+        verify(serviceTicketRepository, never()).save(any(ServiceTicket.class));
+    }
+
+    @Test
     void shouldGetServiceTicketById() {
         Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.of(serviceTicket));
 
@@ -80,6 +103,15 @@ public class ServiceTicketServiceTest {
             assertThat(actualServiceTicket).isNotNull();
             assertThat(actualServiceTicket).usingRecursiveComparison().isEqualTo(serviceTicket);
         });
+    }
+
+    @Test
+    void shouldFailToGetServiceTicketById() {
+        Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> serviceTicketService.getServiceTicket(serviceTicket.getId()));
+
+        verify(serviceTicketRepository, times(1)).findById(serviceTicket.getId());
     }
 
     @Test
@@ -104,6 +136,15 @@ public class ServiceTicketServiceTest {
     }
 
     @Test
+    void shouldGetAllServiceTickets_EmptyList() {
+        Mockito.when(serviceTicketRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<ServiceTicket> actualServiceTickets = serviceTicketService.getServiceTickets();
+
+        assertThat(actualServiceTickets).isEmpty();
+    }
+
+    @Test
     void shouldDeleteServiceTicket() {
         Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.of(serviceTicket));
 
@@ -118,22 +159,17 @@ public class ServiceTicketServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteServiceTicket() {
+        Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> serviceTicketService.deleteServiceTicket(serviceTicket.getId()));
+
+        verify(serviceTicketRepository, never()).delete(any(ServiceTicket.class));
+    }
+
+    @Test
     void shouldUpdateServiceTicket() {
         Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.of(serviceTicket));
-
-        ServiceTicket editedServiceTicket = ServiceTicket.builder()
-                .id(1L)
-                .vehicle(Vehicle.builder()
-                        .id(1L)
-                        .build())
-                .mechanic(Mechanic.builder()
-                        .id(1L)
-                        .build())
-                .dateCreated(LocalDate.now())
-                .dateUpdated(LocalDate.now())
-                .status(Status.OPEN)
-                .comments(new ArrayList<>())
-                .build();
 
         ServiceTicket updatedServiceTicket =
                 serviceTicketService.editServiceTicket(serviceTicket.getId(), editedServiceTicket);
@@ -142,6 +178,14 @@ public class ServiceTicketServiceTest {
             assertThat(updatedServiceTicket).isNotNull();
             assertThat(updatedServiceTicket).usingRecursiveComparison().isEqualTo(editedServiceTicket);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateServiceTicket() {
+        Mockito.when(serviceTicketRepository.findById(serviceTicket.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> serviceTicketService.editServiceTicket(serviceTicket.getId(), editedServiceTicket));
     }
 
     @Test

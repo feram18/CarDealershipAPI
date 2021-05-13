@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.service;
 
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.repository.AddressRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ public class AddressServiceTest {
     @Captor
     private ArgumentCaptor<Address> addressArgumentCaptor;
     private Address address;
+    private Address editedAddress;
 
     @BeforeEach
     public void setUp() {
@@ -36,6 +38,14 @@ public class AddressServiceTest {
                 .state("New York")
                 .zipCode(12345)
                 .build();
+
+        editedAddress = Address.builder()
+                .id(1L)
+                .street("456 Main St.")
+                .city("San Francisco")
+                .state("California")
+                .zipCode(78951)
+                .build();
     }
 
     @Test
@@ -45,7 +55,17 @@ public class AddressServiceTest {
 
         verify(addressRepository, times(1)).save(addressArgumentCaptor.capture());
 
-        assertThat(addressArgumentCaptor.getValue()).usingRecursiveComparison().isEqualTo(address);
+        assertAll(() -> {
+            assertThat(addressArgumentCaptor.getValue()).isNotNull();
+            assertThat(addressArgumentCaptor.getValue()).usingRecursiveComparison().isEqualTo(address);
+        });
+    }
+
+    @Test
+    void shouldFailToSaveNullAddress() {
+        addressService.addAddress(null);
+
+        verify(addressRepository, never()).save(any(Address.class));
     }
 
     @Test
@@ -60,7 +80,15 @@ public class AddressServiceTest {
             assertThat(actualAddress).isNotNull();
             assertThat(actualAddress).usingRecursiveComparison().isEqualTo(address);
         });
+    }
 
+    @Test
+    void shouldFailToGetAddressById() {
+        Mockito.when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> addressService.getAddress(address.getId()));
+
+        verify(addressRepository, times(1)).findById(address.getId());
     }
 
     @Test
@@ -86,8 +114,17 @@ public class AddressServiceTest {
     }
 
     @Test
+    void shouldGetAllAddresses_EmptyList() {
+        Mockito.when(addressRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Address> actualAddresses = addressService.getAddresses();
+
+        assertThat(actualAddresses).isEmpty();
+    }
+
+    @Test
     @DisplayName("Should delete Address by Id")
-    void shouldDeleteAddressById() {
+    void shouldDeleteAddress() {
         Mockito.when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
 
         Address deletedAddress = addressService.deleteAddress(address.getId());
@@ -101,17 +138,18 @@ public class AddressServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteAddress() {
+        Mockito.when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> addressService.deleteAddress(address.getId()));
+
+        verify(addressRepository, never()).delete(any(Address.class));
+    }
+
+    @Test
     @DisplayName("Should update Address entity")
     void shouldUpdateAddress() {
         Mockito.when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-
-        Address editedAddress = Address.builder()
-                .id(1L)
-                .street("456 Main St.")
-                .city("San Francisco")
-                .state("California")
-                .zipCode(78951)
-                .build();
 
         Address updatedAddress = addressService.editAddress(address.getId(), editedAddress);
 
@@ -119,5 +157,12 @@ public class AddressServiceTest {
             assertThat(updatedAddress).isNotNull();
             assertThat(updatedAddress).usingRecursiveComparison().isEqualTo(editedAddress);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateAddress() {
+        Mockito.when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> addressService.editAddress(address.getId(), editedAddress));
     }
 }

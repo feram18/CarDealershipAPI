@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.*;
@@ -19,8 +20,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SiteManagerServiceTest {
@@ -33,6 +34,7 @@ public class SiteManagerServiceTest {
     @Captor
     private ArgumentCaptor<SiteManager> siteManagerArgumentCaptor;
     private SiteManager siteManager;
+    private SiteManager editedSiteManager;
     private Manager manager;
 
     @BeforeEach
@@ -46,6 +48,36 @@ public class SiteManagerServiceTest {
                 .gender(Gender.FEMALE)
                 .dateOfBirth(LocalDate.now())
                 .phoneNumber("123-456-7890")
+                .email("site.manager@company.com")
+                .workLocation(Location.builder()
+                        .id(1L)
+                        .build())
+                .salary(75000.00)
+                .dateStarted(LocalDate.now())
+                .address(Address.builder()
+                        .id(1L)
+                        .street("123 Main St.")
+                        .city("New York City")
+                        .state("New York")
+                        .zipCode(12345)
+                        .build())
+                .hoursWorked(780.00)
+                .employeeType(EmployeeType.SITE_MANAGER)
+                .managedLocation(Location.builder()
+                        .id(1L)
+                        .build())
+                .managers(new ArrayList<>())
+                .build();
+
+        editedSiteManager = SiteManager.builder()
+                .id(1L)
+                .ssn("123-45-6789")
+                .firstName("NewName")
+                .middleInitial('M')
+                .lastName("LastName")
+                .gender(Gender.FEMALE)
+                .dateOfBirth(LocalDate.now())
+                .phoneNumber("123-456-4545")
                 .email("site.manager@company.com")
                 .workLocation(Location.builder()
                         .id(1L)
@@ -106,6 +138,13 @@ public class SiteManagerServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullSiteManager() {
+        siteManagerService.addEmployee(null);
+
+        verify(siteManagerRepository, never()).save(any(SiteManager.class));
+    }
+
+    @Test
     void shouldGetSiteManagerById() {
         Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.of(siteManager));
 
@@ -116,6 +155,15 @@ public class SiteManagerServiceTest {
             assertThat(actualSiteManager).isNotNull();
             assertThat(actualSiteManager).usingRecursiveComparison().isEqualTo(siteManager);
         });
+    }
+
+    @Test
+    void shouldFailToGetSiteManagerById() {
+        Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> siteManagerService.getEmployee(siteManager.getId()));
+
+        verify(siteManagerRepository, times(1)).findById(siteManager.getId());
     }
 
     @Test
@@ -140,7 +188,16 @@ public class SiteManagerServiceTest {
     }
 
     @Test
-    void shouldDeleteSiteManagerById() {
+    void shouldGetAllSiteManagers_EmptyList() {
+        Mockito.when(siteManagerRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<SiteManager> actualSiteManagers = siteManagerService.getEmployees();
+
+        assertThat(actualSiteManagers).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteSiteManager() {
         Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.of(siteManager));
 
         SiteManager deletedSiteManager = siteManagerService.deleteEmployee(siteManager.getId());
@@ -154,38 +211,17 @@ public class SiteManagerServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteSiteManager() {
+        Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> siteManagerService.deleteEmployee(siteManager.getId()));
+
+        verify(siteManagerRepository, never()).delete(any(SiteManager.class));
+    }
+
+    @Test
     void shouldUpdateSiteManager() {
         Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.of(siteManager));
-
-        SiteManager editedSiteManager = SiteManager.builder()
-                .id(1L)
-                .ssn("123-45-6789")
-                .firstName("NewName")
-                .middleInitial('M')
-                .lastName("LastName")
-                .gender(Gender.FEMALE)
-                .dateOfBirth(LocalDate.now())
-                .phoneNumber("123-456-4545")
-                .email("site.manager@company.com")
-                .workLocation(Location.builder()
-                        .id(1L)
-                        .build())
-                .salary(75000.00)
-                .dateStarted(LocalDate.now())
-                .address(Address.builder()
-                        .id(1L)
-                        .street("123 Main St.")
-                        .city("New York City")
-                        .state("New York")
-                        .zipCode(12345)
-                        .build())
-                .hoursWorked(780.00)
-                .employeeType(EmployeeType.SITE_MANAGER)
-                .managedLocation(Location.builder()
-                        .id(1L)
-                        .build())
-                .managers(new ArrayList<>())
-                .build();
 
         SiteManager updatedSiteManager = siteManagerService.editEmployee(siteManager.getId(), editedSiteManager);
 
@@ -193,6 +229,14 @@ public class SiteManagerServiceTest {
             assertThat(updatedSiteManager).isNotNull();
             assertThat(updatedSiteManager).usingRecursiveComparison().isEqualTo(editedSiteManager);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateSiteManager() {
+        Mockito.when(siteManagerRepository.findById(siteManager.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> siteManagerService.editEmployee(siteManager.getId(), editedSiteManager));
     }
 
     @Test
@@ -229,6 +273,5 @@ public class SiteManagerServiceTest {
         SiteManager updatedSiteManager = siteManagerService.removeFromManager(siteManager.getId(), manager.getId());
 
         assertThat(updatedSiteManager.getManagers().size()).isEqualTo(0);
-
     }
 }

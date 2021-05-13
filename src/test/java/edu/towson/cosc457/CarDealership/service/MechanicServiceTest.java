@@ -1,6 +1,7 @@
 package edu.towson.cosc457.CarDealership.service;
 
 import edu.towson.cosc457.CarDealership.exceptions.AlreadyAssignedException;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.misc.Status;
@@ -20,8 +21,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MechanicServiceTest {
@@ -34,6 +35,7 @@ public class MechanicServiceTest {
     @Captor
     private ArgumentCaptor<Mechanic> mechanicArgumentCaptor;
     private Mechanic mechanic;
+    private Mechanic editedMechanic;
     private ServiceTicket serviceTicket;
 
     @BeforeEach
@@ -48,6 +50,39 @@ public class MechanicServiceTest {
                 .dateOfBirth(LocalDate.now())
                 .phoneNumber("123-456-7890")
                 .email("mechanic@company.com")
+                .workLocation(Location.builder()
+                        .id(1L)
+                        .build())
+                .salary(45000.00)
+                .dateStarted(LocalDate.now())
+                .address(Address.builder()
+                        .id(1L)
+                        .street("123 Main St.")
+                        .city("New York City")
+                        .state("New York")
+                        .zipCode(12345)
+                        .build())
+                .hoursWorked(780.00)
+                .employeeType(EmployeeType.MECHANIC)
+                .manager(Manager.builder()
+                        .id(2L)
+                        .build())
+                .department(Department.builder()
+                        .id(1L)
+                        .build())
+                .tickets(new ArrayList<>())
+                .build();
+
+        editedMechanic = Mechanic.builder()
+                .id(1L)
+                .ssn("123-45-6789")
+                .firstName("NewName")
+                .middleInitial('M')
+                .lastName("NewLName")
+                .gender(Gender.MALE)
+                .dateOfBirth(LocalDate.now())
+                .phoneNumber("123-456-9899")
+                .email("new-mechanic-email@company.com")
                 .workLocation(Location.builder()
                         .id(1L)
                         .build())
@@ -92,6 +127,13 @@ public class MechanicServiceTest {
     }
 
     @Test
+    void shouldFailToSaveNullMechanic() {
+        mechanicService.addEmployee(null);
+
+        verify(mechanicRepository, never()).save(any(Mechanic.class));
+    }
+
+    @Test
     void shouldGetMechanicById() {
         Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.of(mechanic));
 
@@ -102,6 +144,15 @@ public class MechanicServiceTest {
             assertThat(actualMechanic).isNotNull();
             assertThat(actualMechanic).usingRecursiveComparison().isEqualTo(mechanic);
         });
+    }
+
+    @Test
+    void shouldFailToGetMechanicById() {
+        Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> mechanicService.getEmployee(mechanic.getId()));
+
+        verify(mechanicRepository, times(1)).findById(mechanic.getId());
     }
 
     @Test
@@ -126,6 +177,15 @@ public class MechanicServiceTest {
     }
 
     @Test
+    void shouldGetAllMechanics_EmptyList() {
+        Mockito.when(mechanicRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Mechanic> actualMechanics = mechanicService.getEmployees();
+
+        assertThat(actualMechanics).isEmpty();
+    }
+
+    @Test
     void shouldDeleteMechanic() {
         Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.of(mechanic));
 
@@ -140,41 +200,17 @@ public class MechanicServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteMechanic() {
+        Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> mechanicService.deleteEmployee(mechanic.getId()));
+
+        verify(mechanicRepository, never()).delete(any(Mechanic.class));
+    }
+
+    @Test
     void shouldUpdateMechanic() {
         Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.of(mechanic));
-
-        Mechanic editedMechanic = Mechanic.builder()
-                .id(1L)
-                .ssn("123-45-6789")
-                .firstName("NewName")
-                .middleInitial('M')
-                .lastName("NewLName")
-                .gender(Gender.MALE)
-                .dateOfBirth(LocalDate.now())
-                .phoneNumber("123-456-9899")
-                .email("new-mechanic-email@company.com")
-                .workLocation(Location.builder()
-                        .id(1L)
-                        .build())
-                .salary(45000.00)
-                .dateStarted(LocalDate.now())
-                .address(Address.builder()
-                        .id(1L)
-                        .street("123 Main St.")
-                        .city("New York City")
-                        .state("New York")
-                        .zipCode(12345)
-                        .build())
-                .hoursWorked(780.00)
-                .employeeType(EmployeeType.MECHANIC)
-                .manager(Manager.builder()
-                        .id(2L)
-                        .build())
-                .department(Department.builder()
-                        .id(1L)
-                        .build())
-                .tickets(new ArrayList<>())
-                .build();
 
         Mechanic updatedMechanic = mechanicService.editEmployee(mechanic.getId(), editedMechanic);
 
@@ -182,6 +218,13 @@ public class MechanicServiceTest {
             assertThat(updatedMechanic).isNotNull();
             assertThat(updatedMechanic).usingRecursiveComparison().isEqualTo(editedMechanic);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateMechanic() {
+        Mockito.when(mechanicRepository.findById(mechanic.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> mechanicService.editEmployee(mechanic.getId(), editedMechanic));
     }
 
     @Test

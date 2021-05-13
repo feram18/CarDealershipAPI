@@ -1,5 +1,6 @@
 package edu.towson.cosc457.CarDealership.service;
 
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.model.Client;
@@ -17,8 +18,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ClientServiceTest {
@@ -29,6 +30,7 @@ public class ClientServiceTest {
     @Captor
     private ArgumentCaptor<Client> clientArgumentCaptor;
     private Client client;
+    private Client editedClient;
 
     @BeforeEach
     public void setUp() {
@@ -53,6 +55,28 @@ public class ClientServiceTest {
                 .minimumPrice(1200.05)
                 .maximumPrice(5000.12)
                 .build();
+
+        editedClient = Client.builder()
+                .id(1L)
+                .ssn("123-45-6789")
+                .firstName("NewFirstName")
+                .lastName("NewLastName")
+                .gender(Gender.FEMALE)
+                .email("client-2@company.com")
+                .phoneNumber("123-456-0000")
+                .address(Address.builder()
+                        .id(1L)
+                        .street("St")
+                        .city("City")
+                        .state("State")
+                        .zipCode(12345)
+                        .build())
+                .salesAssociate(SalesAssociate.builder()
+                        .id(1L)
+                        .build())
+                .minimumPrice(1200.05)
+                .maximumPrice(8000.36)
+                .build();
     }
 
     @Test
@@ -62,6 +86,13 @@ public class ClientServiceTest {
         verify(clientRepository, times(1)).save(clientArgumentCaptor.capture());
 
         assertThat(clientArgumentCaptor.getValue()).usingRecursiveComparison().isEqualTo(client);
+    }
+
+    @Test
+    void shouldFailToSaveNullClient() {
+        clientService.addClient(null);
+
+        verify(clientRepository, never()).save(any(Client.class));
     }
 
     @Test
@@ -75,6 +106,15 @@ public class ClientServiceTest {
             assertThat(actualClient).isNotNull();
             assertThat(actualClient).usingRecursiveComparison().isEqualTo(client);
         });
+    }
+
+    @Test
+    void shouldFailToGetClientById() {
+        Mockito.when(clientRepository.findById(client.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> clientService.getClient(client.getId()));
+
+        verify(clientRepository, times(1)).findById(client.getId());
     }
 
     @Test
@@ -99,7 +139,16 @@ public class ClientServiceTest {
     }
 
     @Test
-    void shouldDeleteClientById() {
+    void shouldGetAllAddresses_EmptyList() {
+        Mockito.when(clientRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<Client> actualClients = clientService.getClients();
+
+        assertThat(actualClients).isEmpty();
+    }
+
+    @Test
+    void shouldDeleteClient() {
         Mockito.when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
 
         Client deletedClient = clientService.deleteClient(client.getId());
@@ -112,30 +161,18 @@ public class ClientServiceTest {
     }
 
     @Test
+    void shouldFailToDeleteClient() {
+        Mockito.when(clientRepository.findById(client.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> clientService.deleteClient(client.getId()));
+
+        verify(clientRepository, never()).delete(any(Client.class));
+
+    }
+
+    @Test
     void shouldUpdateClient() {
         Mockito.when(clientRepository.findById(client.getId())).thenReturn(Optional.of(client));
-
-        Client editedClient = Client.builder()
-                .id(1L)
-                .ssn("123-45-6789")
-                .firstName("NewFirstName")
-                .lastName("NewLastName")
-                .gender(Gender.FEMALE)
-                .email("client-2@company.com")
-                .phoneNumber("123-456-0000")
-                .address(Address.builder()
-                        .id(1L)
-                        .street("St")
-                        .city("City")
-                        .state("State")
-                        .zipCode(12345)
-                        .build())
-                .salesAssociate(SalesAssociate.builder()
-                        .id(1L)
-                        .build())
-                .minimumPrice(1200.05)
-                .maximumPrice(8000.36)
-                .build();
 
         Client updatedClient = clientService.editClient(client.getId(), editedClient);
 
@@ -143,5 +180,12 @@ public class ClientServiceTest {
             assertThat(updatedClient).isNotNull();
             assertThat(updatedClient).usingRecursiveComparison().isEqualTo(editedClient);
         });
+    }
+
+    @Test
+    void shouldFailToUpdateClient() {
+        Mockito.when(clientRepository.findById(client.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> clientService.editClient(client.getId(), editedClient));
     }
 }
