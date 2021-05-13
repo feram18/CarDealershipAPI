@@ -12,11 +12,14 @@
 	<artifactId>CarDealership</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CarDealership</name>
-	<description>Web application to access, and modify company&apos;s inventory and staff information.</description>
+	<description>Spring backend application to access, and modify a car dealership's inventory, customer, and staff information.</description>
 	<properties>
 		<java.version>11</java.version>
 		<lombok.version>1.18.16</lombok.version>
 		<org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
+		<org.junit-jupiter.version>5.7.1</org.junit-jupiter.version>
+		<org.assertj.version>3.18.1</org.assertj.version>
+		<org.testcontainers.version>1.15.3</org.testcontainers.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -69,7 +72,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.7.1</version>
+			<version>${org.junit-jupiter.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -85,7 +88,19 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.18.1</version>
+			<version>${org.assertj.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${org.testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${org.testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
