@@ -28,16 +28,16 @@ public class Vehicle {
     @Column(name = "vin", length = 17)
     private String vin;
     @NotNull
-    @Column(name = "make")
+    @Column(name = "make", length = 45)
     private String make;
     @NotNull
-    @Column(name = "model")
+    @Column(name = "model", length = 45)
     private String model;
     @NotNull
     @Column(name = "year", length = 4)
     private Integer year;
     @NotNull
-    @Column(name = "color")
+    @Column(name = "color", length = 45)
     private String color;
     @NotNull
     @Column(name = "vehicle_type")

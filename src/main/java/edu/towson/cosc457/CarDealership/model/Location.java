@@ -25,7 +25,7 @@ public class Location {
     @Column(name = "location_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "location_name", unique = true)
+    @Column(name = "location_name", unique = true, length = 45)
     private String name;
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)

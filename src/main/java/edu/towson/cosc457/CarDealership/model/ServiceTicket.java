@@ -35,7 +35,7 @@ public class ServiceTicket {
     @JoinColumn(name = "mechanic_id")
     private Mechanic mechanic;
     @NotNull
-    @Column(name = "date_created")
+    @Column(name = "date_created", updatable = false)
     private LocalDate dateCreated;
     @NotNull
     @Column(name = "date_updated")

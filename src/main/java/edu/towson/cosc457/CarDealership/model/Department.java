@@ -23,7 +23,7 @@ public class Department {
     @Column(name = "dept_id", updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "dept_name", unique = true)
+    @Column(name = "dept_name", unique = true, length = 45)
     private String name;
     @JsonBackReference
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})

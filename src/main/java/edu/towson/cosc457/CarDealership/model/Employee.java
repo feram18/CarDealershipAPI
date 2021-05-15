@@ -30,11 +30,11 @@ public abstract class Employee {
     @NotNull
     @Column(name = "ssn", length = 11, unique = true)
     private String ssn;
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 45)
     private String firstName;
     @Column(name = "middle_init", length = 1)
     private Character middleInitial;
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = 45)
     private String lastName;
     @Enumerated(value = EnumType.STRING)
     @Column(name = "gender")

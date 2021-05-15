@@ -21,7 +21,7 @@ public class User {
     @Column(name = "user_id", unique = true, updatable = false)
     private Long id;
     @NotNull
-    @Column(name = "username", unique = true)
+    @Column(name = "username", unique = true, length = 45)
     private String username;
     @NotNull
     @Column(name = "password")

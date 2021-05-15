@@ -24,9 +24,9 @@ public class Client {
     @NotNull
     @Column(name = "client_ssn", unique = true, length = 11)
     private String ssn;
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 45)
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = 45)
     private String lastName;
     @Enumerated(value = EnumType.STRING)
     @Column(name = "gender")
