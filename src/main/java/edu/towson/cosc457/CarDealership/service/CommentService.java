@@ -42,7 +42,6 @@ public class CommentService {
     @Transactional
     public Comment editComment(Long commentId, Comment comment) {
         Comment commentToEdit = getComment(commentId);
-        commentToEdit.setId(comment.getId());
         commentToEdit.setServiceTicket(comment.getServiceTicket());
         commentToEdit.setMechanic(comment.getMechanic());
         commentToEdit.setDateCreated(comment.getDateCreated());

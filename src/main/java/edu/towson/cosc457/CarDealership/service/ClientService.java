@@ -42,7 +42,6 @@ public class ClientService {
     @Transactional
     public Client editClient(Long id, Client client) {
         Client clientToEdit = getClient(id);
-        clientToEdit.setId(client.getId());
         clientToEdit.setSsn(client.getSsn());
         clientToEdit.setFirstName(client.getFirstName());
         clientToEdit.setLastName(client.getLastName());

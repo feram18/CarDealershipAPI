@@ -50,7 +50,6 @@ public class LocationService {
     @Transactional
     public Location editLocation(Long id, Location location) {
         Location locationToEdit = getLocation(id);
-        locationToEdit.setId(location.getId());
         locationToEdit.setName(location.getName());
         locationToEdit.setAddress(location.getAddress());
         locationToEdit.setSiteManager(location.getSiteManager());

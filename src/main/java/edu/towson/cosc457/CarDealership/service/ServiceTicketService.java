@@ -46,7 +46,6 @@ public class ServiceTicketService {
     @Transactional
     public ServiceTicket editServiceTicket(Long id, ServiceTicket serviceTicket) {
         ServiceTicket serviceTicketToEdit = getServiceTicket(id);
-        serviceTicketToEdit.setId(serviceTicket.getId());
         serviceTicketToEdit.setVehicle(serviceTicket.getVehicle());
         serviceTicketToEdit.setMechanic(serviceTicket.getMechanic());
         serviceTicketToEdit.setDateCreated(serviceTicket.getDateCreated());

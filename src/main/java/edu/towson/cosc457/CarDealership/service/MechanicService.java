@@ -51,7 +51,6 @@ public class MechanicService implements EmployeeService<Mechanic> {
     @Transactional
     public Mechanic editEmployee(Long id, Mechanic mechanic) {
         Mechanic mechanicToEdit = getEmployee(id);
-        mechanicToEdit.setId(mechanic.getId());
         mechanicToEdit.setSsn(mechanic.getSsn());
         mechanicToEdit.setFirstName(mechanic.getFirstName());
         mechanicToEdit.setMiddleInitial(mechanic.getMiddleInitial());

@@ -42,7 +42,6 @@ public class AddressService {
     @Transactional
     public Address editAddress(Long id, Address address) {
         Address addressToEdit = getAddress(id);
-        addressToEdit.setId(address.getId());
         addressToEdit.setStreet(address.getStreet());
         addressToEdit.setCity(address.getCity());
         addressToEdit.setState(address.getState());

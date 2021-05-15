@@ -51,7 +51,6 @@ public class ManagerService implements EmployeeService<Manager> {
     @Transactional
     public Manager editEmployee(Long id, Manager manager) {
         Manager managerToEdit = getEmployee(id);
-        managerToEdit.setId(manager.getId());
         managerToEdit.setSsn(manager.getSsn());
         managerToEdit.setFirstName(manager.getFirstName());
         managerToEdit.setMiddleInitial(manager.getMiddleInitial());

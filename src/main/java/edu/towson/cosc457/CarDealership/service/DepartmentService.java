@@ -46,7 +46,6 @@ public class DepartmentService {
     @Transactional
     public Department editDepartment(Long id, Department department) {
         Department departmentToEdit = getDepartment(id);
-        departmentToEdit.setId(department.getId());
         departmentToEdit.setName(department.getName());
         departmentToEdit.setManager(department.getManager());
         departmentToEdit.setLocation(department.getLocation());

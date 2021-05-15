@@ -51,7 +51,6 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     @Transactional
     public SalesAssociate editEmployee(Long id, SalesAssociate salesAssociate) {
         SalesAssociate salesAssociateToEdit = getEmployee(id);
-        salesAssociateToEdit.setId(salesAssociate.getId());
         salesAssociateToEdit.setSsn(salesAssociate.getSsn());
         salesAssociateToEdit.setFirstName(salesAssociate.getFirstName());
         salesAssociateToEdit.setMiddleInitial(salesAssociate.getMiddleInitial());

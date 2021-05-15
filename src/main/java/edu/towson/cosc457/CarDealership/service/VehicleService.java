@@ -46,7 +46,6 @@ public class VehicleService {
     @Transactional
     public Vehicle editVehicle(Long id, Vehicle vehicle) {
         Vehicle vehicleToEdit = getVehicle(id);
-        vehicleToEdit.setId(vehicle.getId());
         vehicleToEdit.setVin(vehicle.getVin());
         vehicleToEdit.setMake(vehicle.getMake());
         vehicleToEdit.setModel(vehicle.getModel());

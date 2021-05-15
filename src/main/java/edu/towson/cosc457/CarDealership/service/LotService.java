@@ -46,7 +46,6 @@ public class LotService {
     @Transactional
     public Lot editLot(Long id, Lot lot) {
         Lot lotToEdit = getLot(id);
-        lotToEdit.setId(lot.getId());
         lotToEdit.setSize(lot.getSize());
         lotToEdit.setLocation(lot.getLocation());
         lotToEdit.setVehicles(lot.getVehicles());
