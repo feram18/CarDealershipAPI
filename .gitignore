@@ -1,3 +1,8 @@
+# Logs
+/logs
+*.log
+logback.xml
+
 # Properties
 *.properties
 
