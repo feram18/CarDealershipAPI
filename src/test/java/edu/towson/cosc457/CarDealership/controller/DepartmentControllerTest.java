@@ -2,13 +2,14 @@ package edu.towson.cosc457.CarDealership.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import edu.towson.cosc457.CarDealership.controller.DepartmentController;
+import edu.towson.cosc457.CarDealership.exceptions.NotFoundException;
 import edu.towson.cosc457.CarDealership.misc.EmployeeType;
 import edu.towson.cosc457.CarDealership.misc.Gender;
 import edu.towson.cosc457.CarDealership.model.*;
 import edu.towson.cosc457.CarDealership.service.DepartmentService;
 import edu.towson.cosc457.CarDealership.service.MechanicService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +22,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -36,6 +39,7 @@ public class DepartmentControllerTest {
     public MechanicService mechanicService;
     private final ObjectMapper mapper = new ObjectMapper();
     private Department department;
+    private Department editedDepartment;
     private Mechanic mechanic;
 
     @BeforeEach
@@ -48,6 +52,18 @@ public class DepartmentControllerTest {
         department = Department.builder()
                 .id(1L)
                 .name("Department A")
+                .manager(Manager.builder()
+                        .id(1L)
+                        .build())
+                .location(Location.builder()
+                        .id(1L)
+                        .build())
+                .mechanics(new ArrayList<>())
+                .build();
+
+        editedDepartment = Department.builder()
+                .id(1L)
+                .name("Department E")
                 .manager(Manager.builder()
                         .id(1L)
                         .build())
@@ -98,42 +114,74 @@ public class DepartmentControllerTest {
     }
 
     @Test
+    void shouldFailToAddDepartment_Null() throws Exception {
+        mockMvc.perform(post("/api/v1/departments")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsBytes(null)))
+                .andExpect(status().is(400)); // BAD_REQUEST
+    }
+
+    @Test
     void shouldGetAllDepartments() throws Exception {
         when(departmentService.getDepartments()).thenReturn(Collections.singletonList(department));
 
-        mockMvc.perform(get("/api/v1/departments"))
+        mockMvc.perform(get("/api/v1/departments")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().is(200));
+    }
+
+    @Test
+    void shouldGetAllDepartments_EmptyList() throws Exception {
+        when(departmentService.getDepartments()).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/api/v1/departments")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$", empty()));
     }
 
     @Test
     void shouldGetDepartmentById() throws Exception {
         when(departmentService.getDepartment(department.getId())).thenReturn(department);
 
-        mockMvc.perform(get("/api/v1/departments/{id}", department.getId()))
-                .andExpect(status().is(200));
+        mockMvc.perform(get("/api/v1/departments/{id}", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.id", is(department.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(department.getName())))
+                .andExpect(jsonPath("$.managerId", is(department.getManager().getId().intValue())))
+                .andExpect(jsonPath("$.locationId", is(department.getLocation().getId().intValue())));
+    }
+
+    @Test
+    void shouldFailToGetDepartmentById_NotFound() throws Exception {
+        when(departmentService.getDepartment(department.getId())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/api/v1/departments/{id}", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(404));
     }
 
     @Test
     void shouldDeleteDepartment() throws Exception {
         when(departmentService.deleteDepartment(department.getId())).thenReturn(department);
 
-        mockMvc.perform(delete("/api/v1/departments/{id}", department.getId()))
+        mockMvc.perform(delete("/api/v1/departments/{id}", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().is(200));
     }
 
     @Test
+    void shouldFailToDeleteDepartment_NotFound() throws Exception {
+        when(departmentService.deleteDepartment(department.getId())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(delete("/api/v1/departments/{id}", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(404));
+    }
+
+    @Test
     void shouldUpdateDepartment() throws Exception {
-        Department editedDepartment = Department.builder()
-                .id(1L)
-                .name("Department E")
-                .manager(Manager.builder()
-                        .id(1L)
-                        .build())
-                .location(Location.builder()
-                        .id(1L)
-                        .build())
-                .mechanics(new ArrayList<>())
-                .build();
         when(departmentService.editDepartment(department.getId(), editedDepartment)).thenReturn(editedDepartment);
 
         mockMvc.perform(put("/api/v1/departments/{id}", department.getId())
@@ -143,16 +191,40 @@ public class DepartmentControllerTest {
     }
 
     @Test
+    @Disabled
+    void shouldFailToUpdateDepartment_NotFound() throws Exception {
+        when(departmentService.editDepartment(department.getId(), editedDepartment)).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(put("/api/v1/departments/{id}", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsBytes(editedDepartment)))
+                .andExpect(status().is(404));
+    }
+
+    @Test
     void shouldAddMechanicToDepartment() throws Exception {
         when(departmentService.getDepartment(department.getId())).thenReturn(department);
         when(mechanicService.getEmployee(mechanic.getId())).thenReturn(mechanic);
         when(departmentService.assignMechanic(department.getId(), mechanic.getId())).thenReturn(department);
 
-        mockMvc.perform(
-                post("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/add",
-                        department.getId(),
-                        mechanic.getId())
-        ).andExpect(status().is(200));
+        mockMvc.perform(post("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/add",
+                department.getId(),
+                mechanic.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    void shouldFailToAddMechanicToDepartment_NotFound() throws Exception {
+        when(departmentService.getDepartment(department.getId())).thenReturn(department);
+        when(departmentService.assignMechanic(department.getId(), mechanic.getId())).thenThrow(NotFoundException.class);
+
+
+        mockMvc.perform(post("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/add",
+                department.getId(),
+                mechanic.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(404));
     }
 
     @Test
@@ -161,8 +233,19 @@ public class DepartmentControllerTest {
         when(mechanicService.getEmployee(mechanic.getId())).thenReturn(mechanic);
         when(departmentService.assignMechanic(department.getId(), mechanic.getId())).thenReturn(department);
 
-        mockMvc.perform(get("/api/v1/departments/{departmentId}/mechanics", department.getId()))
+        mockMvc.perform(get("/api/v1/departments/{departmentId}/mechanics", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().is(200));
+    }
+
+    @Test
+    void shouldGetMechanics_EmptyList() throws Exception {
+        when(departmentService.getDepartment(department.getId())).thenReturn(department);
+
+        mockMvc.perform(get("/api/v1/departments/{departmentId}/mechanics", department.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$", empty()));
     }
 
     @Test
@@ -172,11 +255,22 @@ public class DepartmentControllerTest {
         when(departmentService.assignMechanic(department.getId(), mechanic.getId())).thenReturn(department);
         when(departmentService.removeMechanic(department.getId(), mechanic.getId())).thenReturn(department);
 
+        mockMvc.perform(delete("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/remove",
+                department.getId(),
+                mechanic.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(200));
+    }
 
-        mockMvc.perform(
-                delete("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/remove",
-                        department.getId(),
-                        mechanic.getId())
-        ).andExpect(status().is(200));
+    @Test
+    void shouldFailToRemoveMechanicFromDepartment() throws Exception {
+        when(departmentService.getDepartment(department.getId())).thenReturn(department);
+        when(departmentService.removeMechanic(department.getId(), mechanic.getId())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(delete("/api/v1/departments/{departmentId}/mechanics/{mechanicId}/remove",
+                department.getId(),
+                mechanic.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is(404));
     }
 }
