@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.LotService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +23,11 @@ public class LotController {
     private final LotService lotService;
     private final LotMapper lotMapper;
     private final VehicleMapper vehicleMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(LotController.class);
 
     @PostMapping
     public ResponseEntity<LotDto> addLot(@RequestBody final LotDto lotDto) {
+        LOGGER.info("POST /api/v1/lots/");
         Lot lot = lotService.addLot(lotMapper.fromDto(lotDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -32,6 +36,7 @@ public class LotController {
 
     @GetMapping
     public ResponseEntity<List<LotDto>> getLots() {
+        LOGGER.info("GET /api/v1/lots/");
         List<Lot> lots = lotService.getLots();
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -40,6 +45,7 @@ public class LotController {
 
     @GetMapping(value = "{id}")
     public ResponseEntity<LotDto> getLot(@PathVariable final Long id) {
+        LOGGER.info("POST /api/v1/lots/{}", id);
         Lot lot = lotService.getLot(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -48,6 +54,7 @@ public class LotController {
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<LotDto> deleteLot(@PathVariable final Long id) {
+        LOGGER.info("DELETE /api/v1/lots/{}", id);
         Lot lot = lotService.deleteLot(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -57,6 +64,7 @@ public class LotController {
     @PutMapping(value = "{id}")
     public ResponseEntity<LotDto> editLot(@PathVariable final Long id,
                                           @RequestBody final LotDto lotDto) {
+        LOGGER.info("PUT /api/v1/lots/{}", id);
         Lot lot = lotService.editLot(id, lotMapper.fromDto(lotDto));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -65,6 +73,7 @@ public class LotController {
 
     @GetMapping(value = "{id}/vehicles")
     public ResponseEntity<List<VehicleDto>> getVehicles(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/lots/{}/vehicles", id);
         Lot lot = lotService.getLot(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -74,6 +83,7 @@ public class LotController {
     @PostMapping(value = "{lotId}/vehicles/{vehicleId}/add")
     public ResponseEntity<LotDto> addVehicleToLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
+        LOGGER.info("POST /api/v1/lots/{}/vehicles/{}/add", lotId, vehicleId);
         Lot lot = lotService.addVehicleToLot(lotId, vehicleId);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -83,6 +93,7 @@ public class LotController {
     @DeleteMapping(value = "{lotId}/vehicles/{vehicleId}/remove")
     public ResponseEntity<LotDto> removeVehicleFromLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
+        LOGGER.info("DELETE /api/v1/lots/{}/vehicles/{}/remove", lotId, vehicleId);
         Lot lot = lotService.removeVehicleFromLot(lotId, vehicleId);
         return ResponseEntity
                 .status(HttpStatus.OK)

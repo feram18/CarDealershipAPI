@@ -6,6 +6,8 @@ import edu.towson.cosc457.CarDealership.model.dto.CommentDto;
 import edu.towson.cosc457.CarDealership.service.CommentService;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +21,11 @@ import java.util.stream.Collectors;
 public class CommentController {
     private final CommentService commentService;
     private final CommentMapper commentMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentController.class);
 
     @PostMapping
     public ResponseEntity<CommentDto> addComment(@RequestBody final CommentDto commentDto) {
+        LOGGER.info("POST /api/v1/comments/");
         Comment comment = commentService.addComment(commentMapper.fromDto(commentDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -30,6 +34,7 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<List<CommentDto>> getComments() {
+        LOGGER.info("GET /api/v1/comments/");
         List<Comment> comments = commentService.getComments();
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -38,6 +43,7 @@ public class CommentController {
 
     @GetMapping(value = "{id}")
     public ResponseEntity<CommentDto> getComment(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/comments/{}", id);
         Comment comment = commentService.getComment(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -46,6 +52,7 @@ public class CommentController {
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<CommentDto> deleteComment(@PathVariable final Long id) {
+        LOGGER.info("DELETE /api/v1/comments/{}", id);
         Comment comment = commentService.deleteComment(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -55,6 +62,7 @@ public class CommentController {
     @PutMapping(value = "{id}")
     public ResponseEntity<CommentDto> editComment(@PathVariable final Long id,
                                                   @RequestBody final CommentDto commentDto) {
+        LOGGER.info("PUT /api/v1/comments/{}", id);
         Comment comment = commentService.editComment(id, commentMapper.fromDto(commentDto));
         return ResponseEntity
                 .status(HttpStatus.OK)

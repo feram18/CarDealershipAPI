@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.model.Vehicle;
 import edu.towson.cosc457.CarDealership.repository.VehicleRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +23,28 @@ import java.util.stream.StreamSupport;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final ServiceTicketService ticketService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(VehicleService.class);
 
     public Vehicle addVehicle(Vehicle vehicle) {
+        LOGGER.info("Create new Vehicle in the database");
         return vehicleRepository.save(vehicle);
     }
 
     public List<Vehicle> getVehicles() {
+        LOGGER.info("Get all Vehicles");
         return StreamSupport
                 .stream(vehicleRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
 
     public Vehicle getVehicle(Long id) {
+        LOGGER.info("Get Vehicle with id {}", id);
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.VEHICLE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Vehicle deleteVehicle(Long id) {
+        LOGGER.info("Delete Vehicle with id {}", id);
         Vehicle vehicle = getVehicle(id);
         vehicleRepository.delete(vehicle);
         return vehicle;
@@ -45,6 +52,7 @@ public class VehicleService {
 
     @Transactional
     public Vehicle editVehicle(Long id, Vehicle vehicle) {
+        LOGGER.info("Update Vehicle with id {}", id);
         Vehicle vehicleToEdit = getVehicle(id);
         vehicleToEdit.setVin(vehicle.getVin());
         vehicleToEdit.setMake(vehicle.getMake());
@@ -64,6 +72,7 @@ public class VehicleService {
 
     @Transactional
     public Vehicle assignTicket(Long vehicleId, Long ticketId) {
+        LOGGER.info("Assign Vehicle with id {} to Service Ticket with id {}", vehicleId, ticketId);
         Vehicle vehicle = getVehicle(vehicleId);
         ServiceTicket ticket = ticketService.getServiceTicket(ticketId);
         if (Objects.nonNull(ticket.getVehicle())) {
@@ -82,6 +91,7 @@ public class VehicleService {
 
     @Transactional
     public Vehicle removeTicket(Long vehicleId, Long ticketId) {
+        LOGGER.info("Remove Vehicle with id {} from Service Ticket with id {}", vehicleId, ticketId);
         Vehicle vehicle = getVehicle(vehicleId);
         ServiceTicket ticket = ticketService.getServiceTicket(ticketId);
         vehicle.removeTicket(ticket);

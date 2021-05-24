@@ -5,6 +5,8 @@ import edu.towson.cosc457.CarDealership.model.SiteManager;
 import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.SiteManagerDto;
 import edu.towson.cosc457.CarDealership.service.SiteManagerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class SiteManagerController extends EmployeeController<SiteManagerService> {
     private final SiteManagerService siteManagerService;
     private final EmployeeMapper employeeMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SiteManagerController.class);
 
     @Autowired
     public SiteManagerController(SiteManagerService siteManagerService,
@@ -29,6 +32,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
 
     @PostMapping
     public ResponseEntity<SiteManagerDto> addEmployee(@RequestBody final SiteManagerDto siteManagerDto) {
+        LOGGER.info("POST /api/v1/site-managers/");
         SiteManager siteManager = siteManagerService.addEmployee((SiteManager) employeeMapper.fromDto(siteManagerDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -37,6 +41,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
 
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
+        LOGGER.info("GET /api/v1/site-managers/");
         List<SiteManager> siteManagers = siteManagerService.getEmployees();
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -45,6 +50,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
 
     @GetMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> getEmployee(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/site-managers/{}", id);
         SiteManager siteManager = siteManagerService.getEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -53,6 +59,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> deleteEmployee(@PathVariable final Long id) {
+        LOGGER.info("DELETE /api/v1/site-managers/{}", id);
         SiteManager siteManager = siteManagerService.deleteEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -62,6 +69,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
     @PutMapping(value = "{id}")
     public ResponseEntity<SiteManagerDto> editEmployee(@PathVariable final Long id,
                                                        @PathVariable final SiteManagerDto siteManagerDto) {
+        LOGGER.info("PUT /api/v1/site-managers/{}", id);
         SiteManager siteManager = siteManagerService.editEmployee(id,(SiteManager) employeeMapper.fromDto(siteManagerDto));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -70,6 +78,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
 
     @GetMapping(value = "{id}/managers")
     public ResponseEntity<List<EmployeeDto>> getAssignedManagers(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/site-managers/{}/managers", id);
         SiteManager siteManager = siteManagerService.getEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -79,6 +88,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
     @PostMapping(value = "{siteManagerId}/managers/{managerId}/add")
     public ResponseEntity<SiteManagerDto> assignToManager(@PathVariable final Long siteManagerId,
                                                           @PathVariable final Long managerId) {
+        LOGGER.info("POST /api/v1/site-managers/{}/managers/{}/add", siteManagerId, managerId);
         SiteManager siteManager = siteManagerService.assignToManager(siteManagerId, managerId);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -88,6 +98,7 @@ public class SiteManagerController extends EmployeeController<SiteManagerService
     @DeleteMapping(value = "{siteManagerId}/managers/{managerId}/remove")
     public ResponseEntity<SiteManagerDto> removeFromManager(@PathVariable final Long siteManagerId,
                                                             @PathVariable final Long managerId) {
+        LOGGER.info("DELETE /api/v1/site-managers/{}/managers/{}/add", siteManagerId, managerId);
         SiteManager siteManager = siteManagerService.removeFromManager(siteManagerId, managerId);
         return ResponseEntity
                 .status(HttpStatus.OK)

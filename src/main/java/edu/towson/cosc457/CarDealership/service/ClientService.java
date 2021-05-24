@@ -5,6 +5,8 @@ import edu.towson.cosc457.CarDealership.misc.Entity;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.repository.ClientRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,23 +19,28 @@ import java.util.stream.StreamSupport;
 @AllArgsConstructor
 public class ClientService {
     private final ClientRepository clientRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientService.class);
 
     public Client addClient(Client client) {
+        LOGGER.info("Create new Client in the database");
         return clientRepository.save(client);
     }
 
     public List<Client> getClients() {
+        LOGGER.info("Get all Clients");
         return StreamSupport
                 .stream(clientRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
 
     public Client getClient(Long id) {
+        LOGGER.info("Get Client with id {}", id);
         return clientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.CLIENT.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public Client deleteClient(Long id) {
+        LOGGER.info("Delete Client with id {}", id);
         Client client = getClient(id);
         clientRepository.delete(client);
         return client;
@@ -41,6 +48,7 @@ public class ClientService {
 
     @Transactional
     public Client editClient(Long id, Client client) {
+        LOGGER.info("Update Client with id {}", id);
         Client clientToEdit = getClient(id);
         clientToEdit.setSsn(client.getSsn());
         clientToEdit.setFirstName(client.getFirstName());

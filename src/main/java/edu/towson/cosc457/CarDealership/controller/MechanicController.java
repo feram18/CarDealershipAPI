@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.service.MechanicService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
     private final MechanicService mechanicService;
     private final EmployeeMapper employeeMapper;
     private final ServiceTicketMapper serviceTicketMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MechanicController.class);
 
     @Autowired
     public MechanicController(MechanicService mechanicService,
@@ -34,6 +37,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
 
     @PostMapping
     public ResponseEntity<MechanicDto> addEmployee(@RequestBody final MechanicDto mechanicDto) {
+        LOGGER.info("POST /api/v1/mechanics/");
         Mechanic mechanic = mechanicService.addEmployee((Mechanic) employeeMapper.fromDto(mechanicDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -42,6 +46,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
 
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
+        LOGGER.info("GET /api/v1/mechanics/");
         List<Mechanic> mechanics = mechanicService.getEmployees();
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,6 +55,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
 
     @GetMapping(value = "{id}")
     public ResponseEntity<MechanicDto> getEmployee(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/mechanics/{}", id);
         Mechanic mechanic = mechanicService.getEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -58,6 +64,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<MechanicDto> deleteEmployee(@PathVariable final Long id) {
+        LOGGER.info("DELETE /api/v1/mechanics/{}", id);
         Mechanic mechanic = mechanicService.deleteEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -67,6 +74,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
     @PutMapping(value = "{id}")
     public ResponseEntity<MechanicDto> editEmployee(@PathVariable final Long id,
                                                     @PathVariable final MechanicDto mechanicDto) {
+        LOGGER.info("PUT /api/v1/mechanics/{}", id);
         Mechanic mechanic = mechanicService.editEmployee(id, (Mechanic) employeeMapper.fromDto(mechanicDto));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -75,6 +83,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
 
     @GetMapping(value = "{id}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/mechanics/{}/tickets", id);
         Mechanic mechanic = mechanicService.getEmployee(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -84,6 +93,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
     @PostMapping(value = "{mechanicId}/tickets/{ticketId}/add")
     public ResponseEntity<MechanicDto> assignTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {
+        LOGGER.info("POST /api/v1/mechanics/{}/tickets/{}/add", mechanicId, ticketId);
         Mechanic mechanic = mechanicService.assignTicket(mechanicId, ticketId);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -93,6 +103,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
     @DeleteMapping(value = "{mechanicId}/tickets/{ticketId}/remove")
     public ResponseEntity<MechanicDto> removeTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {
+        LOGGER.info("DELETE /api/v1/mechanics/{}/tickets/{}/add", mechanicId, ticketId);
         Mechanic mechanic = mechanicService.removeTicket(mechanicId, ticketId);
         return ResponseEntity
                 .status(HttpStatus.OK)

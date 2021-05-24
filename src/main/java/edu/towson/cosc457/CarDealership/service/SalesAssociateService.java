@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.SalesAssociate;
 import edu.towson.cosc457.CarDealership.repository.SalesAssociateRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +23,17 @@ import java.util.stream.StreamSupport;
 public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     private final SalesAssociateRepository salesAssociateRepository;
     private final ClientService clientService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SalesAssociateService.class);
 
     @Override
     public SalesAssociate addEmployee(SalesAssociate salesAssociate) {
+        LOGGER.info("Create new Sales Associate in the database");
         return salesAssociateRepository.save(salesAssociate);
     }
 
     @Override
     public List<SalesAssociate> getEmployees() {
+        LOGGER.info("Get all Sales Associates");
         return StreamSupport
                 .stream(salesAssociateRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
@@ -36,12 +41,14 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
 
     @Override
     public SalesAssociate getEmployee(Long id) {
+        LOGGER.info("Get Sales Associate with id {}", id);
         return salesAssociateRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.SALES_ASSOCIATE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     @Override
     public SalesAssociate deleteEmployee(Long id) {
+        LOGGER.info("Delete Sales Associate with id {}", id);
         SalesAssociate salesAssociate = getEmployee(id);
         salesAssociateRepository.delete(salesAssociate);
         return salesAssociate;
@@ -50,6 +57,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     @Override
     @Transactional
     public SalesAssociate editEmployee(Long id, SalesAssociate salesAssociate) {
+        LOGGER.info("Update Sales Associate with id {}", id);
         SalesAssociate salesAssociateToEdit = getEmployee(id);
         salesAssociateToEdit.setSsn(salesAssociate.getSsn());
         salesAssociateToEdit.setFirstName(salesAssociate.getFirstName());
@@ -72,6 +80,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
 
     @Transactional
     public SalesAssociate assignClient(Long associateId, Long clientId) {
+        LOGGER.info("Assign Client with id {} to Sales Associate with id {}", clientId, associateId);
         SalesAssociate salesAssociate = getEmployee(associateId);
         Client client = clientService.getClient(clientId);
         if (Objects.nonNull(client.getSalesAssociate())) {
@@ -90,6 +99,7 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
 
     @Transactional
     public SalesAssociate removeClient(Long associateId, Long clientId) {
+        LOGGER.info("Remove Client with id {} from Sales Associate with id {}", clientId, associateId);
         SalesAssociate salesAssociate = getEmployee(associateId);
         Client client = clientService.getClient(clientId);
         salesAssociate.removeClient(client);

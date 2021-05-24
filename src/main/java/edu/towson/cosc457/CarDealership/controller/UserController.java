@@ -5,6 +5,8 @@ import edu.towson.cosc457.CarDealership.model.User;
 import edu.towson.cosc457.CarDealership.model.dto.UserDto;
 import edu.towson.cosc457.CarDealership.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
     public ResponseEntity<UserDto> addUser(@RequestBody final UserDto userDto) {
+        LOGGER.info("POST /api/v1/users/");
         User user = userService.addUser(userMapper.fromDto(userDto));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -29,6 +33,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsers() {
+        LOGGER.info("GET /api/v1/users/");
         List<User> users = userService.getUsers();
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -37,6 +42,7 @@ public class UserController {
 
     @GetMapping(value = "{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable final Long id) {
+        LOGGER.info("GET /api/v1/users/{}", id);
         User user = userService.getUser(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -45,6 +51,7 @@ public class UserController {
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<UserDto> deleteUser(@PathVariable final Long id) {
+        LOGGER.info("DELETE /api/v1/users/{}", id);
         User user = userService.deleteUser(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -54,6 +61,7 @@ public class UserController {
     @PutMapping(value = "{id}")
     public ResponseEntity<UserDto> editUser(@PathVariable final Long id,
                                             @RequestBody final UserDto userDto) {
+        LOGGER.info("PUT /api/v1/users/{}", id);
         User user = userService.editUser(id, userMapper.fromDto(userDto));
         return ResponseEntity
                 .status(HttpStatus.OK)

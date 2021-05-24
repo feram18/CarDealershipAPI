@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.Comment;
 import edu.towson.cosc457.CarDealership.model.ServiceTicket;
 import edu.towson.cosc457.CarDealership.repository.ServiceTicketRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +23,28 @@ import java.util.stream.StreamSupport;
 public class ServiceTicketService {
     private final ServiceTicketRepository serviceTicketRepository;
     private final CommentService commentService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddressService.class);
 
     public ServiceTicket addServiceTicket(ServiceTicket serviceTicket) {
+        LOGGER.info("Create new Service Ticket in the database");
         return serviceTicketRepository.save(serviceTicket);
     }
 
     public List<ServiceTicket> getServiceTickets() {
+        LOGGER.info("Get all Service Tickets");
         return StreamSupport
                 .stream(serviceTicketRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
 
     public ServiceTicket getServiceTicket(Long id) {
+        LOGGER.info("Get Service Ticket with id {}", id);
         return serviceTicketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.SERVICE_TICKET.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     public ServiceTicket deleteServiceTicket(Long id) {
+        LOGGER.info("Delete Service Ticket with id {}", id);
         ServiceTicket serviceTicket = getServiceTicket(id);
         serviceTicketRepository.delete(serviceTicket);
         return serviceTicket;
@@ -45,6 +52,7 @@ public class ServiceTicketService {
 
     @Transactional
     public ServiceTicket editServiceTicket(Long id, ServiceTicket serviceTicket) {
+        LOGGER.info("Update Service Ticket with id {}", id);
         ServiceTicket serviceTicketToEdit = getServiceTicket(id);
         serviceTicketToEdit.setVehicle(serviceTicket.getVehicle());
         serviceTicketToEdit.setMechanic(serviceTicket.getMechanic());
@@ -57,6 +65,7 @@ public class ServiceTicketService {
 
     @Transactional
     public ServiceTicket addCommentToTicket(Long ticketId, Long commentId) {
+        LOGGER.info("Add Comment with id {} to Service Ticket with id {}", commentId, ticketId);
         ServiceTicket ticket = getServiceTicket(ticketId);
         Comment comment = commentService.getComment(commentId);
         if(Objects.nonNull(comment.getServiceTicket())){
@@ -75,6 +84,7 @@ public class ServiceTicketService {
 
     @Transactional
     public ServiceTicket removeCommentFromTicket(Long ticketId, Long commentId) {
+        LOGGER.info("Remove Comment with id {} from Service Ticket with id {}", commentId, ticketId);
         ServiceTicket serviceTicket = getServiceTicket(ticketId);
         Comment comment = commentService.getComment(commentId);
         serviceTicket.removeComment(comment);

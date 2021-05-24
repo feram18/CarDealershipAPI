@@ -7,6 +7,8 @@ import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.Mechanic;
 import edu.towson.cosc457.CarDealership.repository.ManagerRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +23,17 @@ import java.util.stream.StreamSupport;
 public class ManagerService implements EmployeeService<Manager> {
     private final ManagerRepository managerRepository;
     private final MechanicService mechanicService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagerService.class);
 
     @Override
     public Manager addEmployee(Manager manager) {
+        LOGGER.info("Create new Manager in the database");
         return managerRepository.save(manager);
     }
 
     @Override
     public List<Manager> getEmployees() {
+        LOGGER.info("Get all Managers");
         return StreamSupport
                 .stream(managerRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
@@ -36,12 +41,14 @@ public class ManagerService implements EmployeeService<Manager> {
 
     @Override
     public Manager getEmployee(Long id) {
+        LOGGER.info("Get Manager with id {}", id);
         return managerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.MANAGER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
     @Override
     public Manager deleteEmployee(Long id) {
+        LOGGER.info("Delete Manager with id {}", id);
         Manager manager = getEmployee(id);
         managerRepository.delete(manager);
         return manager;
@@ -50,6 +57,7 @@ public class ManagerService implements EmployeeService<Manager> {
     @Override
     @Transactional
     public Manager editEmployee(Long id, Manager manager) {
+        LOGGER.info("Update Manager with id {}", id);
         Manager managerToEdit = getEmployee(id);
         managerToEdit.setSsn(manager.getSsn());
         managerToEdit.setFirstName(manager.getFirstName());
@@ -73,6 +81,7 @@ public class ManagerService implements EmployeeService<Manager> {
 
     @Transactional
     public Manager assignToManager(Long managerId, Long mechanicId) {
+        LOGGER.info("Assign Mechanic with id {} to Manager with id {}", mechanicId, managerId);
         Manager manager = getEmployee(managerId);
         Mechanic mechanic = mechanicService.getEmployee(mechanicId);
         if (Objects.nonNull(mechanic.getManager())) {
@@ -91,6 +100,7 @@ public class ManagerService implements EmployeeService<Manager> {
 
     @Transactional
     public Manager removeFromManager(Long managerId, Long mechanicId) {
+        LOGGER.info("Remove Mechanic with id {} from Manager with id {}", mechanicId, managerId);
         Manager manager = getEmployee(managerId);
         Mechanic mechanic = mechanicService.getEmployee(mechanicId);
         manager.removeMechanics(mechanic);
