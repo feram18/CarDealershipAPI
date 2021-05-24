@@ -25,12 +25,21 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
     private final ManagerService managerService;
     private static final Logger LOGGER = LoggerFactory.getLogger(SiteManagerService.class);
 
+    /**
+     * Create a new SiteManager in the database
+     * @param siteManager SiteManager object to be added to database
+     * @return SiteManager saved on repository
+     */
     @Override
     public SiteManager addEmployee(SiteManager siteManager) {
         LOGGER.info("Create new Site Manager in the database");
         return siteManagerRepository.save(siteManager);
     }
 
+    /**
+     * Get All SiteManagers
+     * @return List of SiteManagers
+     */
     @Override
     public List<SiteManager> getEmployees() {
         LOGGER.info("Get all Site Managers");
@@ -39,6 +48,12 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get SiteManager by Id
+     * @param id identifier of SiteManager to be fetched
+     * @return fetched SiteManager
+     * @throws NotFoundException if no SiteManager with matching id found
+     */
     @Override
     public SiteManager getEmployee(Long id) {
         LOGGER.info("Get Site Manager with id {}", id);
@@ -46,7 +61,12 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
                 .orElseThrow(() -> new NotFoundException(Entity.SITE_MANAGER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
-
+    /**
+     * Delete SiteManager by Id
+     * @param id identifier of SiteManager to be deleted
+     * @return deleted SiteManager
+     * @throws NotFoundException if no SiteManager with matching id found
+     */
     @Override
     public SiteManager deleteEmployee(Long id) {
         LOGGER.info("Delete Site Manager with id {}", id);
@@ -55,6 +75,13 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         return siteManager;
     }
 
+    /**
+     * Update SiteManager
+     * @param id identifier of SiteManager to be updated
+     * @param siteManager SiteManager object with updated fields
+     * @return updated SiteManager
+     * @throws NotFoundException if no SiteManager with matching id found
+     */
     @Override
     @Transactional
     public SiteManager editEmployee(Long id, SiteManager siteManager) {
@@ -78,6 +105,14 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         return siteManagerToEdit;
     }
 
+    /**
+     * Assign Manager to SiteManager
+     * @param siteManagerId identifier of SiteManager to be updated
+     * @param managerId identifier of Manager to be assigned to SiteManager
+     * @return updated SiteManager entity
+     * @throws NotFoundException if no SiteManager or Manager with matching siteManagerId/managerId
+     * @throws AlreadyAssignedException if Manager has already been assigned to a SiteManager
+     */
     @Transactional
     public SiteManager assignToManager(Long siteManagerId, Long managerId) {
         LOGGER.info("Assign Manager with id {} to Site Manager with id {}", managerId, siteManagerId);
@@ -97,6 +132,13 @@ public class SiteManagerService implements EmployeeService<SiteManager> {
         return siteManager;
     }
 
+    /**
+     * Remove assigned Manager from SiteManager
+     * @param siteManagerId identifier of SiteManager to be updated
+     * @param managerId identifier of Manager to be removed from SiteManager
+     * @return updated SiteManager entity
+     * @throws NotFoundException if no SiteManager or Manager with matching siteManagerId/managerId
+     */
     @Transactional
     public SiteManager removeFromManager(Long siteManagerId, Long managerId) {
         LOGGER.info("Remove Manager with id {} from Site Manager with id {}", managerId, siteManagerId);

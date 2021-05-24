@@ -25,12 +25,21 @@ public class ManagerService implements EmployeeService<Manager> {
     private final MechanicService mechanicService;
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerService.class);
 
+    /**
+     * Create a new Manager in the database
+     * @param manager Manager object to be added to database
+     * @return Manager saved on repository
+     */
     @Override
     public Manager addEmployee(Manager manager) {
         LOGGER.info("Create new Manager in the database");
         return managerRepository.save(manager);
     }
 
+    /**
+     * Get All Managers
+     * @return List of Managers
+     */
     @Override
     public List<Manager> getEmployees() {
         LOGGER.info("Get all Managers");
@@ -39,6 +48,12 @@ public class ManagerService implements EmployeeService<Manager> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Manager by Id
+     * @param id identifier of Manager to be fetched
+     * @return fetched Manager
+     * @throws NotFoundException if no Manager with matching id found
+     */
     @Override
     public Manager getEmployee(Long id) {
         LOGGER.info("Get Manager with id {}", id);
@@ -46,6 +61,12 @@ public class ManagerService implements EmployeeService<Manager> {
                 .orElseThrow(() -> new NotFoundException(Entity.MANAGER.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete Manager by Id
+     * @param id identifier of Manager to be deleted
+     * @return deleted Manager
+     * @throws NotFoundException if no Manager with matching id found
+     */
     @Override
     public Manager deleteEmployee(Long id) {
         LOGGER.info("Delete Manager with id {}", id);
@@ -54,6 +75,13 @@ public class ManagerService implements EmployeeService<Manager> {
         return manager;
     }
 
+    /**
+     * Update Manager
+     * @param id identifier of Manager to be updated
+     * @param manager Manager object with updated fields
+     * @return updated Manager
+     * @throws NotFoundException if no Manager with matching id found
+     */
     @Override
     @Transactional
     public Manager editEmployee(Long id, Manager manager) {
@@ -79,6 +107,14 @@ public class ManagerService implements EmployeeService<Manager> {
         return managerToEdit;
     }
 
+    /**
+     * Assign Mechanic to Manager
+     * @param managerId identifier of Manager to be updated
+     * @param mechanicId identifier of Mechanic to be assigned to Manager
+     * @return updated Manager entity
+     * @throws NotFoundException if no Manager or Mechanic with matching managerId/mechanicId were found
+     * @throws AlreadyAssignedException if Mechanic is already assigned to a Manager
+     */
     @Transactional
     public Manager assignToManager(Long managerId, Long mechanicId) {
         LOGGER.info("Assign Mechanic with id {} to Manager with id {}", mechanicId, managerId);
@@ -98,6 +134,13 @@ public class ManagerService implements EmployeeService<Manager> {
         return manager;
     }
 
+    /**
+     * Remove assigned Mechanic from Manager
+     * @param managerId identifier of Manager to be updated
+     * @param mechanicId identifier of Mechanic to be removed from Manager
+     * @return updated Manager entity
+     * @throws NotFoundException if no Manager or Mechanic with matching managerId/mechanicId were found
+     */
     @Transactional
     public Manager removeFromManager(Long managerId, Long mechanicId) {
         LOGGER.info("Remove Mechanic with id {} from Manager with id {}", mechanicId, managerId);

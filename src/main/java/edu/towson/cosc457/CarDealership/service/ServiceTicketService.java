@@ -25,11 +25,20 @@ public class ServiceTicketService {
     private final CommentService commentService;
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressService.class);
 
+    /**
+     * Create a new ServiceTicket in the database
+     * @param serviceTicket ServiceTicket object to be added to database
+     * @return ServiceTicket saved on repository
+     */
     public ServiceTicket addServiceTicket(ServiceTicket serviceTicket) {
         LOGGER.info("Create new Service Ticket in the database");
         return serviceTicketRepository.save(serviceTicket);
     }
 
+    /**
+     * Get All ServiceTickets
+     * @return List of ServiceTickets
+     */
     public List<ServiceTicket> getServiceTickets() {
         LOGGER.info("Get all Service Tickets");
         return StreamSupport
@@ -37,12 +46,24 @@ public class ServiceTicketService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get ServiceTicket by Id
+     * @param id identifier of ServiceTicket to be fetched
+     * @return fetched ServiceTicket
+     * @throws NotFoundException if no ServiceTicket with matching id found
+     */
     public ServiceTicket getServiceTicket(Long id) {
         LOGGER.info("Get Service Ticket with id {}", id);
         return serviceTicketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.SERVICE_TICKET.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete ServiceTicket by Id
+     * @param id identifier of ServiceTicket to be deleted
+     * @return deleted ServiceTicket
+     * @throws NotFoundException if no ServiceTicket with matching id found
+     */
     public ServiceTicket deleteServiceTicket(Long id) {
         LOGGER.info("Delete Service Ticket with id {}", id);
         ServiceTicket serviceTicket = getServiceTicket(id);
@@ -50,6 +71,13 @@ public class ServiceTicketService {
         return serviceTicket;
     }
 
+    /**
+     * Update ServiceTicket
+     * @param id identifier of ServiceTicket to be updated
+     * @param serviceTicket ServiceTicket object with updated fields
+     * @return updated ServiceTicket
+     * @throws NotFoundException if no ServiceTicket with matching id found
+     */
     @Transactional
     public ServiceTicket editServiceTicket(Long id, ServiceTicket serviceTicket) {
         LOGGER.info("Update Service Ticket with id {}", id);
@@ -63,6 +91,12 @@ public class ServiceTicketService {
         return serviceTicketToEdit;
     }
 
+    /**
+     * Add Comment to ServiceTicket
+     * @param ticketId identifier of ServiceTicket to be updated
+     * @param commentId identifier of Comment to be assigned to ServiceTicket
+     * @return updated ServiceTicket entity
+     */
     @Transactional
     public ServiceTicket addCommentToTicket(Long ticketId, Long commentId) {
         LOGGER.info("Add Comment with id {} to Service Ticket with id {}", commentId, ticketId);
@@ -82,6 +116,12 @@ public class ServiceTicketService {
         return ticket;
     }
 
+    /**
+     * Remove Comment from ServiceTicket
+     * @param ticketId identifier of ServiceTicket to be updated
+     * @param commentId identifier of Comment to be removed from ServiceTicket
+     * @return updated ServiceTicket entity
+     */
     @Transactional
     public ServiceTicket removeCommentFromTicket(Long ticketId, Long commentId) {
         LOGGER.info("Remove Comment with id {} from Service Ticket with id {}", commentId, ticketId);

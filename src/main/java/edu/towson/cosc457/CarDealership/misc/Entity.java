@@ -2,6 +2,9 @@ package edu.towson.cosc457.CarDealership.misc;
 
 import java.util.Locale;
 
+/**
+ * Enumeration of Entities present in the application
+ */
 public enum Entity {
     USER {
         @Override

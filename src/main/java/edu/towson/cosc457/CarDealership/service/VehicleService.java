@@ -25,11 +25,20 @@ public class VehicleService {
     private final ServiceTicketService ticketService;
     private static final Logger LOGGER = LoggerFactory.getLogger(VehicleService.class);
 
+    /**
+     * Create a new Vehicle in the database
+     * @param vehicle Vehicle object to be added to database
+     * @return Vehicle saved on repository
+     */
     public Vehicle addVehicle(Vehicle vehicle) {
         LOGGER.info("Create new Vehicle in the database");
         return vehicleRepository.save(vehicle);
     }
 
+    /**
+     * Get All Vehicles
+     * @return List of Vehicles
+     */
     public List<Vehicle> getVehicles() {
         LOGGER.info("Get all Vehicles");
         return StreamSupport
@@ -37,12 +46,24 @@ public class VehicleService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Vehicle by Id
+     * @param id identifier of Vehicle to be fetched
+     * @return fetched Vehicle
+     * @throws NotFoundException if no Vehicle with matching id found
+     */
     public Vehicle getVehicle(Long id) {
         LOGGER.info("Get Vehicle with id {}", id);
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.VEHICLE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete Vehicle by Id
+     * @param id identifier of Vehicle to be deleted
+     * @return deleted Vehicle
+     * @throws NotFoundException if no Vehicle with matching id found
+     */
     public Vehicle deleteVehicle(Long id) {
         LOGGER.info("Delete Vehicle with id {}", id);
         Vehicle vehicle = getVehicle(id);
@@ -50,6 +71,13 @@ public class VehicleService {
         return vehicle;
     }
 
+    /**
+     * Update Vehicle
+     * @param id identifier of Vehicle to be updated
+     * @param vehicle Vehicle object with updated fields
+     * @return updated Vehicle
+     * @throws NotFoundException if no Vehicle with matching id found
+     */
     @Transactional
     public Vehicle editVehicle(Long id, Vehicle vehicle) {
         LOGGER.info("Update Vehicle with id {}", id);
@@ -70,6 +98,14 @@ public class VehicleService {
         return vehicleToEdit;
     }
 
+    /**
+     * Assign Vehicle to ServiceTicket
+     * @param vehicleId identifier of Vehicle to be updated
+     * @param ticketId identifier of ServiceTicket Vehicle will be assigned to
+     * @return updated Vehicle entity
+     * @throws NotFoundException if no Vehicle or ServiceTicket with matching vehicleId/ticketId were found
+     * @throws AlreadyAssignedException if ServiceTicket has already been assigned to a Vehicle
+     */
     @Transactional
     public Vehicle assignTicket(Long vehicleId, Long ticketId) {
         LOGGER.info("Assign Vehicle with id {} to Service Ticket with id {}", vehicleId, ticketId);
@@ -89,6 +125,13 @@ public class VehicleService {
         return vehicle;
     }
 
+    /**
+     * Remove assigned Vehicle from ServiceTicket
+     * @param vehicleId identifier of Vehicle to be updated
+     * @param ticketId identifier of ServiceTicket Vehicle will be removed from
+     * @return updated Vehicle entity
+     * @throws NotFoundException if no Vehicle or ServiceTicket with matching vehicleId/ticketId were found
+     */
     @Transactional
     public Vehicle removeTicket(Long vehicleId, Long ticketId) {
         LOGGER.info("Remove Vehicle with id {} from Service Ticket with id {}", vehicleId, ticketId);

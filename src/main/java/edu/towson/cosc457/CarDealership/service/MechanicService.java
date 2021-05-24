@@ -25,12 +25,21 @@ public class MechanicService implements EmployeeService<Mechanic> {
     private final ServiceTicketService ticketService;
     private static final Logger LOGGER = LoggerFactory.getLogger(MechanicService.class);
 
+    /**
+     * Create a new Mechanic in the database
+     * @param mechanic Mechanic object to be added to database
+     * @return Mechanic saved on repository
+     */
     @Override
     public Mechanic addEmployee(Mechanic mechanic) {
         LOGGER.info("Create new Mechanic in the database");
         return mechanicRepository.save(mechanic);
     }
 
+    /**
+     * Get All Mechanics
+     * @return List of Mechanic
+     */
     @Override
     public List<Mechanic> getEmployees() {
         LOGGER.info("Get all Mechanics");
@@ -39,6 +48,12 @@ public class MechanicService implements EmployeeService<Mechanic> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Mechanic by Id
+     * @param id identifier of Mechanic to be fetched
+     * @return fetched Mechanic
+     * @throws NotFoundException if no Mechanic with matching id found
+     */
     @Override
     public Mechanic getEmployee(Long id) {
         LOGGER.info("Get Mechanic with id {}", id);
@@ -46,6 +61,12 @@ public class MechanicService implements EmployeeService<Mechanic> {
                 .orElseThrow(() -> new NotFoundException(Entity.MECHANIC.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete Mechanic by Id
+     * @param id identifier of Mechanic to be deleted
+     * @return deleted Mechanic
+     * @throws NotFoundException if no Mechanic with matching id found
+     */
     @Override
     public Mechanic deleteEmployee(Long id) {
         LOGGER.info("Delete Mechanic with id {}", id);
@@ -54,6 +75,13 @@ public class MechanicService implements EmployeeService<Mechanic> {
         return mechanic;
     }
 
+    /**
+     * Update Mechanic
+     * @param id identifier of Mechanic to be updated
+     * @param mechanic Mechanic object with updated fields
+     * @return updated Mechanic
+     * @throws NotFoundException if no Mechanic with matching id found
+     */
     @Override
     @Transactional
     public Mechanic editEmployee(Long id, Mechanic mechanic) {
@@ -79,6 +107,14 @@ public class MechanicService implements EmployeeService<Mechanic> {
         return mechanicToEdit;
     }
 
+    /**
+     * Assign Service Ticket to Mechanic
+     * @param mechanicId identifier of Mechanic to be updated
+     * @param ticketId identifier of Service Ticket to be assigned to Mechanic
+     * @return updated Mechanic entity
+     * @throws NotFoundException if no Mechanic or ServiceTicket with matching ticketId/mechanicId were found
+     * @throws AlreadyAssignedException if ServiceTicket has already been assigned to a Mechanic
+     */
     @Transactional
     public Mechanic assignTicket(Long mechanicId, Long ticketId) {
         LOGGER.info("Assign Service Ticket with id {} to Mechanic with id {}", ticketId, mechanicId);
@@ -98,6 +134,13 @@ public class MechanicService implements EmployeeService<Mechanic> {
         return mechanic;
     }
 
+    /**
+     * Remove assigned ServiceTicket to Mechanic
+     * @param mechanicId identifier of Mechanic to be updated
+     * @param ticketId identifier of ServiceTicket to be removed from Mechanic
+     * @return updated Mechanic entity
+     * @throws NotFoundException if no Mechanic or ServiceTicket with matching ticketId/mechanicId were found
+     */
     @Transactional
     public Mechanic removeTicket(Long mechanicId, Long ticketId) {
         LOGGER.info("Remove Service Ticket with id {} from Mechanic with id {}", ticketId, mechanicId);

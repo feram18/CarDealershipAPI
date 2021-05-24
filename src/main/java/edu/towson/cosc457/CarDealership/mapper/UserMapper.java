@@ -8,8 +8,18 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = Role.class)
 public interface UserMapper {
+    /**
+     * Map from User entity to UserDTO
+     * @param user User object to be mapped to UserDTO
+     * @return mapped UserDto object
+     */
     UserDto toDto(User user);
 
+    /**
+     * Map from UserDTO to User entity
+     * @param userDto Map from UserDTO to User entity
+     * @return mapped User object
+     */
     @InheritInverseConfiguration
     User fromDto(UserDto userDto);
 }

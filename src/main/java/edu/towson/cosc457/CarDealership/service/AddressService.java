@@ -21,11 +21,20 @@ public class AddressService {
     private final AddressRepository addressRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressService.class);
 
+    /**
+     * Create a new Address in the database
+     * @param address Address object to be added to database
+     * @return Address saved on repository
+     */
     public Address addAddress(Address address) {
         LOGGER.info("Create new Address in the database");
         return addressRepository.save(address);
     }
 
+    /**
+     * Get All Addresses
+     * @return List of Addresses
+     */
     public List<Address> getAddresses() {
         LOGGER.info("Get all Addresses");
         return StreamSupport
@@ -33,12 +42,24 @@ public class AddressService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Address by Id
+     * @param id identifier of Address to be fetched
+     * @return fetched Address
+     * @throws NotFoundException if no Address with matching id found
+     */
     public Address getAddress(Long id) {
         LOGGER.info("Get Address with id {}", id);
         return addressRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Entity.ADDRESS.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete Address by Id
+     * @param id identifier of Address to be deleted
+     * @return deleted Address
+     * @throws NotFoundException if no Address with matching id found
+     */
     public Address deleteAddress(Long id) {
         LOGGER.info("Delete Address with id {}", id);
         Address address = getAddress(id);
@@ -46,6 +67,13 @@ public class AddressService {
         return address;
     }
 
+    /**
+     * Update Address
+     * @param id identifier of Address to be updated
+     * @param address Address object with updated fields
+     * @return updated Address
+     * @throws NotFoundException if no Address with matching id found
+     */
     @Transactional
     public Address editAddress(Long id, Address address) {
         LOGGER.info("Update Address with id {}", id);

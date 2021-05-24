@@ -25,12 +25,21 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
     private final ClientService clientService;
     private static final Logger LOGGER = LoggerFactory.getLogger(SalesAssociateService.class);
 
+    /**
+     * Create a new SalesAssociate in the database
+     * @param salesAssociate SalesAssociate object to be added to database
+     * @return SalesAssociate saved on repository
+     */
     @Override
     public SalesAssociate addEmployee(SalesAssociate salesAssociate) {
         LOGGER.info("Create new Sales Associate in the database");
         return salesAssociateRepository.save(salesAssociate);
     }
 
+    /**
+     * Get All SalesAssociates
+     * @return List of SalesAssociates
+     */
     @Override
     public List<SalesAssociate> getEmployees() {
         LOGGER.info("Get all Sales Associates");
@@ -39,6 +48,12 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get SalesAssociate by Id
+     * @param id identifier of SalesAssociate to be fetched
+     * @return fetched SalesAssociate
+     * @throws NotFoundException if no SalesAssociate with matching id found
+     */
     @Override
     public SalesAssociate getEmployee(Long id) {
         LOGGER.info("Get Sales Associate with id {}", id);
@@ -46,6 +61,12 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
                 .orElseThrow(() -> new NotFoundException(Entity.SALES_ASSOCIATE.toString(), id, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Delete SalesAssociate by Id
+     * @param id identifier of SalesAssociate to be deleted
+     * @return deleted SalesAssociate
+     * @throws NotFoundException if no SalesAssociate with matching id found
+     */
     @Override
     public SalesAssociate deleteEmployee(Long id) {
         LOGGER.info("Delete Sales Associate with id {}", id);
@@ -54,6 +75,13 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
         return salesAssociate;
     }
 
+    /**
+     * Update SalesAssociate
+     * @param id identifier of SalesAssociate to be updated
+     * @param salesAssociate SalesAssociate object with updated fields
+     * @return updated SalesAssociate
+     * @throws NotFoundException if no SalesAssociate with matching id found
+     */
     @Override
     @Transactional
     public SalesAssociate editEmployee(Long id, SalesAssociate salesAssociate) {
@@ -78,6 +106,14 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
         return salesAssociateToEdit;
     }
 
+    /**
+     * Assign Client to SalesAssociate
+     * @param associateId identifier for SalesAssociate to be updated
+     * @param clientId identifier for Client to be assigned to SalesAssociate
+     * @return updated SalesAssociate
+     * @throws NotFoundException if no SalesAssociate or Client with matching clientId/associateId were found
+     * @throws AlreadyAssignedException if Client has already been assigned to SalesAssociate
+     */
     @Transactional
     public SalesAssociate assignClient(Long associateId, Long clientId) {
         LOGGER.info("Assign Client with id {} to Sales Associate with id {}", clientId, associateId);
@@ -97,6 +133,13 @@ public class SalesAssociateService implements EmployeeService<SalesAssociate> {
         return salesAssociate;
     }
 
+    /**
+     * Remove assigned Client from SalesAssociate
+     * @param associateId identifier for SalesAssociate to be updated
+     * @param clientId identifier for Client to be removed to SalesAssociate
+     * @return updated Client entity
+     * @throws NotFoundException if no SalesAssociate or Client with matching clientId/associateId were found
+     */
     @Transactional
     public SalesAssociate removeClient(Long associateId, Long clientId) {
         LOGGER.info("Remove Client with id {} from Sales Associate with id {}", clientId, associateId);
