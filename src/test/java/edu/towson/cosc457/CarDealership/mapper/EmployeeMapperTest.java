@@ -15,12 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EmployeeMapperTest {
     private static EmployeeMapper employeeMapper;
-    private static AddressMapper addressMapper;
 
     @BeforeAll
     public static void setUp() {
         employeeMapper = new EmployeeMapperImpl();
-        addressMapper = new AddressMapperImpl();
+        AddressMapper addressMapper = new AddressMapperImpl();
         ReflectionTestUtils.setField(employeeMapper, "addressMapper", addressMapper);
     }
 
