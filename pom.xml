@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>edu.towson.cosc457</groupId>
 	<artifactId>CarDealership</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>CarDealership</name>
 	<description>Spring backend application to access, and modify a car dealership's inventory, customer, and staff information.</description>
 	<properties>
@@ -139,6 +139,32 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.13</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>feram18/cardealership</repository>
+					<tag>${project.version}</tag>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>javax.activation</groupId>
+						<artifactId>javax.activation-api</artifactId>
+						<version>1.2.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
