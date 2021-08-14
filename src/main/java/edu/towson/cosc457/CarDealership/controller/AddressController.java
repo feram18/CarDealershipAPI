@@ -4,6 +4,7 @@ import edu.towson.cosc457.CarDealership.mapper.AddressMapper;
 import edu.towson.cosc457.CarDealership.model.Address;
 import edu.towson.cosc457.CarDealership.model.dto.AddressDto;
 import edu.towson.cosc457.CarDealership.service.AddressService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class AddressController {
     private final AddressMapper addressMapper;
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressController.class);
 
+    @ApiOperation(value = "Add Address", response = AddressDto.class)
     @PostMapping
     public ResponseEntity<AddressDto> addAddress(@RequestBody final AddressDto addressDto) {
         LOGGER.info("POST /api/v1/addresses/");
@@ -31,6 +33,7 @@ public class AddressController {
                 .body(addressMapper.toDto(address));
     }
 
+    @ApiOperation(value = "Fetch All Addresses", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<AddressDto>> getAddresses() {
         LOGGER.info("GET /api/v1/addresses/");
@@ -40,6 +43,7 @@ public class AddressController {
                 .body(addresses.stream().map(addressMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Address by Id", response = AddressDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<AddressDto> getAddress(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/addresses/{}", id);
@@ -49,6 +53,7 @@ public class AddressController {
                 .body(addressMapper.toDto(address));
     }
 
+    @ApiOperation(value = "Delete Address", response = AddressDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<AddressDto> deleteAddress(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/addresses/{}", id);
@@ -58,6 +63,7 @@ public class AddressController {
                 .body(addressMapper.toDto(address));
     }
 
+    @ApiOperation(value = "Update Address", response = AddressDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<AddressDto> editAddress(@PathVariable final Long id,
                                                   @RequestBody final AddressDto addressDto) {

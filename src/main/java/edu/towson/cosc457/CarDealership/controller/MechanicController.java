@@ -7,6 +7,7 @@ import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.MechanicDto;
 import edu.towson.cosc457.CarDealership.model.dto.ServiceTicketDto;
 import edu.towson.cosc457.CarDealership.service.MechanicService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
         this.serviceTicketMapper = serviceTicketMapper;
     }
 
+    @ApiOperation(value = "Add Mechanic", response = MechanicDto.class)
     @PostMapping
     public ResponseEntity<MechanicDto> addEmployee(@RequestBody final MechanicDto mechanicDto) {
         LOGGER.info("POST /api/v1/mechanics/");
@@ -44,6 +46,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body((MechanicDto) employeeMapper.toDto(mechanic));
     }
 
+    @ApiOperation(value = "Fetch All Mechanics", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
         LOGGER.info("GET /api/v1/mechanics/");
@@ -53,6 +56,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body(mechanics.stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Mechanic by Id", response = MechanicDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<MechanicDto> getEmployee(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/mechanics/{}", id);
@@ -62,6 +66,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body((MechanicDto) employeeMapper.toDto(mechanic));
     }
 
+    @ApiOperation(value = "Delete Mechanic", response = MechanicDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<MechanicDto> deleteEmployee(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/mechanics/{}", id);
@@ -71,6 +76,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body((MechanicDto) employeeMapper.toDto(mechanic));
     }
 
+    @ApiOperation(value = "Update Mechanic", response = MechanicDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<MechanicDto> editEmployee(@PathVariable final Long id,
                                                     @PathVariable final MechanicDto mechanicDto) {
@@ -81,6 +87,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body((MechanicDto) employeeMapper.toDto(mechanic));
     }
 
+    @ApiOperation(value = "Fetch All Service Tickets assigned to Mechanic", response = Iterable.class)
     @GetMapping(value = "{id}/tickets")
     public ResponseEntity<List<ServiceTicketDto>> getAssignedTickets(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/mechanics/{}/tickets", id);
@@ -90,6 +97,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body(mechanic.getTickets().stream().map(serviceTicketMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Add Service Ticket to Mechanic", response = MechanicDto.class)
     @PostMapping(value = "{mechanicId}/tickets/{ticketId}/add")
     public ResponseEntity<MechanicDto> assignTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {
@@ -100,6 +108,7 @@ public class MechanicController extends EmployeeController<MechanicService> {
                 .body((MechanicDto) employeeMapper.toDto(mechanic));
     }
 
+    @ApiOperation(value = "Remove Service Ticket from Mechanic", response = MechanicDto.class)
     @DeleteMapping(value = "{mechanicId}/tickets/{ticketId}/remove")
     public ResponseEntity<MechanicDto> removeTicket(@PathVariable final Long mechanicId,
                                                     @PathVariable final Long ticketId) {

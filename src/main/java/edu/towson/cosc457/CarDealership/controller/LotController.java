@@ -6,6 +6,7 @@ import edu.towson.cosc457.CarDealership.model.Lot;
 import edu.towson.cosc457.CarDealership.model.dto.LotDto;
 import edu.towson.cosc457.CarDealership.model.dto.VehicleDto;
 import edu.towson.cosc457.CarDealership.service.LotService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class LotController {
     private final VehicleMapper vehicleMapper;
     private static final Logger LOGGER = LoggerFactory.getLogger(LotController.class);
 
+    @ApiOperation(value = "Add Lot", response = LotDto.class)
     @PostMapping
     public ResponseEntity<LotDto> addLot(@RequestBody final LotDto lotDto) {
         LOGGER.info("POST /api/v1/lots/");
@@ -34,6 +36,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
+    @ApiOperation(value = "Fetch All Lots", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<LotDto>> getLots() {
         LOGGER.info("GET /api/v1/lots/");
@@ -43,6 +46,7 @@ public class LotController {
                 .body(lots.stream().map(lotMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Lot by Id", response = LotDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<LotDto> getLot(@PathVariable final Long id) {
         LOGGER.info("POST /api/v1/lots/{}", id);
@@ -52,6 +56,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
+    @ApiOperation(value = "Delete Lot", response = LotDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<LotDto> deleteLot(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/lots/{}", id);
@@ -61,6 +66,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
+    @ApiOperation(value = "Update Lot", response = LotDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<LotDto> editLot(@PathVariable final Long id,
                                           @RequestBody final LotDto lotDto) {
@@ -71,6 +77,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
+    @ApiOperation(value = "Fetch All Vehicles in Lot", response = Iterable.class)
     @GetMapping(value = "{id}/vehicles")
     public ResponseEntity<List<VehicleDto>> getVehicles(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/lots/{}/vehicles", id);
@@ -80,6 +87,7 @@ public class LotController {
                 .body(lot.getVehicles().stream().map(vehicleMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Add Vehicle to Lot", response = LotDto.class)
     @PostMapping(value = "{lotId}/vehicles/{vehicleId}/add")
     public ResponseEntity<LotDto> addVehicleToLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {
@@ -90,6 +98,7 @@ public class LotController {
                 .body(lotMapper.toDto(lot));
     }
 
+    @ApiOperation(value = "Remove Vehicle from Lot", response = LotDto.class)
     @DeleteMapping(value = "{lotId}/vehicles/{vehicleId}/remove")
     public ResponseEntity<LotDto> removeVehicleFromLot(@PathVariable final Long lotId,
                                                   @PathVariable final Long vehicleId) {

@@ -7,6 +7,7 @@ import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
 import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.SalesAssociateDto;
 import edu.towson.cosc457.CarDealership.service.SalesAssociateService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
         this.clientMapper = clientMapper;
     }
 
+    @ApiOperation(value = "Add Sales Associate", response = SalesAssociateDto.class)
     @PostMapping
     public ResponseEntity<SalesAssociateDto> addEmployee(@RequestBody final SalesAssociateDto salesAssociateDto) {
         LOGGER.info("POST /api/v1/associates/");
@@ -45,6 +47,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body((SalesAssociateDto) employeeMapper.toDto(salesAssociate));
     }
 
+    @ApiOperation(value = "Fetch All Sales Associates", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
         LOGGER.info("GET /api/v1/associates/");
@@ -54,6 +57,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body(salesAssociates.stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Sales Associate by Id", response = SalesAssociateDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<SalesAssociateDto> getEmployee(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/associates/{}", id);
@@ -63,6 +67,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body((SalesAssociateDto) employeeMapper.toDto(salesAssociate));
     }
 
+    @ApiOperation(value = "Delete Sales Associate", response = SalesAssociateDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<SalesAssociateDto> deleteEmployee(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/associates/{}", id);
@@ -72,6 +77,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body((SalesAssociateDto) employeeMapper.toDto(salesAssociate));
     }
 
+    @ApiOperation(value = "Update Sales Associate", response = SalesAssociateDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<SalesAssociateDto> editEmployee(@PathVariable final Long id,
                                                           @PathVariable final SalesAssociateDto salesAssociateDto) {
@@ -83,6 +89,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body((SalesAssociateDto) employeeMapper.toDto(salesAssociate));
     }
 
+    @ApiOperation(value = "Fetch All Clients assigned to Sales Associate", response = Iterable.class)
     @GetMapping(value = "{id}/clients")
     public ResponseEntity<List<ClientDto>> getAssignedClients(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/associates/{}/clients", id);
@@ -92,6 +99,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body(salesAssociate.getClients().stream().map(clientMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Add Client to Sales Associate", response = SalesAssociateDto.class)
     @PostMapping(value = "{associateId}/clients/{clientId}/add")
     public ResponseEntity<SalesAssociateDto> assignClient(@PathVariable final Long associateId,
                                                           @PathVariable final Long clientId) {
@@ -102,6 +110,7 @@ public class SalesAssociateController extends EmployeeController<SalesAssociateS
                 .body((SalesAssociateDto) employeeMapper.toDto(salesAssociate));
     }
 
+    @ApiOperation(value = "Remove Client from Sales Associate", response = SalesAssociateDto.class)
     @DeleteMapping(value = "{associateId}/clients/{clientId}/remove")
     public ResponseEntity<SalesAssociateDto> removeClient(@PathVariable final Long associateId,
                                                           @PathVariable final Long clientId) {

@@ -9,6 +9,8 @@ It includes integration testing for the controller layer, and unit tests and ent
 The course project was to be created with plain Java, and the Java Swing framework for the GUI. I took the opportunity 
 to learn about the Spring Framework and used the project scenario to rebuild the application.
 
+Read the API documentation at `localhost:8080/swagger-ui/#/`.
+
 ### Technologies/Frameworks Used
 - Java 11
 - Spring Framework

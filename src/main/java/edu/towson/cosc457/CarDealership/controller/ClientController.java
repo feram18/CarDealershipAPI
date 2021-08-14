@@ -4,6 +4,7 @@ import edu.towson.cosc457.CarDealership.mapper.ClientMapper;
 import edu.towson.cosc457.CarDealership.model.Client;
 import edu.towson.cosc457.CarDealership.model.dto.ClientDto;
 import edu.towson.cosc457.CarDealership.service.ClientService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class ClientController {
     private final ClientMapper clientMapper;
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientController.class);
 
+    @ApiOperation(value = "Add Client", response = ClientDto.class)
     @PostMapping
     public ResponseEntity<ClientDto> addClient(@RequestBody final ClientDto clientDto) {
         LOGGER.info("POST /api/v1/clients/");
@@ -31,6 +33,7 @@ public class ClientController {
                 .body(clientMapper.toDto(client));
     }
 
+    @ApiOperation(value = "Fetch All Clients", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<ClientDto>> getClients() {
         LOGGER.info("GET /api/v1/clients/");
@@ -40,6 +43,7 @@ public class ClientController {
                 .body(clients.stream().map(clientMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Client by Id", response = ClientDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<ClientDto> getClient(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/clients/{}", id);
@@ -49,6 +53,7 @@ public class ClientController {
                 .body(clientMapper.toDto(client));
     }
 
+    @ApiOperation(value = "Delete Client", response = ClientDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ClientDto> deleteClient(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/clients/{}", id);
@@ -58,6 +63,7 @@ public class ClientController {
                 .body(clientMapper.toDto(client));
     }
 
+    @ApiOperation(value = "Update Client", response = ClientDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<ClientDto> editClient(@PathVariable final Long id,
                                                 @RequestBody final ClientDto clientDto) {

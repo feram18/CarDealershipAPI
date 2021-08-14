@@ -5,6 +5,7 @@ import edu.towson.cosc457.CarDealership.model.Manager;
 import edu.towson.cosc457.CarDealership.model.dto.EmployeeDto;
 import edu.towson.cosc457.CarDealership.model.dto.ManagerDto;
 import edu.towson.cosc457.CarDealership.service.ManagerService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
         this.employeeMapper = employeeMapper;
     }
 
+    @ApiOperation(value = "Add Manager", response = ManagerDto.class)
     @PostMapping
     public ResponseEntity<ManagerDto> addEmployee(@RequestBody final ManagerDto managerDto) {
         LOGGER.info("POST /api/v1/managers/");
@@ -38,6 +40,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
+    @ApiOperation(value = "Fetch All Managers", response = Iterable.class)
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getEmployees() {
         LOGGER.info("GET /api/v1/managers/");
@@ -47,6 +50,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body(managers.stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Fetch Manager by Id", response = ManagerDto.class)
     @GetMapping(value = "{id}")
     public ResponseEntity<ManagerDto> getEmployee(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/managers/{}", id);
@@ -56,6 +60,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
+    @ApiOperation(value = "Delete Manager", response = ManagerDto.class)
     @DeleteMapping(value = "{id}")
     public ResponseEntity<ManagerDto> deleteEmployee(@PathVariable final Long id) {
         LOGGER.info("DELETE /api/v1/managers/{}", id);
@@ -65,6 +70,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
+    @ApiOperation(value = "Update Manager", response = ManagerDto.class)
     @PutMapping(value = "{id}")
     public ResponseEntity<ManagerDto> editEmployee(@PathVariable final Long id,
                                                    @PathVariable final ManagerDto managerDto) {
@@ -75,6 +81,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
+    @ApiOperation(value = "Fetch All Mechanics assigned to Manager", response = Iterable.class)
     @GetMapping(value = "{id}/mechanics")
     public ResponseEntity<List<EmployeeDto>> getAssignedMechanics(@PathVariable final Long id) {
         LOGGER.info("GET /api/v1/managers/{}/mechanics", id);
@@ -84,6 +91,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body(manager.getMechanics().stream().map(employeeMapper::toDto).collect(Collectors.toList()));
     }
 
+    @ApiOperation(value = "Assign Mechanic to Manager", response = ManagerDto.class)
     @PostMapping(value = "{managerId}/mechanics/{mechanicId}/add")
     public ResponseEntity<ManagerDto> assignToManager(@PathVariable final Long managerId,
                                                       @PathVariable final Long mechanicId) {
@@ -94,6 +102,7 @@ public class ManagerController extends EmployeeController<ManagerService> {
                 .body((ManagerDto) employeeMapper.toDto(manager));
     }
 
+    @ApiOperation(value = "Remove Mechanic from Manager", response = ManagerDto.class)
     @DeleteMapping(value = "{managerId}/mechanics/{mechanicId}/remove")
     public ResponseEntity<ManagerDto> removeFromManager(@PathVariable final Long managerId,
                                                         @PathVariable final Long mechanicId) {
