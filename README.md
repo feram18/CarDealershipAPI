@@ -1,3 +1,5 @@
+![Docker Automated build](https://img.shields.io/docker/automated/feram18/cardealership)
+
 # Car Dealership REST API
 >Towson University | Fall 2020 | COSC 457 - Database Management Systems Project
 
